@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "express-products-vercel",
+  "name": "express-blogs-posts",
   "builds": [
     {
       "src": "src/index.ts",
