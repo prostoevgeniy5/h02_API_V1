@@ -1,4 +1,4 @@
-import {Router, Request, Response} from 'express'
+import {Router, Request, Response, NextFunction} from 'express'
 import { HTTP_STATUSES } from '../repositories/constants'
 import { db } from '../repositories/db'
 import { videosRepository, Videos, ErrorType, ErrorsType } from '../repositories/videos-repository'

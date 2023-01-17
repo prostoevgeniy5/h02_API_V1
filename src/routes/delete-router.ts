@@ -6,6 +6,9 @@ export const deleteRouter = Router()
 
 deleteRouter.delete('/', (req, res) => {
     db.videos = []
+    db.posts = []
+    db.bloggers = []
+    db.courses = []
     res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
   
   })

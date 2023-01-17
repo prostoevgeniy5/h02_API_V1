@@ -1,6 +1,9 @@
-import express, { Request, Response } from 'express'
+import express, { Request, Response, NextFunction } from 'express'
 import { videosRouter } from './routes/videos-route'
 import { deleteRouter } from './routes/delete-router'
+import { authMidleware } from './midlewares/authorization-midleware'
+import { postsRouter } from './routes/posts-router'
+import { bloggersRouter } from './routes/bloggers-router'
 
 export const app = express()
 const port = process.env.PORT || 3500
@@ -15,10 +18,14 @@ const port = process.env.PORT || 3500
 // }
 
 const parserMiddleware = express.json()
-app.use('/testing/all-data', deleteRouter)
-app.use(parserMiddleware)
-app.use('/videos', videosRouter)
 
+app.use('/testing/all-data', deleteRouter)
+
+app.use(parserMiddleware)
+app.use(authMidleware)
+app.use('/videos', videosRouter)
+app.use('/posts', postsRouter)
+app.use('/bloggers', bloggersRouter)
 app.get('/', (req: Request, res: Response) => {
   res.send({ message: 'Hello Samurai' })
 })
