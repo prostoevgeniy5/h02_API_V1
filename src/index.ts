@@ -24,7 +24,7 @@ app.use('/testing/all-data', deleteRouter)
 app.use(authMidleware)
 app.use('/videos', videosRouter)
 app.use('/posts', postsRouter)
-app.use('/bloggers', bloggersRouter)
+app.use('/blogs', bloggersRouter)
 app.get('/', (req: Request, res: Response) => {
   res.send({ message: 'Hello Samurai' })
 })
