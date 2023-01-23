@@ -1,4 +1,4 @@
-export const db = {
+export let db = {
     courses:[
     {id: 1, title: 'front-end'},
     {id: 2, title: 'back-end'},
@@ -87,4 +87,9 @@ export type BloggersType = {
   name: string
   description: string
   websiteUrl: string
+}
+
+export type CoursesType = {
+  id: number
+  title: string
 }
