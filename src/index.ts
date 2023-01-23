@@ -6,7 +6,7 @@ import { postsRouter } from './routes/posts-router'
 import { bloggersRouter } from './routes/bloggers-router'
 
 export const app = express()
-const port = process.env.PORT || 3500
+const port = process.env.PORT || 3501
 
 // export const HTTP_STATUSES = {
 //   OK_200: 200,

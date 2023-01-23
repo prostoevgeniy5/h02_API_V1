@@ -1,10 +1,10 @@
-import {Request, Response, Router} from 'express'
+import { Request, Response, Router } from 'express'
 // import {bloggers} from './bloggers-router'
-import { db } from '../repositories/db'
-import { body, validationResult } from 'express-validator'
+import { db, PostsType, BloggersType } from '../repositories/db'
+import { body, validationResult, CustomValidator } from 'express-validator'
 
-let posts = db.posts
-let bloggers = db.bloggers  
+let posts: PostsType[] = db.posts
+let bloggers: BloggersType[] = db.bloggers
 
 // let posts = [
 //     {
@@ -32,7 +32,7 @@ let bloggers = db.bloggers
 //     }
 //   ]
 
-  type errorsDescription = {
+type errorsDescription = {
   message: string
   field: string
 }
@@ -41,24 +41,34 @@ interface errorsType {
   errorsMessages: errorsDescription[]
 }
 
-function checkRequestBodyField (name: string, field: string): boolean {
+function checkRequestBodyField(name: string, field: string): boolean {
   let result = false;
-  if(field === 'name'){
-    body(name).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({max: 15}).withMessage('length must be less than 15 characters')
+  if (field === 'name' || field === 'blogName') {
+    body(name).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 15 }).withMessage('length must be less than 15 characters')
     // result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 15 ? true : false;
   } else if (field === "websiteUrl") {
-    body(name).isString().notEmpty().isLength({max: 100})
+    body(name).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters').matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/)
     // result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 100 || !/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/.test(name) ? true : false;
   } else if (field === 'title') {
-    result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 30 ? true : false;
+    body(name).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 30 }).withMessage('length must be less than 30 characters')
+    // result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 30 ? true : false;
+  } else if (field === 'description') {
+    body(name).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 30 }).withMessage('length must be less than 500 characters')
+    // result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 30 ? true : false;
   } else if (field === 'shortDescription') {
-    result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 100 ? true : false;
+    body(name).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters')
+    // result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 100 ? true : false;
   } else if (field === 'content') {
-    result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 1000 ? true : false;
-  }  else if (field === 'bloggerId') {
-    let blogger = bloggers.find(item => +item.id === +name)
+    body(name).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters')
+    // result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 1000 ? true : false;
+  } else if (field === 'bloggerId') {
+    body(name).isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom((name) => {
+      let blogger: BloggersType | undefined = bloggers.find((item: BloggersType) => +item.id === +name)
     result = typeof +name !== 'number' || !blogger ? true : false;
-  } 
+    return result
+    }).withMessage("A blogger with such a bloggerid does not exist")
+    
+  }
   return result
 }
 
@@ -71,122 +81,121 @@ function checkRequestBodyField (name: string, field: string): boolean {
 export const postsRouter = Router({})
 
 postsRouter.get('/', (req: Request, res: Response) => {
-    res.status(200).send(posts);
-  });
-  
-  postsRouter.get('/:id', (req: Request, res: Response) => {
-    let postItem = posts.find(item => +item.id === +req.params.id);
-    if (postItem) {
-      let blogger = checkRequestBodyField(postItem.bloggerId.toString(), 'bloggerId')
-      if(!blogger){
-        res.status(200).send(postItem);
-      } else {
-        res.status(400).send('Bad Request')
-      }
+  res.status(200).send(posts);
+});
+
+postsRouter.get('/:id', (req: Request, res: Response) => {
+  let postItem = posts.find(item => +item.id === +req.params.id);
+  if (postItem) {
+    let blogger = checkRequestBodyField(postItem.bloggerId.toString(), 'bloggerId')
+    if (!blogger) {
+      res.status(200).send(postItem);
     } else {
-        res.sendStatus(404);
+      res.status(400).send('Bad Request')
     }
-  });
-  
-  postsRouter.post('/', (req: Request, res: Response) => {
-    // const postRequestErrors = errorFields();
-    if (checkRequestBodyField(req.body.title, 'title')) {
-        // const errorObj = { message: "You did not send correct data", field: "title" };
-        // postRequestErrors.errorsMessages.push(errorObj);
-    }
-    if (checkRequestBodyField(req.body.shortDescription, 'shortDescription')) {
-        const errorObj = { message: "You did not send correct data", field: "shortDescription" };
-        // postRequestErrors.errorsMessages.push(errorObj);
-    }
-    if(checkRequestBodyField(req.body.content, 'content')) {
-        const errorObj = { message: "You did not send correct data", field: "content" };
-        // postRequestErrors.errorsMessages.push(errorObj);
-    }
-    if(checkRequestBodyField(req.body.bloggerId, 'bloggerId')) {
-      const errorObj = { message: "You did not send correct data", field: "bloggerId" };
-      // postRequestErrors.errorsMessages.push(errorObj);
+  } else {
+    res.sendStatus(404);
   }
-    const postRequestErrors = validationResult(req)
-    console.log(postRequestErrors.array)
-    if (postRequestErrors.array.length > 0) {
-        res.status(400).send(postRequestErrors.array);
-        return;
-    }
-  
+});
+
+postsRouter.post('/', (req: Request, res: Response) => {
+  // const postRequestErrors = errorFields();
+  if (checkRequestBodyField(req.body.title, 'title')) {
+    // const errorObj = { message: "You did not send correct data", field: "title" };
+    // postRequestErrors.errorsMessages.push(errorObj);
+  }
+  if (checkRequestBodyField(req.body.shortDescription, 'shortDescription')) {
+    const errorObj = { message: "You did not send correct data", field: "shortDescription" };
+    // postRequestErrors.errorsMessages.push(errorObj);
+  }
+  if (checkRequestBodyField(req.body.content, 'content')) {
+    const errorObj = { message: "You did not send correct data", field: "content" };
+    // postRequestErrors.errorsMessages.push(errorObj);
+  }
+  if (checkRequestBodyField(req.body.bloggerId, 'bloggerId')) {
+    const errorObj = { message: "You did not send correct data", field: "bloggerId" };
+    // postRequestErrors.errorsMessages.push(errorObj);
+  }
+  const postRequestErrors = validationResult(req)
+  console.log(postRequestErrors.array)
+  if (postRequestErrors.array.length > 0) {
+    res.status(400).send(postRequestErrors.array);
+    return;
+  }
+
   let blogger = bloggers.find(item => +item.id === +req.body.bloggerId)
   let newPost
-  if(blogger) {
+  if (blogger) {
     newPost = {
-        id: +(new Date()),
-        "title": req.body.title,
-        "shortDescription": req.body.shortDescription,
-        "content": req.body.content,
-        "bloggerId": req.body.bloggerId,
-        "bloggerName": blogger.name
+      id: +(new Date()),
+      "title": req.body.title,
+      "shortDescription": req.body.shortDescription,
+      "content": req.body.content,
+      "bloggerId": req.body.bloggerId,
+      "bloggerName": blogger.name
     };
     posts.push(newPost);
     res.status(201).send(newPost);
   }
-  
+
+});
+
+postsRouter.put('/:id', (req: Request, res: Response) => {
+  let index: number;
+  // const putRequestErrors = errorFields();
+  let postItem = posts.find((item, ind) => {
+    if (item.id === +req.params.id) {
+      index = ind;
+    }
+    return +item.id === +req.params.id;
   });
-  
-  postsRouter.put('/:id', (req: Request, res: Response) => {
-    let index: number;
-    // const putRequestErrors = errorFields();
-    let postItem = posts.find((item, ind) => {
-        if (item.id === +req.params.id) {
-            index = ind;
-        }
-        return +item.id === +req.params.id;
-    });
-    if (checkRequestBodyField(req.body.title, 'title')) {
-      const errorObj = { message: "You did not send correct data", field: "title" };
-      // putRequestErrors.errorsMessages.push(errorObj);
+  if (checkRequestBodyField(req.body.title, 'title')) {
+    const errorObj = { message: "You did not send correct data", field: "title" };
+    // putRequestErrors.errorsMessages.push(errorObj);
   }
   if (checkRequestBodyField(req.body.shortDescription, 'shortDescription')) {
-      const errorObj = { message: "You did not send correct data", field: "shortDescription" };
-      // putRequestErrors.errorsMessages.push(errorObj);
+    const errorObj = { message: "You did not send correct data", field: "shortDescription" };
+    // putRequestErrors.errorsMessages.push(errorObj);
   }
-  if(checkRequestBodyField(req.body.content, 'content')) {
-      const errorObj = { message: "You did not send correct data", field: "content" };
-      // putRequestErrors.errorsMessages.push(errorObj);
+  if (checkRequestBodyField(req.body.content, 'content')) {
+    const errorObj = { message: "You did not send correct data", field: "content" };
+    // putRequestErrors.errorsMessages.push(errorObj);
   }
-  if(checkRequestBodyField(req.body.bloggerId, 'bloggerId')) {
-      const errorObj = { message: "You did not send correct data", field: "bloggerId" };
-      // putRequestErrors.errorsMessages.push(errorObj);
+  if (checkRequestBodyField(req.body.bloggerId, 'bloggerId')) {
+    const errorObj = { message: "You did not send correct data", field: "bloggerId" };
+    // putRequestErrors.errorsMessages.push(errorObj);
   }
 
-  const putRequestErrors = validationResult(req) 
-    if (putRequestErrors.array.length > 0) {
-        res.status(400).send(putRequestErrors.array);
-        return;
-    }
-    if (postItem) {
-        posts = posts.map((item, i) => {
-            if (index === i) {
-                item.title = req.body.title
-                item.shortDescription = req.body.shortDescription;
-                item.content = req.body.content;
-                item.bloggerId = req.body.bloggerId
-            }
-            return item;
-        });
-        res.sendStatus(204).send('No Content');
-    }
-    else {
-        res.sendStatus(404);
-    }
-  });
-  
-  postsRouter.delete('/:id', (req: Request, res: Response) => {
-    let length = posts.length;
-    posts = posts.filter(item => {
-        return item.id !== Number.parseInt(req.params.id);
+  const putRequestErrors = validationResult(req)
+  if (putRequestErrors.array.length > 0) {
+    res.status(400).send(putRequestErrors.array);
+    return;
+  }
+  if (postItem) {
+    posts = posts.map((item, i) => {
+      if (index === i) {
+        item.title = req.body.title
+        item.shortDescription = req.body.shortDescription;
+        item.content = req.body.content;
+        item.bloggerId = req.body.bloggerId
+      }
+      return item;
     });
-    if (length > posts.length) {
-        res.send(204);
-    } else {
-        res.send(404);
-    }
+    res.sendStatus(204).send('No Content');
+  }
+  else {
+    res.sendStatus(404);
+  }
+});
+
+postsRouter.delete('/:id', (req: Request, res: Response) => {
+  let length = posts.length;
+  posts = posts.filter(item => {
+    return item.id !== Number.parseInt(req.params.id);
   });
-  
+  if (length > posts.length) {
+    res.send(204);
+  } else {
+    res.send(404);
+  }
+});

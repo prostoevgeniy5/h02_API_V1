@@ -72,3 +72,19 @@ export type Videos = {
     publicationDate: string
     availableResolutions: string[]
 }
+
+export type PostsType = {
+  id: number
+  title: string
+  shortDescription: string
+  content: string
+  bloggerId: number
+  bloggerName: string
+}
+
+export type BloggersType = {
+  id: number 
+  name: string
+  description: string
+  websiteUrl: string
+}

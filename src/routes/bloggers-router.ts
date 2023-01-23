@@ -1,5 +1,6 @@
-import {Request, Response, Router} from 'express'
-import { db } from '../repositories/db'
+import {NextFunction, Request, Response, Router} from 'express'
+import { BloggersType, db } from '../repositories/db'
+import { body, validationResult, CustomValidator, check } from 'express-validator'
 
 let bloggers = db.bloggers
 
@@ -11,23 +12,60 @@ type ErrorsDescriptionType = {
   interface errorsType {
     errorsMessages: ErrorsDescriptionType[]
   }
+
+type ErrorsFromValidationResultObject = {
+  msg: string
+  param: string
+  value: string
+  // Location of the param that generated this error.
+  // It's either body, query, params, cookies or headers.
+  location: string
+
+  // nestedErrors only exist when using the oneOf function
+  nestedErrors?: Object[]
+}
   
-  function checkRequestBodyField (name: string, field: string): boolean {
+  function checkRequestBodyField (name: string): boolean {
     let result = false;
-    if(field === 'name'){
-      result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 15 ? true : false;
-    } else if (field === "websiteUrl") {
-      result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 100 || !/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/.test(name) ? true : false;
-    } else if (field === 'title') {
-      result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 30 ? true : false;
-    } else if (field === 'shortDescription') {
-      result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 100 ? true : false;
-    } else if (field === 'content') {
-      result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 1000 ? true : false;
-    }  else if (field === 'bloggerId') {
-      let blogger = bloggers.find(item => +item.id === +name)
+    switch(name) {
+      case 'name':
+      console.log(' in check of name')
+      body(name).exists().isString().notEmpty().isLength({ max: 15 }).withMessage('length must be less than 15 characters')
+      // result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 15 ? true : false;
+      break
+      case "websiteUrl":
+      body(name).exists().withMessage(`The field ${name} not exist`).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters').matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/)
+      // result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 100 || !/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/.test(name) ? true : false;
+      console.log(' in body of webSiteUrl')
+      break
+      case 'title':
+      body(name).exists().withMessage(`The field ${name} not exist`).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 30 }).withMessage('length must be less than 30 characters')
+      // result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 30 ? true : false;
+      break
+      case 'content':
+        console.log(' in body of content')
+      body(name).exists().withMessage(`The field ${name} not exist`).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters')
+      // result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 30 ? true : false;
+      break
+      case 'shortDescription':
+      body(name).exists().withMessage(`The field ${name} not exist`).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters')
+      // result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 100 ? true : false;
+      break
+      case 'description':
+        body(name).exists().withMessage(`The field ${name} not exist`).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 500 }).withMessage('length must be less than 500 characters')
+      break
+    // else if (field === 'content') {
+    //   body(name).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters')
+    //   // result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 1000 ? true : false;
+    // } 
+      case 'bloggerId':
+      body(name).exists().withMessage(`The field ${name} not exist`).isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom((name) => {
+      let blogger: BloggersType | undefined = bloggers.find((item: BloggersType) => +item.id === +name)
       result = typeof +name !== 'number' || !blogger ? true : false;
-    } 
+      return result
+      }).withMessage("A blogger with such a bloggerid does not exist")
+      break
+    }
     return result
   }
   
@@ -36,13 +74,6 @@ type ErrorsDescriptionType = {
       errorsMessages: []
     }
   }
-  
-
-// export let bloggers = [
-//     {"id": 0, "name": "Mark Solonin", "youtubeUrl": "https://www.youtube.com/channel/UChLpUGaZO35ICTltBP50VSg"}, 
-//     {"id": 1, "name": "Dmitry Robionek", "youtubeUrl": "https://www.youtube.com/user/ideafoxvideo"},
-//     {"id": 2, "name": "Dmitry", "youtubeUrl": "https://www.youtube.com/c/ITKAMASUTRA"}
-//   ]
 
   export const bloggersRouter = Router({})
 
@@ -71,51 +102,67 @@ type ErrorsDescriptionType = {
      }
    })
    
-   bloggersRouter.post('/', (req: Request , res: Response) => {
-     const postRequestErrors = errorFields();
-     let name = req.body.name 
-       if(checkRequestBodyField(name, 'name')) {
-       const errorObj = {message: "You did not send correct data", field: "name"}
-       postRequestErrors.errorsMessages.push(errorObj)
-       }
-       if(checkRequestBodyField(req.body.websiteUrl, 'websiteUrl')) {
-         const errorObj = {message: "You did not send correct data", field: "websiteUrl"}
-       postRequestErrors.errorsMessages.push(errorObj)
-       }
-       if(postRequestErrors.errorsMessages.length > 0) {
-         res.status(400).send(postRequestErrors)
-         return
-       }
+   bloggersRouter.post('/', 
+  
+   body('name').exists().withMessage(`The field name not exist`).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 15 }).withMessage('length must be less than 15 characters'),
+    body('websiteUrl').exists().withMessage(`The field websiteUrl not exist`).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters').matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/),
+    body('description').exists().withMessage(`The field description not exist`).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 500 }).withMessage('length must be less than 500 characters'),
+   
+    (req: Request , res: Response) => {
+    const postRequestErrors: errorsType = errorFields();
+     
+    const errors = validationResult(req);
+    console.log('errors', errors)
+      if (!errors.isEmpty()) {
+        errors.array().forEach((elem, ind) => {
+          const obj = { 
+            "message": elem.msg,
+            "field": elem.param}
+          postRequestErrors.errorsMessages.push(obj)
+        })
+        return res.status(400).json(postRequestErrors)
+      }
+
      const newBlogger = { 
        id: +(new Date()),
        "name": req.body.name,
-       "websiteUrl": req.body.youtubeUrl,
+       "websiteUrl": req.body.websiteUrl,
        "description": req.body.description
      }
-   
      bloggers.push(newBlogger)
     res.status(201).send(newBlogger)
    })
    
-   bloggersRouter.put('/:id', (req: Request , res: Response) => {
+   bloggersRouter.put('/:id', 
+
+    body('name').exists().withMessage(`The field name not exist`).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 15 }).withMessage('length must be less than 15 characters'),
+    body('websiteUrl').exists().withMessage(`The field websiteUrl not exist`).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters').matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/),
+    body('description').exists().withMessage(`The field description not exist`).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 500 }).withMessage('length must be less than 500 characters'),
+      
+    (req: Request , res: Response) => {
+    const resultValue = validationResult(req)
+    console.log('resValue in PUT ', resultValue)
+
      let index: number 
      const putRequestErrors = errorFields();
+     const errors = validationResult(req);
+     console.log('errors', errors)
+       if (!errors.isEmpty()) {
+         errors.array().forEach((elem, ind) => {
+           const obj = { 
+             "message": elem.msg,
+             "field": elem.param}
+           putRequestErrors.errorsMessages.push(obj)
+         })
+         return res.status(400).json(putRequestErrors)
+         // return res.status(400).json({ errors: errors.array() });
+       }
+
      let bloggerItem = bloggers.find( (item, ind: number) => {
        if(item.id === +req.params.id) {
          index = ind
        } return item.id === +req.params.id })
-     if(checkRequestBodyField(req.body.name, 'name')) {
-       const errorObj = {message: "You did not send correct data", field: "name"}
-       putRequestErrors.errorsMessages.push(errorObj)
-       }
-       if(checkRequestBodyField(req.body.youtubeUrl, 'youtubeUrl')) {
-         const errorObj = {message: "You did not send correct data", field: "youtubeUrl"}
-       putRequestErrors.errorsMessages.push(errorObj)
-       }
-       if(putRequestErrors.errorsMessages.length > 0) {
-         res.status(400).send(putRequestErrors)
-         return
-       }
+    
      if (bloggerItem) {
        let newBloggers = bloggers.map((item, i) => {
          if(index === i) {
