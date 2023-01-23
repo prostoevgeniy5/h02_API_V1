@@ -72,11 +72,11 @@ function checkRequestBodyField(name: string, field: string): boolean {
   return result
 }
 
-// function errorFields():errorsType {
-//   return {
-//     errorsMessages: []
-//   }
-// }
+function errorFields():errorsType {
+  return {
+    errorsMessages: []
+  }
+}
 
 export const postsRouter = Router({})
 
@@ -98,29 +98,27 @@ postsRouter.get('/:id', (req: Request, res: Response) => {
   }
 });
 
-postsRouter.post('/', (req: Request, res: Response) => {
-  // const postRequestErrors = errorFields();
-  if (checkRequestBodyField(req.body.title, 'title')) {
-    // const errorObj = { message: "You did not send correct data", field: "title" };
-    // postRequestErrors.errorsMessages.push(errorObj);
-  }
-  if (checkRequestBodyField(req.body.shortDescription, 'shortDescription')) {
-    const errorObj = { message: "You did not send correct data", field: "shortDescription" };
-    // postRequestErrors.errorsMessages.push(errorObj);
-  }
-  if (checkRequestBodyField(req.body.content, 'content')) {
-    const errorObj = { message: "You did not send correct data", field: "content" };
-    // postRequestErrors.errorsMessages.push(errorObj);
-  }
-  if (checkRequestBodyField(req.body.bloggerId, 'bloggerId')) {
-    const errorObj = { message: "You did not send correct data", field: "bloggerId" };
-    // postRequestErrors.errorsMessages.push(errorObj);
-  }
-  const postRequestErrors = validationResult(req)
-  console.log(postRequestErrors.array)
-  if (postRequestErrors.array.length > 0) {
-    res.status(400).send(postRequestErrors.array);
-    return;
+postsRouter.post('/', 
+  body('title').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 30 }).withMessage('length must be less than 30 characters'),
+  body('shortDescription').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
+  body('content').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
+  body('bloggerId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom((name) => {
+    let blogger: BloggersType | undefined = bloggers.find((item: BloggersType) => +item.id === +name)
+    const result = typeof +name !== 'number' || !blogger ? true : false;
+    return result
+  }).withMessage("A blogger with such a bloggerid does not exist"),
+  
+(req: Request, res: Response) => {
+  const postRequestErrors: errorsType = errorFields();
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    errors.array().forEach((elem, ind) => {
+      const obj = { 
+        "message": elem.msg,
+        "field": elem.param}
+      postRequestErrors.errorsMessages.push(obj)
+    })
+    return res.status(400).json(postRequestErrors)
   }
 
   let blogger = bloggers.find(item => +item.id === +req.body.bloggerId)
@@ -199,3 +197,7 @@ postsRouter.delete('/:id', (req: Request, res: Response) => {
     res.send(404);
   }
 });
+function res(error?: any): void {
+  throw new Error('Function not implemented.')
+}
+

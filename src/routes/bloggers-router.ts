@@ -13,17 +13,17 @@ type ErrorsDescriptionType = {
     errorsMessages: ErrorsDescriptionType[]
   }
 
-type ErrorsFromValidationResultObject = {
-  msg: string
-  param: string
-  value: string
-  // Location of the param that generated this error.
-  // It's either body, query, params, cookies or headers.
-  location: string
+// type ErrorsFromValidationResultObject = {
+//   msg: string
+//   param: string
+//   value: string
+//   // Location of the param that generated this error.
+//   // It's either body, query, params, cookies or headers.
+//   location: string
 
-  // nestedErrors only exist when using the oneOf function
-  nestedErrors?: Object[]
-}
+//   // nestedErrors only exist when using the oneOf function
+//   nestedErrors?: Object[]
+// }
   
   function checkRequestBodyField (name: string): boolean {
     let result = false;
@@ -112,7 +112,6 @@ type ErrorsFromValidationResultObject = {
     const postRequestErrors: errorsType = errorFields();
      
     const errors = validationResult(req);
-    console.log('errors', errors)
       if (!errors.isEmpty()) {
         errors.array().forEach((elem, ind) => {
           const obj = { 
