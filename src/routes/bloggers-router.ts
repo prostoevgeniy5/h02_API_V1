@@ -58,13 +58,13 @@ type ErrorsDescriptionType = {
     //   body(name).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters')
     //   // result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 1000 ? true : false;
     // } 
-      case 'bloggerId':
-      body(name).exists().withMessage(`The field ${name} not exist`).isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom((name) => {
-      let blogger: BloggersType | undefined = bloggers.find((item: BloggersType) => +item.id === +name)
-      result = typeof +name !== 'number' || !blogger ? true : false;
-      return result
-      }).withMessage("A blogger with such a bloggerid does not exist")
-      break
+      // case 'bloggerId':
+      // body(name).exists().withMessage(`The field ${name} not exist`).isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom((name) => {
+      // let blogger: BloggersType | undefined = bloggers.find((item: BloggersType) => +item.id === +req.body[name])
+      // result = typeof +name !== 'number' || !blogger ? true : false;
+      // return result
+      // }).withMessage("A blogger with such a bloggerid does not exist")
+      // break
     }
     return result
   }
@@ -82,7 +82,7 @@ type ErrorsDescriptionType = {
    })
    
    bloggersRouter.get('/:id', (req: Request , res: Response) => {
-     let bloggerItem = bloggers.find( item => item.id === +req.params.id )
+     let bloggerItem = bloggers.find( item => +item.id === +req.params.id )
      if (bloggerItem) {
        res.status(200).send(bloggerItem);
      } else {
@@ -93,7 +93,7 @@ type ErrorsDescriptionType = {
    bloggersRouter.delete('/:id', (req: Request , res: Response) => {
      let length = bloggers.length
        bloggers = bloggers.filter(item => {
-       return item.id !== Number.parseInt(req.params.id)
+       return +item.id !== Number.parseInt(req.params.id)
      })
      if(length > bloggers.length) {
        res.send(204)
@@ -121,12 +121,12 @@ type ErrorsDescriptionType = {
         })
         return res.status(400).json(postRequestErrors)
       }
-
-     const newBlogger = { 
-       id: +(new Date()),
-       "name": req.body.name,
-       "websiteUrl": req.body.websiteUrl,
-       "description": req.body.description
+     let blogId: string = (+(new Date())).toString()
+     const newBlogger: BloggersType  = { 
+       id: blogId,
+       name: req.body.name.toString(),
+       websiteUrl: req.body.websiteUrl.toStyring(),
+       description: req.body.description.toString()
      }
      bloggers.push(newBlogger)
     res.status(201).send(newBlogger)
@@ -158,16 +158,17 @@ type ErrorsDescriptionType = {
        }
 
      let bloggerItem = bloggers.find( (item, ind: number) => {
-       if(item.id === +req.params.id) {
+       if(+item.id === +req.params.id) {
          index = ind
-       } return item.id === +req.params.id })
+       } return +item.id === +req.params.id })
     
      if (bloggerItem) {
        let newBloggers = bloggers.map((item, i) => {
          if(index === i) {
-           item.name = req.body.name;
-           item.websiteUrl = req.body.websiteUrl;
-           item.description = req.body.description
+          //  item.name = req.body.name;
+          //  item.websiteUrl = req.body.websiteUrl;
+          //  item.description = req.body.description
+          Object.assign(item, req.body)
          }
          return item
        })

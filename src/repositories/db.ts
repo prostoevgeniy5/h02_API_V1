@@ -32,33 +32,33 @@ export let db = {
   ],
   posts: [
     {
-      "id": 0,
+      "id": "0",
       "title": "A S Pushkin",
       "shortDescription": "Message for dyadya",
       "content": "Moy dyadya samih chesnih pravil, kogda ne v shutku sanemog, on uvajat sebya sastavil i luchshe vidumat ne smog.",
-      "bloggerId": 0,
+      "bloggerId": "0",
       "bloggerName": "Mark Solonin"},
     {
-      "id": 1,
+      "id": "1",
       "title": "Solomennaya shlyapka",
       "shortDescription": "Libetta, Lizetta, Myuzetta",
       "content": "Либетта, Лизетта, Мюзетта, Жонетта, Жоржетта. Вся жизнь моя вами как солнцем июньским согрета...",
-      "bloggerId": 2,
+      "bloggerId": "2",
       "bloggerName": "Dmitry"
     },
     {
-      "id": 2,
+      "id": "2",
       "title": "T G Shevchenko",
       "shortDescription": "Message for oligarhs",
       "content": "Якби ви знали, паничі, Де люде плачуть живучи, То ви б елегій не творили Та марне Бога б не хвалили",
-      "bloggerId": 1,
+      "bloggerId": "1",
       "bloggerName": "Dmitry Robionek"
     }
   ],
   bloggers: [
-    {"id": 0, "name": "Mark Solonin", "description": "About world wars", "websiteUrl": "https://www.youtube.com/channel/UChLpUGaZO35ICTltBP50VSg"}, 
-    {"id": 1, "name": "Dmitry Robionek", "description": "About Linux Python 3", "websiteUrl": "https://www.youtube.com/user/ideafoxvideo"},
-    {"id": 2, "name": "Dmitry", "description": "About frontend and backend",  "websiteUrl": "https://www.youtube.com/c/ITKAMASUTRA"}
+    {"id": "0", "name": "Mark Solonin", "description": "About world wars", "websiteUrl": "https://www.youtube.com/channel/UChLpUGaZO35ICTltBP50VSg"}, 
+    {"id": "1", "name": "Dmitry Robionek", "description": "About Linux Python 3", "websiteUrl": "https://www.youtube.com/user/ideafoxvideo"},
+    {"id": "2", "name": "Dmitry", "description": "About frontend and backend",  "websiteUrl": "https://www.youtube.com/c/ITKAMASUTRA"}
   ]
 }
 
@@ -74,16 +74,16 @@ export type Videos = {
 }
 
 export type PostsType = {
-  id: number
+  id: string
   title: string
   shortDescription: string
   content: string
-  bloggerId: number
-  bloggerName: string
+  blogId: string
+  blogName: string
 }
 
 export type BloggersType = {
-  id: number 
+  id: string 
   name: string
   description: string
   websiteUrl: string
