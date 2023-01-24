@@ -93,10 +93,10 @@ type ErrorsDescriptionType = {
    
    bloggersRouter.post('/', 
   
-   body('name').exists().withMessage(`The field name not exist`).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 15 }).withMessage('length must be less than 15 characters'),
-    body('websiteUrl').exists().withMessage(`The field websiteUrl not exist`).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters').matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/),
-    body('description').exists().withMessage(`The field description not exist`).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 500 }).withMessage('length must be less than 500 characters'),
-   
+   body('name').exists().isString().trim().notEmpty().isLength({ max: 15 }).withMessage('The name field did not pass validation'),
+   body('websiteUrl').exists().isString().trim().notEmpty().isLength({ max: 100 }).matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/).withMessage('The websiteUrl field did not pass validation'),
+   body('description').exists().isString().trim().notEmpty().isLength({ max: 500 }).withMessage('The description field did not pass validation'),
+     
     (req: Request , res: Response) => {
     const postRequestErrors: errorsType = errorFields();
      
@@ -124,8 +124,8 @@ type ErrorsDescriptionType = {
    bloggersRouter.put('/:id', 
 
     body('name').exists().isString().trim().notEmpty().isLength({ max: 15 }).withMessage('The name field did not pass validation'),
-    body('websiteUrl').exists().isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters').matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/),
-    body('description').exists().withMessage(`The field description not exist`).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 500 }).withMessage('length must be less than 500 characters'),
+    body('websiteUrl').exists().isString().trim().notEmpty().isLength({ max: 100 }).matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/).withMessage('The websiteUrl field did not pass validation'),
+    body('description').exists().isString().trim().notEmpty().isLength({ max: 500 }).withMessage('The description field did not pass validation'),
       
     (req: Request , res: Response) => {
     const resultValue = validationResult(req)
