@@ -87,7 +87,7 @@ postsRouter.get('/', (req: Request, res: Response) => {
 postsRouter.get('/:id', (req: Request, res: Response) => {
   let postItem = posts.find(item => +item.id === +req.params.id);
   if (postItem) {
-    let blogger = checkRequestBodyField(postItem.bloggerId.toString(), 'bloggerId')
+    let blogger = checkRequestBodyField(postItem.blogId.toString(), 'blogId')
     if (!blogger) {
       res.status(200).send(postItem);
     } else {
@@ -125,12 +125,12 @@ postsRouter.post('/',
   let newPost
   if (blogger) {
     newPost = {
-      id: +(new Date()),
+      id: (+(new Date())).toString(),
       "title": req.body.title,
       "shortDescription": req.body.shortDescription,
       "content": req.body.content,
-      "bloggerId": req.body.bloggerId,
-      "bloggerName": blogger.name
+      "blogId": req.body.blogId,
+      "blogName": blogger.name
     };
     posts.push(newPost);
     res.status(201).send(newPost);
@@ -142,7 +142,7 @@ postsRouter.put('/:id', (req: Request, res: Response) => {
   let index: number;
   // const putRequestErrors = errorFields();
   let postItem = posts.find((item, ind) => {
-    if (item.id === +req.params.id) {
+    if (+item.id === +req.params.id) {
       index = ind;
     }
     return +item.id === +req.params.id;
@@ -175,7 +175,7 @@ postsRouter.put('/:id', (req: Request, res: Response) => {
         item.title = req.body.title
         item.shortDescription = req.body.shortDescription;
         item.content = req.body.content;
-        item.bloggerId = req.body.bloggerId
+        item.blogId = req.body.blogId
       }
       return item;
     });
@@ -189,7 +189,7 @@ postsRouter.put('/:id', (req: Request, res: Response) => {
 postsRouter.delete('/:id', (req: Request, res: Response) => {
   let length = posts.length;
   posts = posts.filter(item => {
-    return item.id !== Number.parseInt(req.params.id);
+    return +item.id !== Number.parseInt(req.params.id);
   });
   if (length > posts.length) {
     res.send(204);

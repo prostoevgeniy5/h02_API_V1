@@ -124,9 +124,9 @@ type ErrorsDescriptionType = {
      let blogId: string = (+(new Date())).toString()
      const newBlogger: BloggersType  = { 
        id: blogId,
-       name: req.body.name.toString(),
-       websiteUrl: req.body.websiteUrl.toStyring(),
-       description: req.body.description.toString()
+       name: req.body.name,
+       websiteUrl: req.body.websiteUrl,
+       description: req.body.description
      }
      bloggers.push(newBlogger)
     res.status(201).send(newBlogger)
