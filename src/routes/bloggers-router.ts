@@ -54,17 +54,6 @@ type ErrorsDescriptionType = {
       case 'description':
         body(name).exists().withMessage(`The field ${name} not exist`).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 500 }).withMessage('length must be less than 500 characters')
       break
-    // else if (field === 'content') {
-    //   body(name).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters')
-    //   // result = name === undefined || typeof name !== 'string' || name.trim() === '' || name.length > 1000 ? true : false;
-    // } 
-      // case 'bloggerId':
-      // body(name).exists().withMessage(`The field ${name} not exist`).isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom((name) => {
-      // let blogger: BloggersType | undefined = bloggers.find((item: BloggersType) => +item.id === +req.body[name])
-      // result = typeof +name !== 'number' || !blogger ? true : false;
-      // return result
-      // }).withMessage("A blogger with such a bloggerid does not exist")
-      // break
     }
     return result
   }
@@ -134,26 +123,25 @@ type ErrorsDescriptionType = {
    
    bloggersRouter.put('/:id', 
 
-    body('name').exists().withMessage(`The field name not exist`).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 15 }).withMessage('length must be less than 15 characters'),
-    body('websiteUrl').exists().withMessage(`The field websiteUrl not exist`).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters').matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/),
+    body('name').exists().isString().trim().notEmpty().isLength({ max: 15 }).withMessage('The name field did not pass validation'),
+    body('websiteUrl').exists().isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters').matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/),
     body('description').exists().withMessage(`The field description not exist`).isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 500 }).withMessage('length must be less than 500 characters'),
       
     (req: Request , res: Response) => {
     const resultValue = validationResult(req)
-    console.log('resValue in PUT ', resultValue)
 
      let index: number 
      const putRequestErrors = errorFields();
      const errors = validationResult(req);
-     console.log('errors', errors)
-       if (!errors.isEmpty()) {
+     if (!errors.isEmpty()) {
          errors.array().forEach((elem, ind) => {
            const obj = { 
              "message": elem.msg,
              "field": elem.param}
            putRequestErrors.errorsMessages.push(obj)
          })
-         return res.status(400).json(putRequestErrors)
+         res.status(400).json(putRequestErrors)
+         return
          // return res.status(400).json({ errors: errors.array() });
        }
 
@@ -161,7 +149,6 @@ type ErrorsDescriptionType = {
        if(+item.id === +req.params.id) {
          index = ind
        } return +item.id === +req.params.id })
-    
      if (bloggerItem) {
        let newBloggers = bloggers.map((item, i) => {
          if(index === i) {
@@ -173,7 +160,7 @@ type ErrorsDescriptionType = {
          return item
        })
        bloggers = newBloggers;  
-       res.sendStatus(204).send('No Content');
+       res.sendStatus(204)
      } else {
        res.sendStatus(404)
      }

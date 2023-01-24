@@ -16,6 +16,9 @@ export const authMidleware =  (req: Request, res: Response, next: NextFunction) 
      if(req.headers.authorization.split(' ')[1] === loginPasswordEncoded) {
         next()
         return
+     } else {
+      res.status(401).send("Your did'nt pass authorisation")
+      return
      }
    }
  }
