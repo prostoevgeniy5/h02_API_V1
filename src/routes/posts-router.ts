@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express'
 // import {bloggers} from './bloggers-router'
 import { db, PostsType, BloggersType } from '../repositories/db'
-import { body, validationResult, CustomValidator } from 'express-validator'
+import { body,check, validationResult, CustomValidator } from 'express-validator'
 
 let posts: PostsType[] = db.posts
 let bloggers: BloggersType[] = db.bloggers
@@ -50,11 +50,13 @@ postsRouter.post('/',
   body('title').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 30 }).withMessage('length must be less than 30 characters'),
   body('shortDescription').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
   body('content').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
-  body('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom((name) => {
-    let blogger: BloggersType | undefined = bloggers.find((item: BloggersType) => +item.id === +name)
-    const result = typeof +name !== 'number' || !blogger ? true : false;
+  check('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom((value, { req: Request }) => {
+    console.log('value', value)
+    console.log('{req: Request}', {req: Request}.req.body)
+    let blogger: BloggersType | undefined = bloggers.find((item: BloggersType) => +item.id === +value)
+    const result =  blogger ? true : false;
     return result
-  }).withMessage("A blogger with such a bloggerid does not exist"),
+  }).withMessage("A blogger with such a blogId does not exist"),
   
 (req: Request, res: Response) => {
   const postRequestErrors: errorsType = errorFields();
@@ -80,8 +82,9 @@ postsRouter.post('/',
       "blogId": req.body.blogId,
       "blogName": blogger.name
     };
-    posts.push(newPost);
+    db.posts.push(newPost);
     res.status(201).send(newPost);
+    return
   }
 
 });
@@ -89,6 +92,9 @@ postsRouter.post('/',
 postsRouter.put('/:id', (req: Request, res: Response) => {
   let index: number;
   // const putRequestErrors = errorFields();
+
+  let blogger = bloggers.find(item => +item.id === +req.body.blogId)
+
   let postItem = posts.find((item, ind) => {
     if (+item.id === +req.params.id) {
       index = ind;
@@ -96,18 +102,34 @@ postsRouter.put('/:id', (req: Request, res: Response) => {
     return +item.id === +req.params.id;
   });
   
-  const putRequestErrors = validationResult(req)
-  if (putRequestErrors.array.length > 0) {
-    res.status(400).send(putRequestErrors.array);
-    return;
+  // const putRequestErrors = validationResult(req)
+  // if (putRequestErrors.array.length > 0) {
+  //   res.status(400).send(putRequestErrors.array);
+  //   return;
+  // }
+
+  const postRequestErrors: errorsType = errorFields();
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    errors.array().forEach((elem, ind) => {
+      const obj = { 
+        "message": elem.msg,
+        "field": elem.param}
+      postRequestErrors.errorsMessages.push(obj)
+    })
+    return res.status(400).json(postRequestErrors)
   }
-  if (postItem) {
+
+  if (postItem && blogger) {
     posts = posts.map((item, i) => {
       if (index === i) {
-        item.title = req.body.title
-        item.shortDescription = req.body.shortDescription;
-        item.content = req.body.content;
-        item.blogId = req.body.blogId
+        if(blogger) {
+          item.title = req.body.title
+          item.shortDescription = req.body.shortDescription;
+          item.content = req.body.content;
+          item.blogId = req.body.blogId
+          item.blogName = blogger.name
+        }
       }
       return item;
     });
