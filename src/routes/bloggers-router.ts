@@ -93,16 +93,28 @@ type ErrorsDescriptionType = {
    
    bloggersRouter.post('/', 
   
-   body('name').exists().isString().trim().notEmpty().isLength({ max: 15 }).withMessage('The name field did not pass validation'),
-   body('websiteUrl').exists().isString().trim().notEmpty().isLength({ max: 100 }).matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/).withMessage('The websiteUrl field did not pass validation'),
-   body('description').exists().isString().trim().notEmpty().isLength({ max: 500 }).withMessage('The description field did not pass validation'),
+   body('name').exists().withMessage('The name field not exist').isString().withMessage('The name field is not string').trim().notEmpty().withMessage('The name field is empty').isLength({ max: 15 }).withMessage('The length of the name field is more 15 characters'),
+   body('websiteUrl').exists().withMessage('The name field not exist').isString().withMessage('The name field is not string').trim().notEmpty().withMessage('The name field is empty').isLength({ max: 100 }).withMessage('The length of the name field is more 100 characters').matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/).withMessage('The websiteUrl field did not pass validation'),
+   body('description').exists().withMessage('The name field not exist').isString().withMessage('The name field is not string').trim().notEmpty().withMessage('The name field is empty').isLength({ max: 500 }).withMessage('The length of the name field is more 500 characters'),
      
     (req: Request , res: Response) => {
     const postRequestErrors: errorsType = errorFields();
      
     const errors = validationResult(req);
+    // console.log('errors.array()',errors.array())
       if (!errors.isEmpty()) {
-        errors.array().forEach((elem, ind) => {
+        const length = errors.array().length
+        const err = errors.array().filter((elem, ind) => {
+          if(ind === 0) {
+            return true
+          }
+          if(ind < length && ind > 0 && errors.array()[ind - 1].param !== elem.param) {
+            return true
+          } else {
+            return false
+          }
+        })
+        err.forEach((elem, ind) => {
           const obj = { 
             "message": elem.msg,
             "field": elem.param}
@@ -122,26 +134,50 @@ type ErrorsDescriptionType = {
    })
    
    bloggersRouter.put('/:id', 
-
-    body('name').exists().isString().trim().notEmpty().isLength({ max: 15 }).withMessage('The name field did not pass validation'),
-    body('websiteUrl').exists().isString().trim().notEmpty().isLength({ max: 100 }).matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/).withMessage('The websiteUrl field did not pass validation'),
-    body('description').exists().isString().trim().notEmpty().isLength({ max: 500 }).withMessage('The description field did not pass validation'),
+    body('name').exists().withMessage('The name field not exist').isString().withMessage('The name field is not string').trim().notEmpty().withMessage('The name field is empty').isLength({ max: 15 }).withMessage('The length of the name field is more 15 characters'),
+    body('websiteUrl').exists().withMessage('The name field not exist').isString().withMessage('The name field is not string').trim().notEmpty().withMessage('The name field is empty').isLength({ max: 100 }).withMessage('The length of the name field is more 100 characters').matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/).withMessage('The websiteUrl field did not pass validation'),
+    body('description').exists().withMessage('The name field not exist').isString().withMessage('The name field is not string').trim().notEmpty().withMessage('The name field is empty').isLength({ max: 500 }).withMessage('The length of the name field is more 500 characters'),
+      
+    // body('name').exists().isString().trim().notEmpty().isLength({ max: 15 }).withMessage('The name field did not pass validation'),
+    // body('websiteUrl').exists().isString().trim().notEmpty().isLength({ max: 100 }).matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/).withMessage('The websiteUrl field did not pass validation'),
+    // body('description').exists().isString().trim().notEmpty().isLength({ max: 500 }).withMessage('The description field did not pass validation'),
       
     (req: Request , res: Response) => {
-    const resultValue = validationResult(req)
+    const resultErrors = validationResult(req)
 
      let index: number 
      const putRequestErrors = errorFields();
-     const errors = validationResult(req);
-     if (!errors.isEmpty()) {
-         errors.array().forEach((elem, ind) => {
-           const obj = { 
-             "message": elem.msg,
-             "field": elem.param}
-           putRequestErrors.errorsMessages.push(obj)
-         })
-         res.status(400).json(putRequestErrors)
-         return
+     if (!resultErrors.isEmpty()) {
+      const length = resultErrors.array().length
+      const err = resultErrors.array().filter((elem, ind) => {
+        if(ind === 0) {
+          return true
+        }
+        if(ind < length && ind > 0 && resultErrors.array()[ind - 1].param !== elem.param) {
+          return true
+        } else {
+          return false
+        }
+      })
+      err.forEach((elem, ind) => {
+        const obj = { 
+          "message": elem.msg,
+          "field": elem.param}
+        putRequestErrors.errorsMessages.push(obj)
+      })
+      res.status(400).json(putRequestErrors)
+      return 
+    //}
+    //  const errors = validationResult(req);
+    //  if (!errors.isEmpty()) {
+    //      errors.array().forEach((elem, ind) => {
+    //        const obj = { 
+    //          "message": elem.msg,
+    //          "field": elem.param}
+    //        putRequestErrors.errorsMessages.push(obj)
+    //      })
+    //      res.status(400).json(putRequestErrors)
+    //      return
          // return res.status(400).json({ errors: errors.array() });
        }
 
