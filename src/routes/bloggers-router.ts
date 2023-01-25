@@ -143,6 +143,7 @@ type ErrorsDescriptionType = {
      if (bloggerItem) {
        let newBloggers = bloggers.map((item, i) => {
          if(index === i) {
+
           item = Object.assign(item, req.body)
          }
          return item
