@@ -32,17 +32,11 @@ postsRouter.get('/', (req: Request, res: Response) => {
 postsRouter.get('/:id', (req: Request, res: Response) => {
   let postItem = posts.find(item => +item.id === +req.params.id);
   if (postItem) {
-    // let blogger = checkRequestBodyField(postItem.blogId.toString(), 'blogId')
-    const blogger = bloggers.find((elem, ind) => {
-      return 
-    })
-    if (!blogger) {
-      res.status(200).send(postItem);
-    } else {
-      res.status(400).send('Bad Request')
-    }
+    res.status(200).send(postItem);
+    return
   } else {
     res.sendStatus(404);
+    return
   }
 });
 
@@ -101,12 +95,6 @@ postsRouter.put('/:id', (req: Request, res: Response) => {
     }
     return +item.id === +req.params.id;
   });
-  
-  // const putRequestErrors = validationResult(req)
-  // if (putRequestErrors.array.length > 0) {
-  //   res.status(400).send(putRequestErrors.array);
-  //   return;
-  // }
 
   const postRequestErrors: errorsType = errorFields();
   const errors = validationResult(req)
