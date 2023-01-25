@@ -50,7 +50,7 @@ postsRouter.post('/',
   body('title').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 30 }).withMessage('length must be less than 30 characters'),
   body('shortDescription').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
   body('content').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
-  body('bloggerId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom((name) => {
+  body('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom((name) => {
     let blogger: BloggersType | undefined = bloggers.find((item: BloggersType) => +item.id === +name)
     const result = typeof +name !== 'number' || !blogger ? true : false;
     return result
