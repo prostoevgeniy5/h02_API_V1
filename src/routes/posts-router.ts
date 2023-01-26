@@ -45,24 +45,35 @@ postsRouter.post('/',
     // console.log('value', value)
     // console.log('{req:Request}.req.body.blogId',{req:Request}.req.body.blogId)
     let blogger: BloggersType | undefined = await bloggers.find((item: BloggersType) => +item.id === +value)
-    const result =  blogger ? false : true;
+    const result: boolean =  blogger ? false : true;
     // console.log('result', result)
     return result
   }).withMessage("A blogger with such a blogId does not exist"),
   
   (req: Request, res: Response) => {
     const postRequestErrors: errorsType = errorFields();
-    const errors = validationResult(req)
-    console.log('errors', errors)
-    if (!errors.isEmpty()) {
-      errors.array().forEach((elem, ind) => {
+    const resultErrors = validationResult(req)
+    
+    if (!resultErrors.isEmpty()) {
+      const length = resultErrors.array().length
+      const err = resultErrors.array().filter((elem, ind) => {
+        if(ind === 0) {
+          return true
+        }
+        if(ind < length && ind > 0 && resultErrors.array()[ind - 1].param !== elem.param) {
+          return true
+        } else {
+          return false
+        }
+      })
+      err.forEach((elem, ind) => {
         const obj = { 
           "message": elem.msg,
           "field": elem.param}
         postRequestErrors.errorsMessages.push(obj)
       })
       res.status(400).json(postRequestErrors)
-      return
+      return 
     }
 
     let blogger = bloggers.find(item => +item.id === +req.body.blogId)
@@ -89,21 +100,21 @@ postsRouter.put('/:id',
   body('content').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
   check('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom((value, { req: Request }) => {
     let blogger: BloggersType | undefined = bloggers.find((item: BloggersType) => +item.id === +value)
-    const result =  blogger ? true : false;
+    const result =  blogger ? false : true;
     return result
   }).withMessage("A blogger with such a blogId does not exist"),
   
 (req: Request, res: Response) => {
-  const postRequestErrors: errorsType = errorFields();
+  const putRequestErrors: errorsType = errorFields();
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
     errors.array().forEach((elem, ind) => {
       const obj = { 
         "message": elem.msg,
         "field": elem.param}
-      postRequestErrors.errorsMessages.push(obj)
+      putRequestErrors.errorsMessages.push(obj)
     })
-    return res.status(400).json(postRequestErrors)
+    return res.status(400).json(putRequestErrors)
   }
   let index: number;
   let blogger = bloggers.find(item => +item.id === +req.body.blogId)
