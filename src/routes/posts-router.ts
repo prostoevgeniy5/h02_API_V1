@@ -44,9 +44,14 @@ postsRouter.post('/',
   check('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom(async (value, { req: Request }) => {
     // console.log('value', value)
     // console.log('{req:Request}.req.body.blogId',{req:Request}.req.body.blogId)
+    let result:boolean = /^\d+$/.test(value)
+    if(!result) {
+      return true
+    }
     let blogger: BloggersType | undefined = await bloggers.find((item: BloggersType) => +item.id === +value)
-    const result: boolean =  blogger ? false : true;
+    result =  blogger ? false : true;
     // console.log('result', result)
+    
     return result
   }).withMessage("A blogger with such a blogId does not exist"),
   
@@ -99,8 +104,12 @@ postsRouter.put('/:id',
   body('shortDescription').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
   body('content').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
   check('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom((value, { req: Request }) => {
+    let result:boolean = /^\d+$/.test(value)
+    if(!result) {
+      return true
+    }
     let blogger: BloggersType | undefined = bloggers.find((item: BloggersType) => +item.id === +value)
-    const result =  blogger ? false : true;
+    result =  blogger ? false : true;
     return result
   }).withMessage("A blogger with such a blogId does not exist"),
   
@@ -148,7 +157,7 @@ postsRouter.put('/:id',
 postsRouter.delete('/:id', (req: Request, res: Response) => {
   let length = posts.length;
   posts = posts.filter(item => {
-    return +item.id !== Number.parseInt(req.params.id);
+    return +item.id !== +req.params.id;
   });
   if (length > posts.length) {
     res.sendStatus(204);
@@ -158,7 +167,3 @@ postsRouter.delete('/:id', (req: Request, res: Response) => {
     return
   }
 });
-// function res(error?: any): void {
-//   throw new Error('Function not implemented.')
-// }
-
