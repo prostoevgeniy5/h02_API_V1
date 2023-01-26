@@ -41,9 +41,12 @@ postsRouter.post('/',
   body('title').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 30 }).withMessage('length must be less than 30 characters'),
   body('shortDescription').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
   body('content').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
-  check('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom((value, { req: Request }) => {
-    let blogger: BloggersType | undefined = bloggers.find((item: BloggersType) => +item.id === +value)
-    const result =  blogger ? true : false;
+  check('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom(async (value, { req: Request }) => {
+    // console.log('value', value)
+    // console.log('{req:Request}.req.body.blogId',{req:Request}.req.body.blogId)
+    let blogger: BloggersType | undefined = await bloggers.find((item: BloggersType) => +item.id === +value)
+    const result =  blogger ? false : true;
+    // console.log('result', result)
     return result
   }).withMessage("A blogger with such a blogId does not exist"),
   
