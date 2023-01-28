@@ -3,6 +3,8 @@ import { HTTP_STATUSES } from '../repositories/constants'
 import { db } from '../repositories/db'
 import { videosRepository, Videos, ErrorType, ErrorsType } from '../repositories/videos-repository'
 
+const videos: Videos[] = db.videos
+
 export const videosRouter = Router()
 
 videosRouter.get('/', (_req: Request, res: Response) => {
@@ -68,7 +70,7 @@ videosRouter.get('/', (_req: Request, res: Response) => {
       publicationDate: date.toISOString(),
       availableResolutions: req.body.availableResolutions
     }
-    db.videos.push(createdVideo)
+    videos.push(createdVideo)
    
     res.status(HTTP_STATUSES.CREATED_201).json(createdVideo)
   })

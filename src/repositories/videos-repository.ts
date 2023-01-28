@@ -1,6 +1,8 @@
 import { db } from "./db"
 import { Request, Response } from 'express'
 
+const videos: Videos[] = db.videos
+
 export type Videos = {
   id: number
   title: string
@@ -76,7 +78,7 @@ export const videosRepository = {
             availableResolutions: obj.availableResolutions
           }
         
-          db.videos.push(newVideo)
+          videos.push(newVideo)
           return newVideo
     },
     putOrDeleteData (req: Request, res: Response, methodName: string): Videos | ErrorsType | undefined {
