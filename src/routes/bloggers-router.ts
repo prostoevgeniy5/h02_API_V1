@@ -1,8 +1,8 @@
 import {NextFunction, Request, Response, Router} from 'express'
-import { BloggersType, db } from '../repositories/db'
+import { BloggersType, db, DbType } from '../repositories/db'
 import { body, validationResult, CustomValidator, check } from 'express-validator'
 
-let bloggers = db.bloggers
+let bloggers: BloggersType[] = db.bloggers
 
 type ErrorsDescriptionType = {
     message: string
@@ -64,7 +64,7 @@ type ErrorsDescriptionType = {
    body('websiteUrl').exists().withMessage('The name field not exist').isString().withMessage('The name field is not string').trim().notEmpty().withMessage('The name field is empty').isLength({ max: 100 }).withMessage('The length of the name field is more 100 characters').matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/).withMessage('The websiteUrl field did not pass validation'),
    body('description').exists().withMessage('The name field not exist').isString().withMessage('The name field is not string').trim().notEmpty().withMessage('The name field is empty').isLength({ max: 500 }).withMessage('The length of the name field is more 500 characters'),
      
-    (req: Request , res: Response) => {
+   async (req: Request , res: Response) => {
     const postRequestErrors: errorsType = errorFields();
      
     const errors = validationResult(req);

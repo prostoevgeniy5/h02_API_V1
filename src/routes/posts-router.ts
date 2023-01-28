@@ -1,6 +1,6 @@
 import express, { Request, Response, Router, NextFunction } from 'express'
 import { db, PostsType, BloggersType } from '../repositories/db'
-import { body,check, validationResult, CustomValidator } from 'express-validator'
+import { body, check, validationResult, CustomValidator } from 'express-validator'
 // import { isNamedExportBindings } from 'typescript'
 import { errorsType, errorsDescription, errorFields } from '../midlewares/postsErrorsHandler'
 
@@ -24,24 +24,24 @@ postsRouter.get('/:id', async (req: Request, res: Response) => {
   }
 });
 
-postsRouter.post('/', 
-  
+postsRouter.post('/',
+
   body('title').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 30 }).withMessage('length must be less than 30 characters'),
   body('shortDescription').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
   body('content').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
   // (req: Request, res: Response, next: NextFunction) => {
-    
-    body('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom(async (value, { req: Request }) => {
+
+  body('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom(async (value, { req: Request }) => {
     // const postRequestErrors: errorsType = errorFields();
     // console.log('value', value)
     // console.log('{req:Request}.req.body.blogId',{req:Request}.req.body.blogId)
-    
-    try{
+    let errorBlogId: Error
+    try {
       // let errorBlogId: Error = {name: '', message: ''}
-      let result:boolean = /^\d+$/.test(value)
+      let result: boolean = /^\d+$/.test(value)
       console.log('result', result)
-      if(!result) {
-        throw new Error(JSON.stringify({
+      if (!result) {
+        errorBlogId = new Error(JSON.stringify({
           message: "Field blogId not number string ",
           field: "blogId"
         }))
@@ -49,54 +49,55 @@ postsRouter.post('/',
         //   message: "Field blogId not number string ",
         //   field: "blogId"
         // })
-        
-        return 
+
+        return
       }
       let blogger: BloggersType | undefined = await bloggers.find((item: BloggersType) => +item.id === +value)
       console.log('blogger', blogger)
-      result =   blogger === undefined ? false : true;
+      result = blogger === undefined ? false : true;
       console.log('result', result)
-      if(!blogger ) {
-        throw new Error(JSON.stringify({
+      if (!blogger) {
+        errorBlogId = new Error(JSON.stringify({
           message: "Field blogId not valid. Blogger with blogId are ebsent. ",
           field: "blogId"
         }))
-          // return JSON.stringify({
-          //   message: "Field blogId not valid. Blogger with blogId are ebsent. ",
-          //   field: "blogId"
-          // })
-        return 
+        // return JSON.stringify({
+        //   message: "Field blogId not valid. Blogger with blogId are ebsent. ",
+        //   field: "blogId"
+        // })
+        return
       }
-        return false
-      } catch (err) {
-        next(err)
-      }
-    }).withMessage("A blogger with such a blogId does not exist"),
-    
+      return true
+    } catch (errorBlogId) {
+      next(errorBlogId)
+    }
+  }).withMessage("A blogger with such a blogId does not exist"),
+
   (req: Request, res: Response, next: NextFunction) => {
     const postRequestErrors: errorsType = errorFields();
     const resultErrors = validationResult(req)
-    
+
     if (!resultErrors.isEmpty()) {
       const length = resultErrors.array().length
       const err = resultErrors.array().filter((elem, ind) => {
-        if(ind === 0) {
+        if (ind === 0) {
           return true
         }
-        if(ind < length && ind > 0 && resultErrors.array()[ind - 1].param !== elem.param) {
+        if (ind < length && ind > 0 && resultErrors.array()[ind - 1].param !== elem.param) {
           return true
         } else {
           return false
         }
       })
       err.forEach((elem, _ind) => {
-        const obj = { 
+        const obj = {
           "message": elem.msg,
-          "field": elem.param}
+          "field": elem.param
+        }
         postRequestErrors.errorsMessages.push(obj)
       })
       res.status(400).json(postRequestErrors)
-      return 
+      return
     }
 
     let blogger = bloggers.find(item => +item.id === +req.body.blogId)
@@ -110,70 +111,71 @@ postsRouter.post('/',
         "blogId": req.body.blogId,
         "blogName": blogger.name
       };
-      db.posts.push(newPost);
+      posts.push(newPost);
       res.status(201).json(newPost);
       return
     }
 
-});
+  });
 
 postsRouter.put('/:id',
   body('title').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 30 }).withMessage('length must be less than 30 characters'),
   body('shortDescription').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
   body('content').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
   body('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom((value, { req: Request }) => {
-    
-    let result:boolean = /^\d+$/.test(value)
+
+    let result: boolean = /^\d+$/.test(value)
     console.log('value', value)
     console.log('resul;t', result)
-    if(!result) {
+    if (!result) {
       return true
     }
     let blogger: BloggersType | undefined = bloggers.find((item: BloggersType) => +item.id === +value)
-    result =  blogger ? true : false;
+    result = blogger ? true : false;
     return result
   }).withMessage("A blogger with such a blogId does not exist"),
-  
-(req: Request, res: Response) => {
-  const putRequestErrors: errorsType = errorFields();
-  const errors = validationResult(req)
-  if (!errors.isEmpty()) {
-    errors.array().forEach((elem, _ind) => {
-      const obj = { 
-        "message": elem.msg,
-        "field": elem.param}
-      putRequestErrors.errorsMessages.push(obj)
-    })
-    return res.status(400).json(putRequestErrors)
-  }
-  let index: number;
-  let blogger = bloggers.find(item => +item.id === +req.body.blogId)
-  let postItem = posts.find((item, ind) => {
-    if (+item.id === +req.params.id) {
-      index = ind;
-    }
-    return +item.id === +req.params.id;
-  });
 
-  if (postItem && blogger) {
-    posts = posts.map((item, i) => {
-      if (index === i) {
-        if(blogger) {
-          item.title = req.body.title
-          item.shortDescription = req.body.shortDescription;
-          item.content = req.body.content;
-          item.blogId = req.body.blogId
-          item.blogName = blogger.name
+  (req: Request, res: Response) => {
+    const putRequestErrors: errorsType = errorFields();
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      errors.array().forEach((elem, _ind) => {
+        const obj = {
+          "message": elem.msg,
+          "field": elem.param
         }
+        putRequestErrors.errorsMessages.push(obj)
+      })
+      return res.status(400).json(putRequestErrors)
+    }
+    let index: number;
+    let blogger = bloggers.find(item => +item.id === +req.body.blogId)
+    let postItem = posts.find((item, ind) => {
+      if (+item.id === +req.params.id) {
+        index = ind;
       }
-      return item;
+      return +item.id === +req.params.id;
     });
-    res.status(204).send('No Content');
-  }
-  else {
-    res.sendStatus(404);
-  }
-});
+
+    if (postItem && blogger) {
+      posts = posts.map((item, i) => {
+        if (index === i) {
+          if (blogger) {
+            item.title = req.body.title
+            item.shortDescription = req.body.shortDescription;
+            item.content = req.body.content;
+            item.blogId = req.body.blogId
+            item.blogName = blogger.name
+          }
+        }
+        return item;
+      });
+      res.status(204).send('No Content');
+    }
+    else {
+      res.sendStatus(404);
+    }
+  });
 
 postsRouter.delete('/:id', (req: Request, res: Response) => {
   let length = posts.length;
