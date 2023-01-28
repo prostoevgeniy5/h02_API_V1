@@ -4,6 +4,7 @@ import { deleteRouter } from './routes/delete-router'
 import { authMidleware } from './midlewares/authorization-midleware'
 import { postsRouter } from './routes/posts-router'
 import { bloggersRouter } from './routes/bloggers-router'
+import { postsErrorHandler } from './midlewares/postsErrorsHandler'
 
 export const app = express()
 const port = process.env.PORT || 3500
@@ -28,6 +29,7 @@ app.use('/blogs', bloggersRouter)
 app.get('/', (req: Request, res: Response) => {
   res.send({ message: 'Hello Samurai' })
 })
+app.use(postsErrorHandler)
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)

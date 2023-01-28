@@ -66,3 +66,7 @@ export function checkRequestBodyField(name: string, field: string): boolean {
 //     }
 //     return result
 //   }
+
+function isInt(a: string){
+  return a === ""+~~a
+}

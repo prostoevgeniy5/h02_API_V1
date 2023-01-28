@@ -1,28 +1,15 @@
-import { Request, Response, Router } from 'express'
+import express, { Request, Response, Router, NextFunction } from 'express'
 import { db, PostsType, BloggersType } from '../repositories/db'
 import { body,check, validationResult, CustomValidator } from 'express-validator'
+// import { isNamedExportBindings } from 'typescript'
+import { errorsType, errorsDescription, errorFields } from '../midlewares/postsErrorsHandler'
 
 let posts: PostsType[] = db.posts
 let bloggers: BloggersType[] = db.bloggers
 
-type errorsDescription = {
-  message: string
-  field: string
-}
-
-interface errorsType {
-  errorsMessages: errorsDescription[]
-}
-
-function errorFields():errorsType {
-  return {
-    errorsMessages: []
-  }
-}
-
 export const postsRouter = Router({})
 
-postsRouter.get('/', (req: Request, res: Response) => {
+postsRouter.get('/', (_req: Request, res: Response) => {
   res.status(200).json(posts);
 });
 
@@ -38,24 +25,55 @@ postsRouter.get('/:id', async (req: Request, res: Response) => {
 });
 
 postsRouter.post('/', 
+  
   body('title').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 30 }).withMessage('length must be less than 30 characters'),
   body('shortDescription').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
   body('content').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
-  check('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom(async (value, { req: Request }) => {
+  // (req: Request, res: Response, next: NextFunction) => {
+    
+    body('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom(async (value, { req: Request }) => {
+    // const postRequestErrors: errorsType = errorFields();
     // console.log('value', value)
     // console.log('{req:Request}.req.body.blogId',{req:Request}.req.body.blogId)
-    let result:boolean = /^\d+$/.test(value)
-    if(!result) {
-      return true
-    }
-    let blogger: BloggersType | undefined = await bloggers.find((item: BloggersType) => +item.id === +value)
-    result =  blogger ? false : true;
-    // console.log('result', result)
     
-    return result
-  }).withMessage("A blogger with such a blogId does not exist"),
-  
-  (req: Request, res: Response) => {
+    try{
+      // let errorBlogId: Error = {name: '', message: ''}
+      let result:boolean = /^\d+$/.test(value)
+      console.log('result', result)
+      if(!result) {
+        throw new Error(JSON.stringify({
+          message: "Field blogId not number string ",
+          field: "blogId"
+        }))
+        // return JSON.stringify({
+        //   message: "Field blogId not number string ",
+        //   field: "blogId"
+        // })
+        
+        return 
+      }
+      let blogger: BloggersType | undefined = await bloggers.find((item: BloggersType) => +item.id === +value)
+      console.log('blogger', blogger)
+      result =   blogger === undefined ? false : true;
+      console.log('result', result)
+      if(!blogger ) {
+        throw new Error(JSON.stringify({
+          message: "Field blogId not valid. Blogger with blogId are ebsent. ",
+          field: "blogId"
+        }))
+          // return JSON.stringify({
+          //   message: "Field blogId not valid. Blogger with blogId are ebsent. ",
+          //   field: "blogId"
+          // })
+        return 
+      }
+        return false
+      } catch (err) {
+        next(err)
+      }
+    }).withMessage("A blogger with such a blogId does not exist"),
+    
+  (req: Request, res: Response, next: NextFunction) => {
     const postRequestErrors: errorsType = errorFields();
     const resultErrors = validationResult(req)
     
@@ -71,7 +89,7 @@ postsRouter.post('/',
           return false
         }
       })
-      err.forEach((elem, ind) => {
+      err.forEach((elem, _ind) => {
         const obj = { 
           "message": elem.msg,
           "field": elem.param}
@@ -103,13 +121,16 @@ postsRouter.put('/:id',
   body('title').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 30 }).withMessage('length must be less than 30 characters'),
   body('shortDescription').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
   body('content').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
-  check('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom((value, { req: Request }) => {
+  body('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom((value, { req: Request }) => {
+    
     let result:boolean = /^\d+$/.test(value)
+    console.log('value', value)
+    console.log('resul;t', result)
     if(!result) {
       return true
     }
     let blogger: BloggersType | undefined = bloggers.find((item: BloggersType) => +item.id === +value)
-    result =  blogger ? false : true;
+    result =  blogger ? true : false;
     return result
   }).withMessage("A blogger with such a blogId does not exist"),
   
@@ -117,7 +138,7 @@ postsRouter.put('/:id',
   const putRequestErrors: errorsType = errorFields();
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
-    errors.array().forEach((elem, ind) => {
+    errors.array().forEach((elem, _ind) => {
       const obj = { 
         "message": elem.msg,
         "field": elem.param}
@@ -167,3 +188,7 @@ postsRouter.delete('/:id', (req: Request, res: Response) => {
     return
   }
 });
+function next(err: unknown) {
+  throw new Error('Function not implemented.')
+}
+
