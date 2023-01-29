@@ -1,11 +1,19 @@
 import express, { Request, Response, Router, NextFunction } from 'express'
 import { db, PostsType, BloggersType } from '../repositories/db'
-import { body, check, validationResult, CustomValidator } from 'express-validator'
-// import { isNamedExportBindings } from 'typescript'
+import { body, check, validationResult, CustomValidator, CustomSanitizer } from 'express-validator'
+import { param } from 'express-validator';
 import { errorsType, errorsDescription, errorFields } from '../midlewares/postsErrorsHandler'
 
 let posts: PostsType[] = db.posts
 let bloggers: BloggersType[] = db.bloggers
+
+// const isValidUser: CustomValidator = value => {
+//   return User.findUserByEmail(value).then(user => {
+//     if (user) {
+//       return Promise.reject('E-mail already in use');
+//     }
+//   });
+// };
 
 export const postsRouter = Router({})
 
@@ -32,37 +40,37 @@ postsRouter.post('/',
    body('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom((value, { req: Request }) => {
     const postRequestErrors: errorsType = errorFields();
     console.log('value', value)
-    console.log('{req:Request}.req.body.blogId',{req:Request}.req.body.blogId)
+    // console.log('{req:Request}.req.body.blogId',{req:Request}.req.body.blogId)
     let errorBlogId: Error
     // try {
       let result: boolean = /^\d+$/.test(value)
       console.log('result', result)
       if (!result) {
-        throw new Error(JSON.stringify({
+        return Promise.reject(Error(JSON.stringify({
           message: "Field blogId not number string ",
           field: "blogId"
-        }))
+        })))
         // return JSON.stringify({
         //   message: "Field blogId not number string ",
         //   field: "blogId"
         // })
 
-        return true
-      }
+        // return true
+      } 
       let blogger: BloggersType | undefined = bloggers.find((item: BloggersType) => +item.id === +value)
       console.log('blogger', blogger)
-      result = blogger === undefined ? false : true;
-      console.log('result', result)
+      // result = blogger === undefined ? false : true;
+      // console.log('result', result)
       if (!blogger) {
-        throw new Error(JSON.stringify({
+        return Promise.reject(Error(JSON.stringify({
           message: "Field blogId not valid. Blogger with blogId are ebsent. ",
           field: "blogId"
-        }))
+        })))
         // return JSON.stringify({
         //   message: "Field blogId not valid. Blogger with blogId are ebsent. ",
         //   field: "blogId"
         // })
-        return true
+        // return true
       }
       return true
     // } catch (errorBlogId) {
@@ -125,11 +133,18 @@ postsRouter.put('/:id',
     console.log('value', value)
     console.log('resul;t', result)
     if (!result) {
-      return true
+      return Promise.reject(Error(JSON.stringify({
+        message: "Field blogId not numbers string. Blogger with blogId are ebsent. ",
+        field: "blogId"
+      })))
     }
     let blogger: BloggersType | undefined = bloggers.find((item: BloggersType) => +item.id === +value)
     result = blogger ? true : false;
-    return result
+    return Promise.reject(Error(JSON.stringify({
+      message: "Field blogId not valid. Blogger with blogId are ebsent. ",
+      field: "blogId"
+    })))
+    return true
   }).withMessage("A blogger with such a blogId does not exist"),
 
   (req: Request, res: Response) => {

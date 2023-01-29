@@ -18,7 +18,7 @@ export function errorFields():errorsType {
 
 export const postsErrorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
     const myErrors = errorFields()
-    console.log('err', err)
+    console.log('err postsErrorHandler', err)
     if(err) {
         const obj: errorsDescription = {
             message: JSON.parse(err.message).message,

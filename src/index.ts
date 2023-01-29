@@ -26,10 +26,11 @@ app.use(authMidleware)
 app.use('/videos', videosRouter)
 app.use('/posts', postsRouter)
 app.use('/blogs', bloggersRouter)
+app.use(postsErrorHandler)
 app.get('/', (req: Request, res: Response) => {
   res.send({ message: 'Hello Samurai' })
 })
-app.use(postsErrorHandler)
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
