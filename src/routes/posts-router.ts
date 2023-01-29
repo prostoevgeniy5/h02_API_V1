@@ -29,19 +29,16 @@ postsRouter.post('/',
   body('title').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 30 }).withMessage('length must be less than 30 characters'),
   body('shortDescription').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
   body('content').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
-  // (req: Request, res: Response, next: NextFunction) => {
-
-  body('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom(async (value, { req: Request }) => {
-    // const postRequestErrors: errorsType = errorFields();
-    // console.log('value', value)
-    // console.log('{req:Request}.req.body.blogId',{req:Request}.req.body.blogId)
+   body('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom((value, { req: Request }) => {
+    const postRequestErrors: errorsType = errorFields();
+    console.log('value', value)
+    console.log('{req:Request}.req.body.blogId',{req:Request}.req.body.blogId)
     let errorBlogId: Error
-    try {
-      // let errorBlogId: Error = {name: '', message: ''}
+    // try {
       let result: boolean = /^\d+$/.test(value)
       console.log('result', result)
       if (!result) {
-        errorBlogId = new Error(JSON.stringify({
+        throw new Error(JSON.stringify({
           message: "Field blogId not number string ",
           field: "blogId"
         }))
@@ -50,14 +47,14 @@ postsRouter.post('/',
         //   field: "blogId"
         // })
 
-        return
+        return true
       }
-      let blogger: BloggersType | undefined = await bloggers.find((item: BloggersType) => +item.id === +value)
+      let blogger: BloggersType | undefined = bloggers.find((item: BloggersType) => +item.id === +value)
       console.log('blogger', blogger)
       result = blogger === undefined ? false : true;
       console.log('result', result)
       if (!blogger) {
-        errorBlogId = new Error(JSON.stringify({
+        throw new Error(JSON.stringify({
           message: "Field blogId not valid. Blogger with blogId are ebsent. ",
           field: "blogId"
         }))
@@ -65,12 +62,12 @@ postsRouter.post('/',
         //   message: "Field blogId not valid. Blogger with blogId are ebsent. ",
         //   field: "blogId"
         // })
-        return
+        return true
       }
       return true
-    } catch (errorBlogId) {
-      next(errorBlogId)
-    }
+    // } catch (errorBlogId) {
+    //   next(errorBlogId)
+    // }
   }).withMessage("A blogger with such a blogId does not exist"),
 
   (req: Request, res: Response, next: NextFunction) => {
