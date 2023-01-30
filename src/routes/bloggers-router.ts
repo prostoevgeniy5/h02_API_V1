@@ -98,7 +98,7 @@ type ErrorsDescriptionType = {
        description: req.body.description
      }
      const newEmpyPostForNewBlogger: PostsType = {
-      id: (+(new Date())).toString(),
+      id: (+(new Date()) + 1).toString(),
       title: "",
       shortDescription: "",
       content: "",

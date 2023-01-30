@@ -1,6 +1,6 @@
 import request from 'supertest'
 import {app} from '../../src'
-import { HTTP_STATUSES } from '../../src'
+import { HTTP_STATUSES } from '../../src/repositories/constants'
 
 describe('/videos', () => {
    

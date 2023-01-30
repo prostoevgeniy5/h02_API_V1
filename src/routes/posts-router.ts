@@ -45,26 +45,26 @@ postsRouter.post('/',
     // try {
       let result: boolean = /^\d+$/.test(value)
       console.log('result', result)
-      if (!result) {
+      if (result === false) {
         return Promise.reject(Error(JSON.stringify({
-          message: "Field blogId not number string ",
-          field: "blogId"
+          "message": "Field blogId not number string ",
+          "field": "blogId"
         })))
         // return JSON.stringify({
         //   message: "Field blogId not number string ",
         //   field: "blogId"
         // })
 
-        // return true
+        // return true 
       } 
       let blogger: BloggersType | undefined = bloggers.find((item: BloggersType) => +item.id === +value)
       console.log('blogger', blogger)
       // result = blogger === undefined ? false : true;
       // console.log('result', result)
-      if (!blogger) {
+      if (blogger === undefined) {
         return Promise.reject(Error(JSON.stringify({
-          message: "Field blogId not valid. Blogger with blogId are ebsent. ",
-          field: "blogId"
+          "message": "Field blogId not valid. Blogger with blogId are ebsent. ",
+          "field": "blogId"
         })))
         // return JSON.stringify({
         //   message: "Field blogId not valid. Blogger with blogId are ebsent. ",
