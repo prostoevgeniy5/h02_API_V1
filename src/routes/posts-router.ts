@@ -76,8 +76,8 @@ postsRouter.post('/',
     // } catch (errorBlogId) {
     //   next(errorBlogId)
     // }
-  })
-  .withMessage("A blogger with such a blogId does not exist"),
+  }),
+  // .withMessage("A blogger with such a blogId does not exist"),
 
   (req: Request, res: Response, next: NextFunction) => {
     const postRequestErrors: errorsType = errorFields();
