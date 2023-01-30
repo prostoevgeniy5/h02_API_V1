@@ -47,8 +47,8 @@ postsRouter.post('/',
       console.log('result', result)
       if (result === false) {
         return Promise.reject(Error(JSON.stringify({
-          "message": "Field blogId not number string ",
-          "field": "blogId"
+          'message': 'Field blogId not number string ',
+          'field': 'blogId'
         })))
         // return JSON.stringify({
         //   message: "Field blogId not number string ",
@@ -63,8 +63,8 @@ postsRouter.post('/',
       // console.log('result', result)
       if (blogger === undefined) {
         return Promise.reject(Error(JSON.stringify({
-          "message": "Field blogId not valid. Blogger with blogId are ebsent. ",
-          "field": "blogId"
+          'message': 'Field blogId not valid. Blogger with blogId are ebsent. ',
+          'field': 'blogId'
         })))
         // return JSON.stringify({
         //   message: "Field blogId not valid. Blogger with blogId are ebsent. ",
