@@ -72,7 +72,7 @@ postsRouter.post('/',
         // })
         // return true
       }
-      return true
+      // return true
     // } catch (errorBlogId) {
     //   next(errorBlogId)
     // }
