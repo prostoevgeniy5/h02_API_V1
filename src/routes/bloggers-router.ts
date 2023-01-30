@@ -1,8 +1,9 @@
 import {NextFunction, Request, Response, Router} from 'express'
-import { BloggersType, db, DbType } from '../repositories/db'
+import { BloggersType, db, DbType, PostsType } from '../repositories/db'
 import { body, validationResult, CustomValidator, check } from 'express-validator'
 
 let bloggers: BloggersType[] = db.bloggers
+let posts: PostsType[] = db.posts
 
 type ErrorsDescriptionType = {
     message: string
@@ -96,7 +97,16 @@ type ErrorsDescriptionType = {
        websiteUrl: req.body.websiteUrl,
        description: req.body.description
      }
+     const newEmpyPostForNewBlogger: PostsType = {
+      id: (+(new Date())).toString(),
+      title: "",
+      shortDescription: "",
+      content: "",
+      blogId: blogId,
+      blogName: req.body.name
+     }
      bloggers.push(newBlogger)
+     posts.push(newEmpyPostForNewBlogger)
     res.status(201).send(newBlogger)
    })
    
