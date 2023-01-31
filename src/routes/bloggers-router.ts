@@ -58,12 +58,14 @@ type ErrorsDescriptionType = {
        res.send(404)
      }
    })
-   
+
+   const nameBodyValidation = body('name').exists().withMessage('The name field not exist').isString().withMessage('The name field is not string').trim().notEmpty().withMessage('The name field is empty').isLength({ max: 15 }).withMessage('The length of the name field is more 15 characters')
+   const websiteUrlBodyValidation = body('websiteUrl').exists().withMessage('The websiteUrl field not exist').isString().withMessage('The websiteUrl field is not string').trim().notEmpty().withMessage('The websiteUrl field is empty').isLength({ max: 100 }).withMessage('The length of the websiteUrl field is more 100 characters').matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/).withMessage('The websiteUrl field did not pass validation')
+   const descriptionBodyValidation = body('description').exists().withMessage('The description field not exist').isString().withMessage('The name description is not string').trim().notEmpty().withMessage('The description field is empty').isLength({ max: 500 }).withMessage('The length of the description field is more 500 characters')
+
    bloggersRouter.post('/', 
   
-   body('name').exists().withMessage('The name field not exist').isString().withMessage('The name field is not string').trim().notEmpty().withMessage('The name field is empty').isLength({ max: 15 }).withMessage('The length of the name field is more 15 characters'),
-   body('websiteUrl').exists().withMessage('The websiteUrl field not exist').isString().withMessage('The websiteUrl field is not string').trim().notEmpty().withMessage('The websiteUrl field is empty').isLength({ max: 100 }).withMessage('The length of the websiteUrl field is more 100 characters').matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/).withMessage('The websiteUrl field did not pass validation'),
-   body('description').exists().withMessage('The description field not exist').isString().withMessage('The name description is not string').trim().notEmpty().withMessage('The description field is empty').isLength({ max: 500 }).withMessage('The length of the description field is more 500 characters'),
+   [nameBodyValidation, websiteUrlBodyValidation, descriptionBodyValidation],
      
    async (req: Request , res: Response) => {
     const postRequestErrors: errorsType = errorFields();
@@ -109,18 +111,20 @@ type ErrorsDescriptionType = {
      posts.push(newEmpyPostForNewBlogger)
     res.status(201).send(newBlogger)
    })
-   
+///////////////////////////////////////////////   
    bloggersRouter.put('/:id', 
-    body('name').exists().withMessage('The name field not exist').isString().withMessage('The name field is not string').trim().notEmpty().withMessage('The name field is empty').isLength({ max: 15 }).withMessage('The length of the name field is more 15 characters'),
-    body('websiteUrl').exists().withMessage('The websiteUrl field not exist').isString().withMessage('The websiteUrl field is not string').trim().notEmpty().withMessage('The websiteUrl field is empty').isLength({ max: 100 }).withMessage('The length of the websiteUrl field is more 100 characters').matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/).withMessage('The websiteUrl field did not pass validation'),
-    body('description').exists().withMessage('The description field not exist').isString().withMessage('The description field is not string').trim().notEmpty().withMessage('The description field is empty').isLength({ max: 500 }).withMessage('The length of the description field is more 500 characters'),
+
+   [nameBodyValidation, websiteUrlBodyValidation, descriptionBodyValidation],
+    // body('name').exists().withMessage('The name field not exist').isString().withMessage('The name field is not string').trim().notEmpty().withMessage('The name field is empty').isLength({ max: 15 }).withMessage('The length of the name field is more 15 characters'),
+    // body('websiteUrl').exists().withMessage('The websiteUrl field not exist').isString().withMessage('The websiteUrl field is not string').trim().notEmpty().withMessage('The websiteUrl field is empty').isLength({ max: 100 }).withMessage('The length of the websiteUrl field is more 100 characters').matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/).withMessage('The websiteUrl field did not pass validation'),
+    // body('description').exists().withMessage('The description field not exist').isString().withMessage('The description field is not string').trim().notEmpty().withMessage('The description field is empty').isLength({ max: 500 }).withMessage('The length of the description field is more 500 characters'),
          
     (req: Request , res: Response) => {
     const resultErrors = validationResult(req)
 
      let index: number 
      const putRequestErrors = errorFields();
-     if (!resultErrors.isEmpty()) {
+     if (!resultErrors.isEmpty() || (req.body.keys.length !== 0)) {
         const length = resultErrors.array().length
         const err = resultErrors.array().filter((elem, ind) => {
           if(ind === 0) {
@@ -148,7 +152,7 @@ type ErrorsDescriptionType = {
        } return +item.id === +req.params.id })
      if (bloggerItem) {
        let newBloggers = bloggers.map((item, i) => {
-         if(index === i) {
+         if( index === i ) {
 
           item = Object.assign(item, req.body)
          }
