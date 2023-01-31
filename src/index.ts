@@ -7,7 +7,7 @@ import { bloggersRouter } from './routes/bloggers-router'
 import { postsErrorHandler } from './midlewares/postsErrorsHandler'
 
 export const app = express()
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 3501
 
 // export const HTTP_STATUSES = {
 //   OK_200: 200,

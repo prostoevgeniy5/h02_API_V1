@@ -1,9 +1,10 @@
 import {NextFunction, Request, Response, Router} from 'express'
 import { BloggersType, db, DbType, PostsType } from '../repositories/db'
 import { body, validationResult, CustomValidator, check } from 'express-validator'
+import { inputBloggersValidation } from '../midlewares/inputBloggersValidationMiddleware'
 
-let bloggers: BloggersType[] = db.bloggers
-let posts: PostsType[] = db.posts
+let bloggers: BloggersType[] = db.getBlogs()
+let posts: PostsType[] = db.getPosts()
 
 type ErrorsDescriptionType = {
     message: string
@@ -66,32 +67,35 @@ type ErrorsDescriptionType = {
    bloggersRouter.post('/', 
   
    [nameBodyValidation, websiteUrlBodyValidation, descriptionBodyValidation],
-     
+   
+   inputBloggersValidation,
+   
    async (req: Request , res: Response) => {
-    const postRequestErrors: errorsType = errorFields();
+    // const postRequestErrors: errorsType = errorFields();
      
-    const errors = validationResult(req);
-    // console.log('errors.array()',errors.array())
-      if (!errors.isEmpty()) {
-        const length = errors.array().length
-        const err = errors.array().filter((elem, ind) => {
-          if(ind === 0) {
-            return true
-          }
-          if(ind < length && ind > 0 && errors.array()[ind - 1].param !== elem.param) {
-            return true
-          } else {
-            return false
-          }
-        })
-        err.forEach((elem, ind) => {
-          const obj = { 
-            "message": elem.msg,
-            "field": elem.param}
-          postRequestErrors.errorsMessages.push(obj)
-        })
-        return res.status(400).json(postRequestErrors)
-      }
+    // const errors = validationResult(req);
+    // // console.log('errors.array()',errors.array())
+    //   if (!errors.isEmpty()) {
+    //     const length = errors.array().length
+    //     const err = errors.array().filter((elem, ind) => {
+    //       if(ind === 0) {
+    //         return true
+    //       }
+    //       if(ind < length && ind > 0 && errors.array()[ind - 1].param !== elem.param) {
+    //         return true
+    //       } else {
+    //         return false
+    //       }
+    //     })
+    //     err.forEach((elem, ind) => {
+    //       const obj = { 
+    //         "message": elem.msg,
+    //         "field": elem.param}
+    //       postRequestErrors.errorsMessages.push(obj)
+    //     })
+    //     return res.status(400).json(postRequestErrors)
+    //   }
+
      let blogId: string = (+(new Date())).toString()
      const newBlogger: BloggersType  = { 
        id: blogId,
@@ -99,16 +103,17 @@ type ErrorsDescriptionType = {
        websiteUrl: req.body.websiteUrl,
        description: req.body.description
      }
-     const newEmpyPostForNewBlogger: PostsType = {
-      id: blogId,
-      title: "",
-      shortDescription: "",
-      content: "",
-      blogId: blogId,
-      blogName: req.body.name
-     }
+    //  const newEmpyPostForNewBlogger: PostsType = {
+    //   id: blogId,
+    //   title: "",
+    //   shortDescription: "",
+    //   content: "",
+    //   blogId: blogId,
+    //   blogName: req.body.name
+    //  }
+
      bloggers.push(newBlogger)
-     posts.push(newEmpyPostForNewBlogger)
+    //  posts.push(newEmpyPostForNewBlogger)
     res.status(201).send(newBlogger)
    })
 ///////////////////////////////////////////////   
@@ -118,49 +123,51 @@ type ErrorsDescriptionType = {
     // body('name').exists().withMessage('The name field not exist').isString().withMessage('The name field is not string').trim().notEmpty().withMessage('The name field is empty').isLength({ max: 15 }).withMessage('The length of the name field is more 15 characters'),
     // body('websiteUrl').exists().withMessage('The websiteUrl field not exist').isString().withMessage('The websiteUrl field is not string').trim().notEmpty().withMessage('The websiteUrl field is empty').isLength({ max: 100 }).withMessage('The length of the websiteUrl field is more 100 characters').matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/).withMessage('The websiteUrl field did not pass validation'),
     // body('description').exists().withMessage('The description field not exist').isString().withMessage('The description field is not string').trim().notEmpty().withMessage('The description field is empty').isLength({ max: 500 }).withMessage('The length of the description field is more 500 characters'),
-         
+     
+    inputBloggersValidation,
+
     (req: Request , res: Response) => {
-    const resultErrors = validationResult(req)
+    // const resultErrors = validationResult(req)
 
-     let index: number 
-     const putRequestErrors = errorFields();
-     if (!resultErrors.isEmpty()) {
-        const length = resultErrors.array().length
-        const err = resultErrors.array().filter((elem, ind) => {
-          if(ind === 0) {
-            return true
-          }
-          if(ind < length && ind > 0 && resultErrors.array()[ind - 1].param !== elem.param) {
-            return true
-          } else {
-            return false
-          }
-        })
-        err.forEach((elem, ind) => {
-          const obj = { 
-            "message": elem.msg,
-            "field": elem.param}
-          putRequestErrors.errorsMessages.push(obj)
-        })
-        res.status(400).json(putRequestErrors)
-        return 
-      }
-
-     let bloggerItem = bloggers.find( (item, ind: number) => {
-       if(+item.id === +req.params.id) {
+    //  let index: number 
+    //  const putRequestErrors = errorFields();
+    //  if (!resultErrors.isEmpty()) {
+    //     const length = resultErrors.array().length
+    //     const err = resultErrors.array().filter((elem, ind) => {
+    //       if(ind === 0) {
+    //         return true
+    //       }
+    //       if(ind < length && ind > 0 && resultErrors.array()[ind - 1].param !== elem.param) {
+    //         return true
+    //       } else {
+    //         return false
+    //       }
+    //     })
+    //     err.forEach((elem, ind) => {
+    //       const obj = { 
+    //         "message": elem.msg,
+    //         "field": elem.param}
+    //       putRequestErrors.errorsMessages.push(obj)
+    //     })
+    //     res.status(400).json(putRequestErrors)
+    //     return 
+    //   }
+    let index: number
+    let bloggerItem = bloggers.find( (item, ind: number) => {
+      if(+item.id === +req.params.id) {
          index = ind
-       } return +item.id === +req.params.id })
-     if (bloggerItem) {
-       let newBloggers = bloggers.map((item, i) => {
-         if( index === i ) {
+      } return +item.id === +req.params.id })
+      if (bloggerItem) {
+        let newBloggers = bloggers.map((item, i) => {
+          if( index === i ) {
 
-          item = Object.assign(item, req.body)
-         }
-         return item
-       })
-       bloggers = newBloggers;  
-       res.sendStatus(204)
-     } else {
-       res.sendStatus(404)
-     }
-   })
+            item = Object.assign(item, req.body)
+          }
+          return item
+        })
+        bloggers = newBloggers;  
+        return res.sendStatus(204)
+      } else {
+      return res.sendStatus(404)
+    }
+  })
