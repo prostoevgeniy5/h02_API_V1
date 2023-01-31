@@ -21,6 +21,7 @@ const port = process.env.PORT || 3000
 const parserMiddleware = express.json()
 
 app.use(parserMiddleware)
+app.use(authMidleware)
 app.use('/testing/all-data', deleteRouter)
 app.use('/videos', videosRouter)
 app.use('/blogs', bloggersRouter)
