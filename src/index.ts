@@ -7,7 +7,7 @@ import { bloggersRouter } from './routes/bloggers-router'
 import { postsErrorHandler } from './midlewares/postsErrorsHandler'
 
 export const app = express()
-const port = process.env.PORT || 3500
+const port = process.env.PORT || 3000
 
 // export const HTTP_STATUSES = {
 //   OK_200: 200,
@@ -22,11 +22,9 @@ const parserMiddleware = express.json()
 
 app.use(parserMiddleware)
 app.use('/testing/all-data', deleteRouter)
-app.use(authMidleware)
 app.use('/videos', videosRouter)
 app.use('/blogs', bloggersRouter)
 app.use('/posts', postsRouter)
-app.use(postsErrorHandler)
 app.get('/', (req: Request, res: Response) => {
   res.send({ message: 'Hello Samurai' })
 })

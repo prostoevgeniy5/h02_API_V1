@@ -59,7 +59,13 @@ export let db: DbType = {
     // {"id": "0", "name": "Mark Solonin", "description": "About world wars", "websiteUrl": "https://www.youtube.com/channel/UChLpUGaZO35ICTltBP50VSg"}, 
     // {"id": "1", "name": "Dmitry Robionek", "description": "About Linux Python 3", "websiteUrl": "https://www.youtube.com/user/ideafoxvideo"},
     // {"id": "2", "name": "Dmitry", "description": "About frontend and backend",  "websiteUrl": "https://www.youtube.com/c/ITKAMASUTRA"}
-  ]
+  ],
+  getPosts: () => {
+    return db.posts
+  },
+  getBlogs: () => {
+    return db.bloggers
+  }
 }
 
 export type DbType = {
@@ -67,6 +73,8 @@ export type DbType = {
   videos: Videos[] | []
   posts:PostsType[] | []
   bloggers: BloggersType[] | []
+  getPosts: () => PostsType[] | [] 
+  getBlogs: ()  => BloggersType[] | []
 }
 
 export type Videos = {

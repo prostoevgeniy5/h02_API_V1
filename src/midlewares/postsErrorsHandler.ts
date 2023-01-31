@@ -18,10 +18,13 @@ export function errorFields():errorsType {
 
 export const postsErrorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
     const myErrors = errorFields()
+  
     console.log('err postsErrorHandler', err)
     if(err) {
+      let parsedObject = JSON.parse(err.message).message
+      console.log('parsedObject', parsedObject)
         const obj: errorsDescription = {
-            message: JSON.parse(err.message).message,
+            message: JSON.parse(parsedObject),
             field: JSON.parse(err.message).field
         }
         myErrors.errorsMessages.push(obj)

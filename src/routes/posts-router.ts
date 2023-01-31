@@ -3,9 +3,10 @@ import { db, PostsType, BloggersType } from '../repositories/db'
 import { body, check, validationResult, CustomValidator, CustomSanitizer } from 'express-validator'
 import { param } from 'express-validator';
 import { errorsType, errorsDescription, errorFields } from '../midlewares/postsErrorsHandler'
+import { inputValidationMiddleware } from '../midlewares/inputValidationMiddleware';
 
-let posts: PostsType[] = db.posts
-let bloggers: BloggersType[] = db.bloggers
+let posts: PostsType[] = db.getPosts()
+let bloggers: BloggersType[] = db.getBlogs()
 
 // const isValidUser: CustomValidator = value => {
 //   return User.findUserByEmail(value).then(user => {
@@ -34,160 +35,58 @@ postsRouter.get('/:id', async (req: Request, res: Response) => {
 
 postsRouter.post('/',
 
-  body('title').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 30 }).withMessage('length must be less than 30 characters'),
-  body('shortDescription').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
-  body('content').isString().withMessage('must be string').notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
-   body('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom((value, { req: Request }) => {
-    const postRequestErrors: errorsType = errorFields();
-    console.log('value', value)
-    // console.log('{req:Request}.req.body.blogId',{req:Request}.req.body.blogId)
-    let errorBlogId: Error
-    // try {
-      let result: boolean = /^\d+$/.test(value)
-      console.log('result', result)
-      if (result === false) {
-        return Promise.reject(Error(JSON.stringify({
-          'message': 'Field blogId not number string ',
-          'field': 'blogId'
-        })))
-        // return JSON.stringify({
-        //   message: "Field blogId not number string ",
-        //   field: "blogId"
-        // })
-
-        // return true 
-      } 
-      let blogger: BloggersType | undefined = bloggers.find((item: BloggersType) => +item.id === +value)
-      console.log('blogger', blogger)
-      // result = blogger === undefined ? false : true;
-      // console.log('result', result)
-      if (blogger === undefined) {
-        return Promise.reject(Error(JSON.stringify({
-          'message': 'Field blogId not valid. Blogger with blogId are ebsent. ',
-          'field': 'blogId'
-        })))
-        // return JSON.stringify({
-        //   message: "Field blogId not valid. Blogger with blogId are ebsent. ",
-        //   field: "blogId"
-        // })
-        // return true
-      }
-      // return true
-    // } catch (errorBlogId) {
-    //   next(errorBlogId)
-    // }
-  }),
-  // .withMessage("A blogger with such a blogId does not exist"),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const postRequestErrors: errorsType = errorFields();
-    const resultErrors = validationResult(req)
-
-    if (!resultErrors.isEmpty()) {
-      const length = resultErrors.array().length
-      const err = resultErrors.array().filter((elem, ind) => {
-        if (ind === 0) {
-          return true
-        }
-        if (ind < length && ind > 0 && resultErrors.array()[ind - 1].param !== elem.param) {
-          return true
-        } else {
-          return false
-        }
-      })
-      err.forEach((elem, _ind) => {
-        const obj = {
-          "message": elem.msg,
-          "field": elem.param
-        }
-        postRequestErrors.errorsMessages.push(obj)
-      })
-      res.status(400).json(postRequestErrors)
-      return
-    }
-
-    let blogger = bloggers.find(item => +item.id === +req.body.blogId)
-    let newPost
-    if (blogger) {
-      newPost = {
-        id: (+(new Date())).toString(),
-        "title": req.body.title,
-        "shortDescription": req.body.shortDescription,
-        "content": req.body.content,
-        "blogId": req.body.blogId,
-        "blogName": blogger.name
-      };
-      posts.push(newPost);
-      res.status(201).json(newPost);
-      return
-    }
-
-  });
-
-postsRouter.put('/:id',
-  body('title').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 30 }).withMessage('length must be less than 30 characters'),
+  body('title').isString().trim().notEmpty().isLength({ max: 30 }),
   body('shortDescription').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
   body('content').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
-  body('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom((value, { req: Request }) => {
-
-    let result: boolean = /^\d+$/.test(value)
-    console.log('value', value)
-    console.log('resul;t', result)
-    if (!result) {
-      return Promise.reject(Error(JSON.stringify({
-        message: "Field blogId not numbers string. Blogger with blogId are ebsent. ",
-        field: "blogId"
-      })))
-    }
-    let blogger: BloggersType | undefined = bloggers.find((item: BloggersType) => +item.id === +value)
-    result = blogger ? true : false;
-    return Promise.reject(Error(JSON.stringify({
-      message: "Field blogId not valid. Blogger with blogId are ebsent. ",
-      field: "blogId"
-    })))
-    return true
-  }).withMessage("A blogger with such a blogId does not exist"),
-
+  body('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom(value => {
+    const blog = bloggers.find(b => b.id === value)
+    if (!blog) throw new Error()
+    return true                                                                                                                                                   
+  }),
+  inputValidationMiddleware,
   (req: Request, res: Response) => {
-    const putRequestErrors: errorsType = errorFields();
-    const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-      errors.array().forEach((elem, _ind) => {
-        const obj = {
-          "message": elem.msg,
-          "field": elem.param
-        }
-        putRequestErrors.errorsMessages.push(obj)
-      })
-      return res.status(400).json(putRequestErrors)
-    }
-    let index: number;
-    let blogger = bloggers.find(item => +item.id === +req.body.blogId)
-    let postItem = posts.find((item, ind) => {
-      if (+item.id === +req.params.id) {
-        index = ind;
-      }
-      return +item.id === +req.params.id;
-    });
+    const blogger = bloggers.find(item => item.id === req.body.blogId)
+    if (!blogger) return res.sendStatus(400)
+    const newPost = {
+      id: (+(new Date())).toString(),
+      "title": req.body.title,
+      "shortDescription": req.body.shortDescription,
+      "content": req.body.content,
+      "blogId": req.body.blogId,
+      "blogName": blogger.name
+    };
+    posts.push(newPost);
+    res.status(201).json(newPost);
+    return
+  });
 
-    if (postItem && blogger) {
-      posts = posts.map((item, i) => {
-        if (index === i) {
-          if (blogger) {
-            item.title = req.body.title
-            item.shortDescription = req.body.shortDescription;
-            item.content = req.body.content;
-            item.blogId = req.body.blogId
-            item.blogName = blogger.name
-          }
-        }
-        return item;
-      });
-      res.status(204).send('No Content');
-    }
-    else {
-      res.sendStatus(404);
-    }
+const postTitleValidation = body('title').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 30 }).withMessage('length must be less than 30 characters')
+
+const updatePostValidationMiddleware = [postTitleValidation,
+body('shortDescription').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
+body('content').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
+body('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom(value => {
+  const blog = bloggers.find(b => b.id === value)
+  if (!blog) throw new Error()
+  return true                                                                                                                                                   
+}),
+inputValidationMiddleware]
+
+postsRouter.put('/:postId',
+updatePostValidationMiddleware,
+  (req: Request, res: Response) => {
+    
+    const blogger = bloggers.find(item => item.id === req.body.blogId)
+    if (!blogger) return res.sendStatus(400)
+    const post = posts.find(p => p.id === req.params.postId)
+    if (!post) return res.sendStatus(404)
+    post.title = req.body.title
+    post.shortDescription = req.body.shortDescription;
+    post.content = req.body.content;
+    post.blogId = req.body.blogId
+    post.blogName = blogger.name
+    res.sendStatus(204)
+    
   });
 
 postsRouter.delete('/:id', (req: Request, res: Response) => {
@@ -203,7 +102,3 @@ postsRouter.delete('/:id', (req: Request, res: Response) => {
     return
   }
 });
-function next(err: unknown) {
-  throw new Error('Function not implemented.')
-}
-
