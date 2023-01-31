@@ -32,7 +32,7 @@ postsRouter.get('/:id', async (req: Request, res: Response) => {
     return
   }
 });
-
+//////////////////////////////////////////////
 postsRouter.post('/',
 
   body('title').isString().trim().notEmpty().isLength({ max: 30 }),
