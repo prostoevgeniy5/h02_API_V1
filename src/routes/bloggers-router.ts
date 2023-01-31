@@ -124,7 +124,7 @@ type ErrorsDescriptionType = {
 
      let index: number 
      const putRequestErrors = errorFields();
-     if (!resultErrors.isEmpty() || (req.body.keys.length !== 0)) {
+     if (!resultErrors.isEmpty()) {
         const length = resultErrors.array().length
         const err = resultErrors.array().filter((elem, ind) => {
           if(ind === 0) {
