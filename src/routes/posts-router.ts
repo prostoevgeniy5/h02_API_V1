@@ -4,9 +4,10 @@ import { body, check, validationResult, CustomValidator, CustomSanitizer } from 
 import { param } from 'express-validator';
 import { errorsType, errorsDescription, errorFields } from '../midlewares/postsErrorsHandler'
 import { inputValidationMiddleware } from '../midlewares/inputValidationMiddleware';
+import { bloggers } from './bloggers-router';
 
-let posts: PostsType[] = db.getPosts()
-let bloggers: BloggersType[] = db.getBlogs()
+export let posts: PostsType[] = []
+
 
 // const isValidUser: CustomValidator = value => {
 //   return User.findUserByEmail(value).then(user => {
@@ -39,7 +40,7 @@ postsRouter.post('/',
   body('shortDescription').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
   body('content').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
   body('blogId').isString().trim().notEmpty().custom(value => {
-    const blog = bloggers.filter(b => b.id === value)
+    const blog = bloggers.find(b => b.id === value)
     console.log(blog, value, 'custom validator')
     if (!blog) throw new Error()
     return true                                                                                                                                                   

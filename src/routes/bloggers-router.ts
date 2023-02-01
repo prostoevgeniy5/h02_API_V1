@@ -3,8 +3,8 @@ import { BloggersType, db, DbType, PostsType } from '../repositories/db'
 import { body, validationResult, CustomValidator, check } from 'express-validator'
 import { inputBloggersValidation } from '../midlewares/inputBloggersValidationMiddleware'
 
-let bloggers: BloggersType[] = db.getBlogs()
-let posts: PostsType[] = db.getPosts()
+export let bloggers: BloggersType[] = []
+let posts: PostsType[] = []
 
 type ErrorsDescriptionType = {
     message: string
