@@ -38,14 +38,17 @@ postsRouter.post('/',
   body('title').isString().trim().notEmpty().isLength({ max: 30 }),
   body('shortDescription').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
   body('content').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
-  body('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom(value => {
+  body('blogId').isString().trim().notEmpty().custom(value => {
     const blog = bloggers.find(b => b.id === value)
+    console.log(blog, value, 'custom validator')
     if (!blog) throw new Error()
     return true                                                                                                                                                   
-  }),
+  }).withMessage('blogId is invalid'),
   inputValidationMiddleware,
   (req: Request, res: Response) => {
     const blogger = bloggers.find(item => item.id === req.body.blogId)
+    console.log(blogger, 'create post after we find blog');
+  
     if (!blogger) return res.sendStatus(400)
     const newPost = {
       id: (+(new Date())).toString(),
