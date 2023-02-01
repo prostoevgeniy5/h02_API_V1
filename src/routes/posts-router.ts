@@ -39,7 +39,7 @@ postsRouter.post('/',
   body('shortDescription').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
   body('content').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
   body('blogId').isString().trim().notEmpty().custom(value => {
-    const blog = bloggers.find(b => b.id === value)
+    const blog = bloggers.find(b => b.id === value.toString())
     console.log(blog, value, 'custom validator')
     if (!blog) throw new Error()
     return true                                                                                                                                                   
