@@ -96,7 +96,7 @@ type ErrorsDescriptionType = {
     //     return res.status(400).json(postRequestErrors)
     //   }
 
-     let blogId: string = (+(new Date())).toString()
+     let blogId: string = (new Date()).toString()
      const newBlogger: BloggersType  = { 
        id: blogId,
        name: req.body.name,
