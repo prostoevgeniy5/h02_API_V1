@@ -1,14 +1,27 @@
-import { db } from "./db"
+import { client } from "./db"
 import { Request, Response } from 'express'
+import { ObjectId, WithId, UpdateResult } from "mongodb"
 
-const videos: Videos[] = db.videos
+// const videos: Videos[] =  videosCollection.find().toArray()
 
-export type Videos = {
-  id: number
+const videosCollection = client.db('blogspostsvideos').collection<Videos>('videos')
+
+export type Videos = WithId<{
   title: string
   author: string
   canBeDownloaded: boolean
-  minAgeRestriction: number
+  minAgeRestriction: number | null
+  createdAt: string
+  publicationDate: string
+  availableResolutions: string[]
+}>
+
+export interface UpdateVideos extends Videos  {
+  _id: ObjectId
+  title: string
+  author: string
+  canBeDownloaded: boolean
+  minAgeRestriction: number | null
   createdAt: string
   publicationDate: string
   availableResolutions: string[]
@@ -33,122 +46,138 @@ export type ErrorsType = {
 //   }
 
 export const videosRepository = {
-    getVideos():Videos[] {
-        return db.videos
+    async getVideos():Promise<Videos[]> {
+        return videosCollection.find({}).toArray()
     },
-    getVideosById(id: number) {
-        let videoItem = db.videos.find( (item: Videos) => {
-            return item.id === id 
-        })
+    async getVideosById(id: ObjectId): Promise<Videos[]> {
+        let videoItem = videosCollection.find({_id: id}).toArray()
         return videoItem
     },
-    deleteVideosById(id: number) {
-        let ind = null
-        db.videos.forEach((item: Videos, index: number) => {
-            if(item.id === index) {
-                ind = index
-            }
-          })
-          if (ind) {
-            db.videos.splice(ind, 1)
-            return true
-          } else {
-            return false
-          }
+    async deleteVideosById(id: ObjectId) {
+      videosCollection.deleteOne({_id: id})
+
+        // let ind = null
+        // db.videos.forEach((item: Videos, index: number) => {
+        //     if(item.id === index) {
+        //         ind = index
+        //     }
+        //   })
+        //   if (ind) {
+        //     db.videos.splice(ind, 1)
+        //     return true
+        //   } else {
+        //     return false
+        //   }
     },
-    updateVideosById(id: number, obj: object): Videos | undefined {
-     let videoItem = db.videos.find( (item: Videos, ind: number) => {
-        return item.id === id })    
-        if (videoItem) {
-            const resultVideoItem = Object.assign(videoItem, obj)            
-            return resultVideoItem
+    async updateVideosById(id: ObjectId, obj: Videos): Promise<UpdateResult | undefined> {
+     let videoItem: Promise<UpdateResult | undefined> =  videosCollection.updateOne({_id: id}, {$set: {...obj}})
+        if (videoItem) {            
+            return videoItem
         } else {
             return undefined
         }
     },
-    createVideo(obj: Videos) {
-        const newVideo: Videos = { 
-            id: +(new Date()),
-            title: obj.title,
-            author: obj.author,
-            canBeDownloaded: false,
-            minAgeRestriction: 1,
-            createdAt: "2022-12-13T09:52:47.923Z",
-            publicationDate: "2022-12-13T09:52:47.923Z",
-            availableResolutions: obj.availableResolutions
-          }
-        
-          videos.push(newVideo)
+    async createVideo(obj: Videos) {
+      let currentDate = new Date()
+    const day = currentDate.getDate() + 1
+    const dateInMs = currentDate.setDate(day)
+    const date = new Date(dateInMs)
+  
+    let currentDatePlus = new Date(currentDate.setDate(currentDate.getDate()))
+    let minAge = obj.minAgeRestriction ? obj.minAgeRestriction : null
+    const newVideo: Videos = {
+      _id: new ObjectId(),
+      title: obj.title,
+      author: obj.author,
+      canBeDownloaded: false,
+      minAgeRestriction: minAge,
+      createdAt: new Date().toISOString(),
+      publicationDate: date.toISOString(),
+      availableResolutions: obj.availableResolutions
+    }
+        // const newVideo: Videos = { 
+        //     _id: new ObjectId(),
+        //     title: obj.title,
+        //     author: obj.author,
+        //     canBeDownloaded: false,
+        //     minAgeRestriction: 1,
+        //     createdAt: "2022-12-13T09:52:47.923Z",
+        //     publicationDate: "2022-12-13T09:52:47.923Z",
+        //     availableResolutions: obj.availableResolutions
+        //   }
+        if(newVideo) {
+          videosCollection.insertOne(newVideo)
           return newVideo
-    },
-    putOrDeleteData (req: Request, res: Response, methodName: string): Videos | ErrorsType | undefined {
-        const erMess: ErrorsType = {"errorsMessages": [] }
-        switch(methodName as string) {
-          case 'put' :
-            if(! (typeof +req.params.id === 'number' && db.videos.find((el: Videos)   => {
-                return el.id === +req.params.id })) ) {
-                  return
-            } if (!req.body.title || typeof req.body.title === null || req.body.title.length > 40) {
-                  erMess.errorsMessages.push(
-                    {
-                      "message": "Bad body data",
-                      "field": "title"
-                    }
-                  )
-                  
-            } if (!req.body.author || typeof req.body.author === null || req.body.author.length > 20) {
-              erMess.errorsMessages.push(
-                {
-                  "message": "Bad body data",
-                  "field": "author"
-                }
-              )
-            } if (req.body.publicationDate && (typeof req.body.publicationDate !== "string")) {
-              erMess.errorsMessages.push(
-                {
-                  "message": "Bad body data",
-                  "field": "publicationDate"
-                }
-              )
-              
-            } if (req.body.canBeDownloaded && (typeof req.body.canBeDownloaded !== "boolean")) {
-                  erMess.errorsMessages.push(
-                    {
-                      "message": "Bad body data",
-                      "field": "canBeDownloaded"
-                    }
-                  )
-                  
-            } if (req.body.minAgeRestriction && (typeof req.body.minAgeRestriction !== "number" || req.body.minAgeRestriction < 1 || req.body.minAgeRestriction > 18)) {
-              erMess.errorsMessages.push(
-                {
-                  "message": "Bad body data",
-                  "field": "minAgeRestriction"
-                }
-              )
-            } if(erMess.errorsMessages.length > 0) {
-              return erMess
-            } else {
-              const resultVideoItem: Videos | undefined = videosRepository.updateVideosById(+req.params.id, req.body)
-              if(resultVideoItem) {
-                return resultVideoItem
-              }
-              return undefined
-            }
-          break;
-          case 'delete' :
-          const findResult = db.videos.find((el: Videos)   => {
-            return el.id === +req.params.id })
-
-          if(typeof findResult === 'undefined') {
-              return
-          } else {
-            let resultVideoItem: Videos | undefined = db.videos.find((el: Videos)   => {
-              return el.id === +req.params.id })
-            return resultVideoItem
-          }
         }
+    },
+    // async putOrDeleteData (req: Request, res: Response, methodName: string): Videos | ErrorsType | undefined {
+    //     const erMess: ErrorsType = {"errorsMessages": [] }
+    //     switch(methodName as string) {
+    //       case 'put' :
+    //         if(! (typeof +req.params.id === 'number' && db.videos.find((el: Videos)   => {
+    //             return el.id === +req.params.id })) ) {
+    //               return
+    //         } if (!req.body.title || typeof req.body.title === null || req.body.title.length > 40) {
+    //               erMess.errorsMessages.push(
+    //                 {
+    //                   "message": "Bad body data",
+    //                   "field": "title"
+    //                 }
+    //               )
+                  
+    //         } if (!req.body.author || typeof req.body.author === null || req.body.author.length > 20) {
+    //           erMess.errorsMessages.push(
+    //             {
+    //               "message": "Bad body data",
+    //               "field": "author"
+    //             }
+    //           )
+    //         } if (req.body.publicationDate && (typeof req.body.publicationDate !== "string")) {
+    //           erMess.errorsMessages.push(
+    //             {
+    //               "message": "Bad body data",
+    //               "field": "publicationDate"
+    //             }
+    //           )
+              
+    //         } if (req.body.canBeDownloaded && (typeof req.body.canBeDownloaded !== "boolean")) {
+    //               erMess.errorsMessages.push(
+    //                 {
+    //                   "message": "Bad body data",
+    //                   "field": "canBeDownloaded"
+    //                 }
+    //               )
+                  
+    //         } if (req.body.minAgeRestriction && (typeof req.body.minAgeRestriction !== "number" || req.body.minAgeRestriction < 1 || req.body.minAgeRestriction > 18)) {
+    //           erMess.errorsMessages.push(
+    //             {
+    //               "message": "Bad body data",
+    //               "field": "minAgeRestriction"
+    //             }
+    //           )
+    //         } if(erMess.errorsMessages.length > 0) {
+    //           return erMess
+    //         } else {
+    //           const resultVideoItem: Videos | undefined = videosRepository.updateVideosById(+req.params.id, req.body)
+    //           if(resultVideoItem) {
+    //             return resultVideoItem
+    //           }
+    //           return undefined
+    //         }
+    //       break;
+    //       case 'delete' :
+    //       const findResult = db.videos.find((el: Videos)   => {
+    //         return el.id === +req.params.id })
+
+    //       if(typeof findResult === 'undefined') {
+    //           return
+    //       } else {
+    //         let resultVideoItem: Videos | undefined = db.videos.find((el: Videos)   => {
+    //           return el.id === +req.params.id })
+    //         return resultVideoItem
+    //       }
+    //     }
         
-      }
+    //   }
        
 }

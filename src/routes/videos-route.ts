@@ -1,36 +1,38 @@
 import {Router, Request, Response, NextFunction} from 'express'
+import { ObjectId } from 'mongodb'
 import { HTTP_STATUSES } from '../repositories/constants'
-import { db } from '../repositories/db'
+// import { db } from '../repositories/db'
 import { videosRepository, Videos, ErrorType, ErrorsType } from '../repositories/videos-repository'
 
-const videos: Videos[] = db.videos
+// const videos: Videos[] = db.videos
 
 export const videosRouter = Router()
 
-videosRouter.get('/', (_req: Request, res: Response) => {
-    res.json(db.videos)
+videosRouter.get('/', async (_req: Request, res: Response) => {
+  const result = await videosRepository.getVideos()
+    if(result) {
+      res.status(200).json(result)
+    }
   })
 
-  videosRouter.get('/:id', (req: Request, res: Response) => {
-    const video = db.videos.find(c => c.id === +req.params.id)
-  
-    if (!video) {
+  videosRouter.get('/:id', async (req: Request, res: Response) => {
+    const video = await videosRepository.getVideosById(new ObjectId(req.params.id))
+      if (!video) {
       res.sendStatus(HTTP_STATUSES.NOT_FOUND)
-  
       return
     }
-    res.json(video)
+    res.status(HTTP_STATUSES.OK_200).json(video)
   })  
 
-  videosRouter.post('/', (req: Request, res: Response) => {
+  videosRouter.post('/', async (req: Request, res: Response) => {
     const errorsObject: ErrorsType = {"errorsMessages":[]}
-    if (!req.body.title || req.body.title.length > 40 ) {
+    if (!req.body.title || req.body.title.trim().length > 40 ) {
       errorsObject.errorsMessages.push({
         "message": "Bad body data",
         "field": "title"
       })
     }
-    if (!req.body.author || req.body.author.length > 20) {
+    if (!req.body.author || req.body.author.trim().length > 20) {
       errorsObject.errorsMessages.push({
         "message": "Bad body data",
         "field": "author"
@@ -53,61 +55,63 @@ videosRouter.get('/', (_req: Request, res: Response) => {
       return;
     }  
     
-    let currentDate = new Date()
-    const day = currentDate.getDate() + 1
-    const dateInMs = currentDate.setDate(day)
-    const date = new Date(dateInMs)
+    // let currentDate = new Date()
+    // const day = currentDate.getDate() + 1
+    // const dateInMs = currentDate.setDate(day)
+    // const date = new Date(dateInMs)
   
-    let currentDatePlus = new Date(currentDate.setDate(currentDate.getDate()))
+    // let currentDatePlus = new Date(currentDate.setDate(currentDate.getDate()))
   
-    const createdVideo: Videos = {
-      id: +(new Date()),
-      title: req.body.title,
-      author: req.body.author,
-      canBeDownloaded: false,
-      minAgeRestriction: req.body.minAgeRestriction ? req.body.minAgeRestriction : null,
-      createdAt: new Date().toISOString(),
-      publicationDate: date.toISOString(),
-      availableResolutions: req.body.availableResolutions
-    }
-    videos.push(createdVideo)
-   
+    // const createdVideo: Videos = {
+    //   id: +(new Date()),
+    //   title: req.body.title,
+    //   author: req.body.author,
+    //   canBeDownloaded: false,
+    //   minAgeRestriction: req.body.minAgeRestriction ? req.body.minAgeRestriction : null,
+    //   createdAt: new Date().toISOString(),
+    //   publicationDate: date.toISOString(),
+    //   availableResolutions: req.body.availableResolutions
+    // }
+    // videos.push(createdVideo)
+    const createdVideo = await videosRepository.createVideo(req.body)
     res.status(HTTP_STATUSES.CREATED_201).json(createdVideo)
   })
 
   videosRouter.put('/:id', async (req: Request, res: Response) => {
-    let result = await videosRepository.putOrDeleteData(req, res, 'put')
-    if (typeof result === 'undefined') {
+    let result = await videosRepository.updateVideosById(new ObjectId(req.params.id), req.body)
+    if (typeof result === undefined) {
       res.sendStatus(HTTP_STATUSES.NOT_FOUND)
       return
     }
   
-    else if(result && Object.entries(result)[0][0] === 'errorsMessages') {
-      res.status(HTTP_STATUSES.BAD_REQUEST_400).send(result)
-      return
-    } else if( result ) {
-      db.videos.forEach((item, ind) => {
-        if(item.id === +req.params.id) {
-          item = Object.assign(item, result)
+    // else if(result && Object.entries(result)[0][0] === 'errorsMessages') {
+    //   res.status(HTTP_STATUSES.BAD_REQUEST_400).send(result)
+    //   return
+    // } else if( result ) {
+    //   db.videos.forEach((item, ind) => {
+    //     if(item.id === +req.params.id) {
+    //       item = Object.assign(item, result)
           
-        }
-      })
+    //     }
+    //   })
+    else {
       res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
       return
     }
   })
 
   videosRouter.delete('/:id', async (req: Request, res: Response) => {
-    const result = await videosRepository.putOrDeleteData(req, res, 'delete')
+    const result = await videosRepository.deleteVideosById(new ObjectId(req.params.id))
     
-    if(typeof result === 'undefined') {
+    if(typeof result === undefined) {
       res.sendStatus(HTTP_STATUSES.NOT_FOUND)
       return
-    } else if( result ) {
-      db.videos = db.videos.filter((item, ind) => {
-        return item.id !== +req.params.id
-      })
-      
+    } 
+    // else if( result ) {
+    //   db.videos = db.videos.filter((item, ind) => {
+    //     return item.id !== +req.params.id
+    //   })
+    else {
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
     }
   })

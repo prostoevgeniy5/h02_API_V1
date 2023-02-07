@@ -4,10 +4,13 @@ import { deleteRouter } from './routes/delete-router'
 import { authMidleware } from './midlewares/authorization-midleware'
 import { postsRouter } from './routes/posts-router'
 import { bloggersRouter } from './routes/bloggers-router'
-import { postsErrorHandler } from './midlewares/postsErrorsHandler'
+// import { postsErrorHandler } from './midlewares/postsErrorsHandler'
+import { runDb } from './repositories/db'
 
 export const app = express()
 const port = process.env.PORT || 3501
+
+// mongodb+srv://evgeniy_kir:<password>@cluster0.jnxsafb.mongodb.net/?retryWrites=true&w=majority
 
 // export const HTTP_STATUSES = {
 //   OK_200: 200,
@@ -31,7 +34,11 @@ app.get('/', (req: Request, res: Response) => {
   res.send({ message: 'Hello Samurai' })
 })
 
+const startApp = async () => {
+    await runDb()
+    app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`)
+  })
+}
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+startApp()

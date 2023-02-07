@@ -1,72 +1,10 @@
-export let db: DbType = {
-    courses:[
-    {id: 1, title: 'front-end'},
-    {id: 2, title: 'back-end'},
-    {id: 3, title: 'react'}
-  ],
-  videos: [
-    {
-        "id": 0,
-        "title": "string",
-        "author": "string",
-        "canBeDownloaded": true,
-        "minAgeRestriction": 5,
-        "createdAt": "2022-12-13T09:52:47.923Z",
-        "publicationDate": "2022-12-13T09:52:47.923Z",
-        "availableResolutions": [
-          "P144"
-        ]
-      },
-      {
-        "id": 1,
-        "title": "string",
-        "author": "string",
-        "canBeDownloaded": true,
-        "minAgeRestriction": 15,
-        "createdAt": "2022-12-13T09:52:47.923Z",
-        "publicationDate": "2022-12-13T09:52:47.923Z",
-        "availableResolutions": [
-          "P144"
-        ]
-      }
-  ],
-  posts: [
-    // {
-    //   "id": "0",
-    //   "title": "A S Pushkin",
-    //   "shortDescription": "Message for dyadya",
-    //   "content": "Moy dyadya samih chesnih pravil, kogda ne v shutku sanemog, on uvajat sebya sastavil i luchshe vidumat ne smog.",
-    //   "blogId": "0",
-    //   "blogName": "Mark Solonin"},
-    // {
-    //   "id": "1",
-    //   "title": "Solomennaya shlyapka",
-    //   "shortDescription": "Libetta, Lizetta, Myuzetta",
-    //   "content": "Либетта, Лизетта, Мюзетта, Жонетта, Жоржетта. Вся жизнь моя вами как солнцем июньским согрета...",
-    //   "blogId": "2",
-    //   "blogName": "Dmitry"
-    // },
-    // {
-    //   "id": "2",
-    //   "title": "T G Shevchenko",
-    //   "shortDescription": "Message for oligarhs",
-    //   "content": "Якби ви знали, паничі, Де люде плачуть живучи, То ви б елегій не творили Та марне Бога б не хвалили",
-    //   "blogId": "1",
-    //   "blogName": "Dmitry Robionek"
-    // }
-  ],
-  bloggers: [
-    // {"id": "0", "name": "Mark Solonin", "description": "About world wars", "websiteUrl": "https://www.youtube.com/channel/UChLpUGaZO35ICTltBP50VSg"}, 
-    // {"id": "1", "name": "Dmitry Robionek", "description": "About Linux Python 3", "websiteUrl": "https://www.youtube.com/user/ideafoxvideo"},
-    // {"id": "2", "name": "Dmitry", "description": "About frontend and backend",  "websiteUrl": "https://www.youtube.com/c/ITKAMASUTRA"}
-  ],
-  getPosts: () => {
-    return db.posts
-  },
-  getBlogs: () => {
-    return db.bloggers
-  }
-}
+import { MongoClient, ObjectId } from 'mongodb'
+
+const url = 'mongodb://localhost:27018'
+// const url = 'mongodb://0.0.0.0:27018/?maxPullSize=20&w=majority'
+// const url = 'mongodb+srv://evgeniy_kir:prostoevgeniy5_kir@cluster0.jnxsafb.mongodb.net/?retryWrites=true&w=majority'
+console.log('url for db', url)
+export const client = new MongoClient(url)
 
 export type DbType = {
   courses: CoursesType[] | []
@@ -79,6 +17,7 @@ export type DbType = {
 
 export type Videos = {
     id: number
+    _id?: ObjectId
     title: string
     author: string
     canBeDownloaded: boolean
@@ -90,6 +29,7 @@ export type Videos = {
 
 export type PostsType = {
   id: string
+  _id?: ObjectId
   title: string
   shortDescription: string
   content: string
@@ -98,7 +38,8 @@ export type PostsType = {
 }
 
 export type BloggersType = {
-  id: string 
+  id: string
+  _id?: ObjectId 
   name: string
   description: string
   websiteUrl: string
@@ -106,5 +47,25 @@ export type BloggersType = {
 
 export type CoursesType = {
   id: number
+  _id?: ObjectId
   title: string
+}
+
+// export const videosCollection = client.db('blogspostsvideos').collection<Videos>('videos')
+export  const bloggersCollection = client.db('blogspostsvideos').collection<BloggersType>('bloggers')
+export const postsCollection = client.db('blogspostsvideos').collection<PostsType>('posts')
+export const coursesCollection = client.db('blogspostsvideos').collection<CoursesType>('courses')
+
+export const runDb = async () => {
+  try{
+    // Connect the client to server
+    await client.connect()
+    // verify connection
+    await client.db('blogspostsvideos').command({ping: 1})
+    console.log('Connection was successfully to server')
+  } catch(error) {
+    console.log(' ! Do not connected successfully to server with error ', error)
+    await client.close()
+  }
+  
 }
