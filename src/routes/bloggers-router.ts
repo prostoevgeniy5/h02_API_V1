@@ -1,10 +1,12 @@
 import {NextFunction, Request, Response, Router} from 'express'
-import { BloggersType, db, DbType, PostsType } from '../repositories/db'
+import { BloggersType, client, DbType, PostsType } from '../repositories/db'
+import {blogsRepository} from '../repositories/blogs-repository'
 import { body, validationResult, CustomValidator, check } from 'express-validator'
 import { inputBloggersValidation } from '../midlewares/inputBloggersValidationMiddleware'
+import { ObjectId } from 'mongodb'
 
-export let bloggers: BloggersType[] = []
-let posts: PostsType[] = []
+// export let bloggers: BloggersType[] = []
+// let posts: PostsType[] = []
 
 type ErrorsDescriptionType = {
     message: string
@@ -35,29 +37,40 @@ type ErrorsDescriptionType = {
 
   export const bloggersRouter = Router({})
 
-  bloggersRouter.get('/', (req: Request , res: Response) => {
+  bloggersRouter.get('/', async (req: Request , res: Response) => {
+    const bloggers = await blogsRepository.getBlogs()
     res.status(200).send(bloggers)
+    return
    })
    
-   bloggersRouter.get('/:id', (req: Request , res: Response) => {
-     let bloggerItem = bloggers.find( item => +item.id === +req.params.id )
-     if (bloggerItem) {
+   bloggersRouter.get('/:id', async (req: Request , res: Response) => {
+     // let bloggerItem = bloggers.find( item => +item.id === +req.params.id )
+     const bloggerItem = await blogsRepository.getBloggerById(req.params.id)
+     if (bloggerItem !== null && bloggerItem.length > 0 ) {
        res.status(200).send(bloggerItem);
      } else {
        res.sendStatus(404)
      }
    })
    
-   bloggersRouter.delete('/:id', (req: Request , res: Response) => {
-     let length = bloggers.length
-       bloggers = bloggers.filter(item => {
-       return +item.id !== Number.parseInt(req.params.id)
-     })
-     if(length > bloggers.length) {
-       res.send(204)
-     } else if(length === bloggers.length) {
-       res.send(404)
-     }
+   bloggersRouter.delete('/:id', async (req: Request , res: Response) => {
+    //  let length = bloggers.length
+    //    bloggers = bloggers.filter(item => {
+    //    return +item.id !== Number.parseInt(req.params.id)
+    //  })
+     // if(length > bloggers.length) {
+    //    res.send(204)
+    //  } else if(length === bloggers.length) {
+    //    res.send(404)
+    //  }
+    const result = await blogsRepository.deleteBlog(req.params.id)
+    if(result) {
+      res.sendStatus(204)
+      return
+    } else {
+      res.sendStatus(404)
+    }
+    return
    })
 
    const nameBodyValidation = body('name').exists().withMessage('The name field not exist').isString().withMessage('The name field is not string').trim().notEmpty().withMessage('The name field is empty').isLength({ max: 15 }).withMessage('The length of the name field is more 15 characters')
@@ -96,13 +109,13 @@ type ErrorsDescriptionType = {
     //     return res.status(400).json(postRequestErrors)
     //   }
 
-     let blogId: string = (+(new Date())).toString()
-     const newBlogger: BloggersType  = { 
-       id: blogId,
-       name: req.body.name,
-       websiteUrl: req.body.websiteUrl,
-       description: req.body.description
-     }
+        //  let blogId: string = (+(new Date())).toString()
+        //  const newBlogger: BloggersType  = { 
+        //    id: blogId,
+        //    name: req.body.name,
+        //    websiteUrl: req.body.websiteUrl,
+        //    description: req.body.description
+        //  }
     //  const newEmpyPostForNewBlogger: PostsType = {
     //   id: blogId,
     //   title: "",
@@ -111,10 +124,12 @@ type ErrorsDescriptionType = {
     //   blogId: blogId,
     //   blogName: req.body.name
     //  }
-
-     bloggers.push(newBlogger)
+    const newBlogger = await blogsRepository.createBlog(req.body)
+    
+    //  bloggers.push(newBlogger)
     //  posts.push(newEmpyPostForNewBlogger)
     res.status(201).send(newBlogger)
+    return
    })
 ///////////////////////////////////////////////   
    bloggersRouter.put('/:id', 
@@ -126,7 +141,7 @@ type ErrorsDescriptionType = {
      
     inputBloggersValidation,
 
-    (req: Request , res: Response) => {
+    async (req: Request , res: Response) => {
     // const resultErrors = validationResult(req)
 
     //  let index: number 
@@ -152,22 +167,28 @@ type ErrorsDescriptionType = {
     //     res.status(400).json(putRequestErrors)
     //     return 
     //   }
-    let index: number
-    let bloggerItem = bloggers.find( (item, ind: number) => {
-      if(+item.id === +req.params.id) {
-         index = ind
-      } return +item.id === +req.params.id })
-      if (bloggerItem) {
-        let newBloggers = bloggers.map((item, i) => {
-          if( index === i ) {
+        // let index: number
+        // let bloggerItem = bloggers.find( (item, ind: number) => {
+        //   if(+item.id === +req.params.id) {
+        //      index = ind
+        //   } return +item.id === +req.params.id })
+        //   if (bloggerItem) {
+        //     let newBloggers = bloggers.map((item, i) => {
+        //       if( index === i ) {
 
-            item = Object.assign(item, req.body)
-          }
-          return item
-        })
-        bloggers = newBloggers;  
-        return res.sendStatus(204)
-      } else {
+        //         item = Object.assign(item, req.body)
+        //       }
+        //       return item
+        //     })
+        //     bloggers = newBloggers;  
+        //     return res.sendStatus(204)
+        //   } else {
+        //   return res.sendStatus(404)
+        // }
+    const result = await blogsRepository.updateBlog(req.params.id, req.body)
+    if(result) {
+      return res.sendStatus(204)
+    } else {
       return res.sendStatus(404)
     }
   })

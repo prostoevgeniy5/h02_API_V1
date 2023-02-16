@@ -79,7 +79,7 @@ videosRouter.get('/', async (_req: Request, res: Response) => {
 
   videosRouter.put('/:id', async (req: Request, res: Response) => {
     let result = await videosRepository.updateVideosById(new ObjectId(req.params.id), req.body)
-    if (typeof result === undefined) {
+    if (!result) {
       res.sendStatus(HTTP_STATUSES.NOT_FOUND)
       return
     }

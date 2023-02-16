@@ -1,5 +1,4 @@
 import { client } from "./db"
-import { Request, Response } from 'express'
 import { ObjectId, WithId, UpdateResult } from "mongodb"
 
 // const videos: Videos[] =  videosCollection.find().toArray()
@@ -69,13 +68,9 @@ export const videosRepository = {
         //     return false
         //   }
     },
-    async updateVideosById(id: ObjectId, obj: Videos): Promise<UpdateResult | undefined> {
-     let videoItem: Promise<UpdateResult | undefined> =  videosCollection.updateOne({_id: id}, {$set: {...obj}})
-        if (videoItem) {            
-            return videoItem
-        } else {
-            return undefined
-        }
+    async updateVideosById(id: ObjectId, obj: Videos): Promise<UpdateResult | boolean> {
+     let result: UpdateResult = await videosCollection.updateOne({_id: id}, {$set: {...obj}})
+       return result.matchedCount === 1
     },
     async createVideo(obj: Videos) {
       let currentDate = new Date()
@@ -83,7 +78,7 @@ export const videosRepository = {
     const dateInMs = currentDate.setDate(day)
     const date = new Date(dateInMs)
   
-    let currentDatePlus = new Date(currentDate.setDate(currentDate.getDate()))
+    // let currentDatePlus = new Date(currentDate.setDate(currentDate.getDate()))
     let minAge = obj.minAgeRestriction ? obj.minAgeRestriction : null
     const newVideo: Videos = {
       _id: new ObjectId(),
