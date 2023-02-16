@@ -2,12 +2,11 @@ import { MongoClient, ObjectId, WithId } from 'mongodb'
 import * as dotenv from 'dotenv'
 dotenv.config()
 
-const url = process.env.MONGO_URL || 'mongodb://localhost:27018'
-
+const url = process.env.MONGO_URL
 if(!url){
   throw new Error('Url does not found')
 }
-console.log('url for db', url)
+
 export const client = new MongoClient(url)
 
 export type DbType = {
