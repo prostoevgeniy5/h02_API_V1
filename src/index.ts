@@ -10,17 +10,6 @@ import { runDb } from './repositories/db'
 export const app = express()
 const port = process.env.PORT || 3501
 
-// mongodb+srv://evgeniy_kir:<password>@cluster0.jnxsafb.mongodb.net/?retryWrites=true&w=majority
-
-// export const HTTP_STATUSES = {
-//   OK_200: 200,
-//   CREATED_201: 201,
-//   NO_CONTENT_204: 204,
-
-//   BAD_REQUEST_400: 400,
-//   NOT_FOUND: 404
-// }
-
 const parserMiddleware = express.json()
 
 app.use(parserMiddleware)
