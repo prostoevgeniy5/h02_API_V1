@@ -3,21 +3,20 @@ import { ObjectId, WithId, UpdateResult } from "mongodb"
 import { PostsType, BloggersType } from "./db"
 import { postsRepository } from "./posts-repository"
 
-// const blogsCollection = client.db('blogspostsvideos').collection<BloggersType>('bloggers')
+const blogsCollection = client.db('blogspostsvideos').collection<BloggersType>('bloggers')
 
 export const blogsRepository = {
   async getBlogs(): Promise<BloggersType[]>{
-    return client.db('blogspostsvideos').collection<BloggersType>('bloggers').find({}).toArray()
+    return await blogsCollection.find({}).toArray()
   },
 
   async getBloggerById(id: string): Promise<BloggersType[] | null>{
    
-      let result = await client.db('blogspostsvideos').collection<BloggersType>('bloggers').find({id: id}).toArray()
+      let result = await blogsCollection.find({id: id}).toArray()
       console.log('result.key = ',result.keys, Array.isArray(result))
     if(result) {
-      return client.db('blogspostsvideos').collection<BloggersType>('bloggers').find({id: id}).toArray()
+      return result
     } else {
-      // return client.db('blogspostsvideos').collection<BloggersType>('bloggers').find({}).toArray()
       return null
     }
   },
@@ -28,16 +27,17 @@ export const blogsRepository = {
        id: blogId,
        name: obj.name,
        websiteUrl: obj.websiteUrl,
-       description: obj.description
+       description: obj.description,
+       createdAt:	new Date().toISOString(),
+       isMembership: false
      }
      // резульнат содержит insertedId
-    let result = client.db('blogspostsvideos').collection<BloggersType>('bloggers').insertOne(newBlogger)
-     
+    let result = await blogsCollection.insertOne(newBlogger)
     return newBlogger
   },
   
   async updateBlog(id: string, obj: BloggersType): Promise<boolean>{
-    let result = await client.db('blogspostsvideos').collection<BloggersType>('bloggers').updateOne({id : id}, {$set: {...obj}})
+    let result = await blogsCollection.updateOne({id : id}, {$set: {...obj}})
     // если обновление успешно result.matchedCount
     return result.matchedCount === 1
   },
@@ -52,9 +52,7 @@ export const blogsRepository = {
     if(postsOfBlogger.length > 0) {
       const postsDeletedCount = postsRepository.deletePostsByBlogId(id)
     }
-    const result = await client.db('blogspostsvideos').collection<BloggersType>('bloggers').deleteOne({id: id})
-    
+    const result = await blogsCollection.deleteOne({id: id})
     return result.deletedCount === 1
   }
-
 }
