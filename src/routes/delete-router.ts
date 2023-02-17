@@ -13,7 +13,7 @@ deleteRouter.delete('/', async (req, res) => {
     result.push(await deleteAllCollections.deletePosts())
     result.push(await deleteAllCollections.deleteBlogs())
     result.push(await deleteAllCollections.deleteCourses())
-    if(result.some(el => el !== null)) {
+    // if(result.some(el => el !== null)) {
     // await db.videos.splice(0)
     // await posts.splice(0)
     // await bloggers.splice(0)
@@ -21,9 +21,10 @@ deleteRouter.delete('/', async (req, res) => {
     // if(db.videos.length === 0 && posts.length === 0 && bloggers.length === 0 &&  db.courses.length === 0) {
     //   console.log('db.posts, db.bloggers, db.videos', db.posts)
       res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
-    } else {
-      res.status(HTTP_STATUSES.BAD_REQUEST_400).send('Not all collections have been removed')
-    }
+    // } 
+    // else {
+    //   res.status(HTTP_STATUSES.BAD_REQUEST_400).send('Not all collections have been removed')
+    // }
     // }
   
   })

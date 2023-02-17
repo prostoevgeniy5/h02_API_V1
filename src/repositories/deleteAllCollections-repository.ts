@@ -30,11 +30,14 @@ export const deleteAllCollections = {
     return result
   },
 
-  async deleteCourses(): Promise<boolean | null>{
-    let result = null
+  async deleteCourses(): Promise<boolean | null | undefined >{
+    let result
     const coursesCollection = await database.collection('courses').find({}).toArray()
     if(coursesCollection.length > 0) {
       result = await database.collection('courses').drop()
+      return result
+    } else {
+      return null
     }
     return result
   }
