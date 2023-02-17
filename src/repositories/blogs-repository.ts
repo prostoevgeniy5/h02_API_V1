@@ -20,7 +20,7 @@ export const blogsRepository = {
     }
   },
 
-  async createBlog(obj: BloggersType): Promise<BloggersType> {
+  async createBlog(obj: BloggersType): Promise<WithId<BloggersType> | null> {
     let blogId: string = (+(new Date())).toString()
      const newBlogger: BloggersType  = { 
        id: blogId,
@@ -31,8 +31,17 @@ export const blogsRepository = {
        isMembership: false
      }
      // резульнат содержит insertedId
-    let result =  blogsCollection.insertOne(newBlogger)
-    return newBlogger
+    let result = await blogsCollection.insertOne(newBlogger)
+    
+    const bloger: WithId<BloggersType> | null =  await blogsCollection.findOne({id: blogId})
+    
+    if(bloger != null) {
+      console.log('bloger._id === result.insertedId', bloger._id === result.insertedId)
+      return bloger
+    } else {
+      return null
+    }
+    
   },
   
   async updateBlog(id: string, obj: BloggersType): Promise<boolean>{
