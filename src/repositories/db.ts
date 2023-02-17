@@ -2,15 +2,6 @@ import { MongoClient, ObjectId, WithId } from 'mongodb'
 import * as dotenv from 'dotenv'
 dotenv.config()
 
-const url = process.env.MONGO_URL
-console.log('process.env.MONGO_URL', process.env.MONGO_URL)
-
-if(!url){
-  throw new Error('Url does not found')
-}
-
-export const client = new MongoClient(url)
-
 export type DbType = {
   courses: CoursesType[] | []
   videos: Videos[] | []
@@ -53,6 +44,15 @@ export type CoursesType = {
   _id?: ObjectId
   title: string
 }
+
+const url = process.env.MONGO_URL
+console.log('process.env.MONGO_URL', process.env.MONGO_URL)
+
+if(!url){
+  throw new Error('Url does not found')
+}
+
+export const client = new MongoClient(url)
 
 export const runDb = async () => {
   try{
