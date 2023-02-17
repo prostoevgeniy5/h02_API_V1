@@ -7,13 +7,12 @@ const blogsCollection = client.db('blogspostsvideos').collection<BloggersType>('
 
 export const blogsRepository = {
   async getBlogs(): Promise<BloggersType[]>{
-    return await blogsCollection.find({}).toArray()
+    return blogsCollection.find({}).toArray()
   },
 
   async getBloggerById(id: string): Promise<BloggersType[] | null>{
    
-      let result = await blogsCollection.find({id: id}).toArray()
-      console.log('result.key = ',result.keys, Array.isArray(result))
+      let result = blogsCollection.find({id: id}).toArray()
     if(result) {
       return result
     } else {
@@ -32,7 +31,7 @@ export const blogsRepository = {
        isMembership: false
      }
      // резульнат содержит insertedId
-    let result = await blogsCollection.insertOne(newBlogger)
+    let result =  blogsCollection.insertOne(newBlogger)
     return newBlogger
   },
   
@@ -44,7 +43,6 @@ export const blogsRepository = {
 
   async deleteBlog(id: string): Promise<boolean>{
     const posts = await postsRepository.getPosts()
-    console.log('deleteBlog posts',posts)
     const postsOfBlogger = posts.filter(elem => {
       return elem.blogId === id
     })
@@ -53,6 +51,7 @@ export const blogsRepository = {
       const postsDeletedCount = postsRepository.deletePostsByBlogId(id)
     }
     const result = await blogsCollection.deleteOne({id: id})
+    
     return result.deletedCount === 1
   }
 }
