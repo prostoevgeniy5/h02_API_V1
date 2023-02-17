@@ -59,7 +59,7 @@ export const runDb = async () => {
     // Connect the client to server
     await client.connect()
     // verify connection
-    await client.db('blogspostsvideos').command({ping: 1})
+    // await client.db('blogspostsvideos').command({ping: 1})
     console.log('Connection was successfully to server')
   } catch(error) {
     console.log(' ! Do not connected successfully to server with error ', error)
