@@ -7,7 +7,7 @@ const blogsCollection = client.db('blogspostsvideos').collection<BloggersType>('
 
 export const blogsRepository = {
   async getBlogs(): Promise<BloggersType[]>{
-    return blogsCollection.find({}).toArray()
+    return blogsCollection.find({}, {projection: {_id: 0}}).toArray()
   },
 
   async getBloggerById(id: string): Promise<BloggersType[] | null>{
