@@ -32,6 +32,7 @@ export type PostsType = {
 
 export type BloggersType = {
   id: string 
+  _id?: ObjectId
   name: string
   description: string
   websiteUrl: string
