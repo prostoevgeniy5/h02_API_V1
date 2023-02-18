@@ -28,7 +28,7 @@ postsRouter.get('/', async (_req: Request, res: Response) => {
 postsRouter.get('/:id', async (req: Request, res: Response) => {
   let postsItem = await postsRepository.getPostsById(req.params.id)
   if (postsItem !== null && postsItem.length >0) {
-    res.status(200).json(postsItem);
+    res.status(200).json(postsItem[0]);
     return
   } else {
     res.sendStatus(404);
