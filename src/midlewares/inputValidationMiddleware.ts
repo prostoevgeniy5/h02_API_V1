@@ -6,7 +6,7 @@ export const inputValidationMiddleware = (req: Request, res: Response, next: Nex
     const validation = validationResult(req)
     if (!validation.isEmpty()) {
         const errors = validation.array({onlyFirstError: true })
-        return res.status(400).send({'errorsMessages': errors.map(e => ({
+        return res.status(404).send({'errorsMessages': errors.map(e => ({
             message: e.msg,
             field: e.param
         }))})
