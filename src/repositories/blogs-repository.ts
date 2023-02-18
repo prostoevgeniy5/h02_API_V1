@@ -12,7 +12,7 @@ export const blogsRepository = {
 
   async getBloggerById(id: string): Promise<BloggersType[] | null>{
    
-      let result = blogsCollection.find({id: id}).toArray()
+      let result = blogsCollection.find({id: id}, {projection:{_id: 0}}).toArray()
     if(result) {
       return result
     } else {
@@ -33,7 +33,7 @@ export const blogsRepository = {
      // резульнат содержит insertedId
     let result = await blogsCollection.insertOne(newBlogger)
     
-    const bloger: WithId<BloggersType> | null =  await blogsCollection.findOne({id: blogId})
+    const bloger: WithId<BloggersType> | null =  await blogsCollection.findOne({id: blogId}, {projection:{_id: 0}})
     
     if(bloger != null) {
       console.log('bloger._id === result.insertedId', bloger._id === result.insertedId)
