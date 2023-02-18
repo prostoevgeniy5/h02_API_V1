@@ -21,6 +21,7 @@ export const postsRepository = {
 
   async createPost(obj: PostsType): Promise<PostsType | null>{
     const blogger = await blogsRepository.getBloggerById(obj.blogId)
+
     if (blogger) {
       let name = blogger[0].name
       const newPost: PostsType = {
@@ -32,8 +33,8 @@ export const postsRepository = {
         "blogName": name,
         "createdAt": new Date().toISOString()
       };
-      let res = database.insertOne(newPost)
-      
+      let res = await database.insertOne(newPost)
+      console.log('insertedIdres.insertedId', res.insertedId)
       const result = await database.find({id: newPost.id}, {projection: {_id: 0}}).toArray()
       return result[0]
     } else {
