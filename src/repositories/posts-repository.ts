@@ -23,7 +23,7 @@ export const postsRepository = {
     const blogger = await blogsRepository.getBloggerById(obj.blogId)
     if (blogger) {
       let name = blogger[0].name
-      const newPost = {
+      const newPost: PostsType = {
         id: (+(new Date())).toString(),
         "title": obj.title,
         "shortDescription": obj.shortDescription,
@@ -32,8 +32,10 @@ export const postsRepository = {
         "blogName": name,
         "createdAt": new Date().toISOString()
       };
-      const result = database.insertOne(newPost)
-      return newPost
+      let res = database.insertOne(newPost)
+      
+      const result = await database.find({id: newPost.id}, {projection: {_id: 0}}).toArray()
+      return result[0]
     } else {
       return null
     }
