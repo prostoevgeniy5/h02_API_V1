@@ -90,7 +90,7 @@ updatePostValidationMiddleware,
     // const blogger = bloggers.find(item => item.id === req.body.blogId)
     // if (!blogger) return res.sendStatus(400)
     // const post = posts.find(p => p.id === req.params.postId)
-    const post = postsRepository.updatePost(req.params.id, req.body)
+    const post = postsRepository.updatePost(req.params.postId, req.body)
     if (!post) return res.sendStatus(404)
     // post.title = req.body.title
     // post.shortDescription = req.body.shortDescription;
