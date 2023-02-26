@@ -22,12 +22,12 @@ import { bodyRequestValidationPosts, bodyRequestValidationPostsUpdate } from '..
 
 export const postsRouter = Router({})
 
-postsRouter.get('/', async (_req: Request, res: Response) => {
+postsRouter.get('/', async (req: Request, res: Response) => {
   const posts = await postsService.getPosts()
   if(posts) {
-    res.status(200).json(posts);
+    return res.status(200).json(posts);
   }
-  res.sendStatus(404)
+  // res.sendStatus(404)
 });
 
 postsRouter.get('/:id', async (req: Request, res: Response) => {

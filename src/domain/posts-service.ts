@@ -13,7 +13,7 @@ export const postsService = {
     if(result) {
       return result
     }
-    return undefined
+    return []
   },
 
   async getPostsById(id: string): Promise<PostsType[] | null>{
