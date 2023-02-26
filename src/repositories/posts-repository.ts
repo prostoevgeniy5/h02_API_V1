@@ -5,14 +5,18 @@ import { PostsType, BloggersType } from "./db"
 const database = client.db('blogspostsvideos').collection<PostsType>('posts')
 
 export const postsRepository = {
-  async getPosts(): Promise<PostsType[]>{
-    const result =  database.find({},{projection:{_id: 0}}).toArray()
-    return result
+  async getPosts(): Promise<PostsType[] | null>{
+    const result = await database.find({},{projection:{_id: 0}}).toArray()
+    if(result !== null) {
+      return result  
+    }
+    return null
   },
 
   async getPostsById(id: string): Promise<PostsType[] | null>{
-    if(id) {
-      const result =  database.find({id: id}, {projection:{_id: 0}}).toArray()
+    
+    const result =  database.find({id: id}, {projection:{_id: 0}}).toArray()
+    if(result) {
       return result
     } else {
       return null

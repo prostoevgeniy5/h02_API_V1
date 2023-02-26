@@ -31,10 +31,9 @@ export type PostsType = {
   blogName: string
   createdAt: string
 }
-
+ //  _id?: ObjectId
 export type BloggersType = {
   id: string 
-  _id?: ObjectId
   name: string
   description: string
   websiteUrl: string
@@ -49,7 +48,6 @@ export type CoursesType = {
 }
 
 const url = process.env.MONGO_URL
-console.log('process.env.MONGO_URL', process.env.MONGO_URL)
 
 if(!url){
   throw new Error('Url does not found')

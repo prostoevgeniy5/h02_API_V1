@@ -12,7 +12,7 @@ export const blogsRepository = {
 
   async getBloggerById(id: string): Promise<BloggersType[] | null>{
    
-      let result = blogsCollection.find({id: id}, {projection:{_id: 0}}).toArray()
+      let result = await blogsCollection.find({id: id}, {projection:{_id: 0}}).toArray()
     if(result) {
       return result
     } else {
@@ -20,7 +20,7 @@ export const blogsRepository = {
     }
   },
 
-  async createBlog(obj: BloggersType): Promise<WithId<BloggersType> | null> {
+  async createBlog(obj: BloggersType): Promise<BloggersType | null> {
     let blogId: string = (+(new Date())).toString()
      const newBlogger: BloggersType  = { 
        id: blogId,
@@ -33,11 +33,11 @@ export const blogsRepository = {
      // резульнат содержит insertedId
     let result = await blogsCollection.insertOne(newBlogger)
     
-    const bloger: WithId<BloggersType> | null =  await blogsCollection.findOne({id: blogId}, {projection:{_id: 0}})
+    const bloger = await blogsRepository.getBloggerById(blogId)
     
     if(bloger != null) {
-      console.log('bloger._id === result.insertedId', bloger._id === result.insertedId)
-      return bloger
+      console.log('bloger._id === result.insertedId', bloger)
+      return bloger[0]
     } else {
       return null
     }
@@ -52,9 +52,12 @@ export const blogsRepository = {
 
   async deleteBlog(id: string): Promise<boolean>{
     const posts = await postsRepository.getPosts()
-    const postsOfBlogger = posts.filter(elem => {
-      return elem.blogId === id
-    })
+    let postsOfBlogger = []
+    if(posts !== null) {
+      postsOfBlogger = posts.filter(elem => {
+        return elem.blogId === id
+      })
+    }
   
     if(postsOfBlogger.length > 0) {
       const postsDeletedCount = postsRepository.deletePostsByBlogId(id)

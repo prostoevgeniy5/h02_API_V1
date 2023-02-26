@@ -6,6 +6,8 @@ import { errorsType, errorsDescription, errorFields } from '../midlewares/postsE
 import { inputValidationMiddleware } from '../midlewares/inputValidationMiddleware';
 import { blogsRepository } from '../repositories/blogs-repository';
 import { postsRepository } from '../repositories/posts-repository';
+import { postsService } from '../domain/posts-service';
+import { bodyRequestValidationPosts, bodyRequestValidationPostsUpdate } from '../midlewares/posts-validation';
 
 // export let posts: PostsType[] = []
 
@@ -21,12 +23,15 @@ import { postsRepository } from '../repositories/posts-repository';
 export const postsRouter = Router({})
 
 postsRouter.get('/', async (_req: Request, res: Response) => {
-  const posts = await postsRepository.getPosts()
-  res.status(200).json(posts);
+  const posts = await postsService.getPosts()
+  if(posts) {
+    res.status(200).json(posts);
+  }
+  res.sendStatus(404)
 });
 
 postsRouter.get('/:id', async (req: Request, res: Response) => {
-  let postsItem = await postsRepository.getPostsById(req.params.id)
+  let postsItem = await postsService.getPostsById(req.params.id)
   if (postsItem !== null && postsItem.length >0) {
     res.status(200).json(postsItem[0]);
     return
@@ -38,16 +43,17 @@ postsRouter.get('/:id', async (req: Request, res: Response) => {
 //////////////////////////////////////////////
 postsRouter.post('/',
 
-  body('title').isString().trim().notEmpty().isLength({ max: 30 }),
-  body('shortDescription').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
-  body('content').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
-  body('blogId').isString().trim().notEmpty().custom(async (value) => {
-    const blogs = await blogsRepository.getBlogs()
-    const blog = blogs.find(b => b.id === value)
-    console.log(blog, value, 'custom validator')
-    if (!blog) throw new Error()
-    return true                                                                                                                                                   
-  }).withMessage('blogId is invalid'),
+  // body('title').isString().trim().notEmpty().isLength({ max: 30 }),
+  // body('shortDescription').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
+  // body('content').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
+  // body('blogId').isString().trim().notEmpty().custom(async (value) => {
+  //   const blogs = await blogsRepository.getBlogs()
+  //   const blog = blogs.find(b => b.id === value)
+  //   console.log(blog, value, 'custom validator')
+  //   if (!blog) throw new Error()
+  //   return true                                                                                                                                                   
+  // }).withMessage('blogId is invalid'),
+  bodyRequestValidationPosts,
   inputValidationMiddleware,
   async (req: Request, res: Response) => {
     // const blogger = bloggers.find(item => item.id === req.body.blogId)
@@ -63,37 +69,38 @@ postsRouter.post('/',
     //   "blogName": blogger.name
     // };
     // posts.push(newPost);
-    const newPost = await postsRepository.createPost(req.body)
+    const newPost = await postsService.createPost(req.body)
     if(newPost) {
       return res.status(201).json(newPost);
     }
       return res.sendStatus(400)
   });
 
-const postTitleValidation = body('title').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 30 }).withMessage('length must be less than 30 characters')
+// const postTitleValidation = body('title').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 30 }).withMessage('length must be less than 30 characters')
 
-const updatePostValidationMiddleware = [postTitleValidation,
-body('shortDescription').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
-body('content').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
-body('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom(async (value) => {
-  const blogs = await blogsRepository.getBlogs() 
-  const blog = blogs.find(b => b.id === value)
-  if (!blog) throw new Error()
-  return true                                                                                                                                                   
-}),
+// const updatePostValidationMiddleware = [postTitleValidation,
+// body('shortDescription').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
+// body('content').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
+// body('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom(async (value) => {
+//   const blogs = await blogsRepository.getBlogs() 
+//   const blog = blogs.find(b => b.id === value)
+//   if (!blog) throw new Error()
+//   return true                                                                                                                                                   
+// }),
 // param(["postId", "Bad postId of req.params"]).exists().isString().custom((value, {req}) => {
 
 //}) ,
-inputValidationMiddleware]
+// inputValidationMiddleware]
 
 postsRouter.put('/:postId',
-updatePostValidationMiddleware,
+bodyRequestValidationPostsUpdate,
+inputValidationMiddleware,
   async (req: Request, res: Response) => {
     
     // const blogger = bloggers.find(item => item.id === req.body.blogId)
     // if (!blogger) return res.sendStatus(400)
     // const post = posts.find(p => p.id === req.params.postId)
-    const post = await postsRepository.updatePost(req.params.postId, req.body)
+    const post = await postsService.updatePost(req.params.postId, req.body)
     if (!post) return res.sendStatus(404)
     // post.title = req.body.title
     // post.shortDescription = req.body.shortDescription;
@@ -110,7 +117,7 @@ postsRouter.delete('/:id', async (req: Request, res: Response) => {
   //   return +item.id !== +req.params.id;
   // });
   // if (length > posts.length) {
-    const result = await postsRepository.deletePost(req.params.id)
+    const result = await postsService.deletePost(req.params.id)
     if(result) {
     res.sendStatus(204);
     return
