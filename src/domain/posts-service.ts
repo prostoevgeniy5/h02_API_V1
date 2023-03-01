@@ -1,5 +1,3 @@
-
-
 import { postsRepository } from "../repositories/posts-repository"
 // import { client } from "./db"
 import { PostsType, BloggersType } from "../repositories/db"
@@ -46,6 +44,33 @@ export const postsService = {
         }
       }
       else {
+        return null
+      }
+    } else {
+      return undefined
+    }
+  },
+
+  async createPostByBlogId(blogId: string, obj: PostsType): Promise<PostsType | null |undefined> {
+    const blogger = await blogsRepository.getBloggerById(blogId)
+    if (blogger) {
+      let name = blogger[0].name
+      const newPost: PostsType = {
+        id: (+(new Date())).toString(),
+        "title": obj.title,
+        "shortDescription": obj.shortDescription,
+        "content": obj.content,
+        "blogId": blogId,
+        "blogName": name,
+        "createdAt": new Date().toISOString()
+      };
+      let res = await postsRepository.createPost(newPost)
+      if(res !== null) {
+        // const result = await postsRepository.getPostsById(newPost.id)
+        // if(res !== null) {
+          return res
+        // }
+      } else {
         return null
       }
     } else {

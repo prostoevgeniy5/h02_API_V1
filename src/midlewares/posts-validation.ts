@@ -8,7 +8,6 @@ export const bodyRequestValidationPosts = [
   body('blogId').isString().trim().notEmpty().custom(async (value) => {
     const blogs = await blogsRepository.getBlogs()
     const blog = blogs.find(b => b.id === value)
-    console.log(blog, value, 'custom validator')
     if (!blog) throw new Error()
     return true                                                                                                                                                   
   }).withMessage('blogId is invalid')

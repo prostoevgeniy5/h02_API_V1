@@ -2,10 +2,13 @@ import {NextFunction, Request, Response, Router} from 'express'
 // import { BloggersType, client, DbType, PostsType } from '../repositories/db'
 import { blogsService } from '../domain/blogs-servise'
 import {blogsRepository} from '../repositories/blogs-repository'
+import { postsRepository } from '../repositories/posts-repository'
 // import { body, validationResult, CustomValidator, check } from 'express-validator'
 import { inputBloggersValidation } from '../midlewares/inputBloggersValidationMiddleware'
 // import { ObjectId } from 'mongodb'
 import { bodyRequestValidationBlogs } from '../midlewares/blogs-validation'
+import { postsService } from '../domain/posts-service'
+import { bodyRequestValidationPosts } from '../midlewares/posts-validation'
 
 // export let bloggers: BloggersType[] = []
 // let posts: PostsType[] = []
@@ -42,6 +45,23 @@ type ErrorsDescriptionType = {
        res.sendStatus(404)
      }
    })
+
+   bloggersRouter.get('/:id/posts', async (req: Request , res: Response) => {
+    // let bloggerItem = bloggers.find( item => +item.id === +req.params.id )
+    console.log('req.params', req.params)
+    console.log('req.query', req.query);
+    console.log('req', req.path);
+    
+    const postsForBlogId = await postsRepository.getPostsByBlogId(req.params.id, req.query)
+    console.log(postsForBlogId)
+    // const posts = await postsRepository.getPosts
+    if (postsForBlogId !== null && postsForBlogId.length > 0 ) {
+      
+      res.status(200).send(postsForBlogId);
+    } else {
+      res.sendStatus(404)
+    }
+  })
    
    bloggersRouter.delete('/:id', async (req: Request , res: Response) => {
     
@@ -67,8 +87,27 @@ type ErrorsDescriptionType = {
    
    async (req: Request , res: Response) => {
     const newBlogger = await blogsService.createBlog(req.body)
-    res.status(201).send(newBlogger)
-    return
+    if(newBlogger) {
+      res.status(201).send(newBlogger)
+    } else {
+      res.sendStatus(404)
+    } 
+   })
+
+   bloggersRouter.post('/:id/posts', 
+  
+   // [nameBodyValidation, websiteUrlBodyValidation, descriptionBodyValidation],
+   bodyRequestValidationPosts,
+   inputBloggersValidation,
+   
+   async (req: Request , res: Response) => {
+    const newPost = await postsService.createPostByBlogId(req.params.id, req.body)
+    if(newPost) {
+      return res.status(201).send(newPost)
+    } else if(newPost === null) {
+      return res.sendStatus(404)
+    }
+    return res.sendStatus(400)
    })
 ///////////////////////////////////////////////   
    bloggersRouter.put('/:id', 

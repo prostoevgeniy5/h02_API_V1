@@ -47,6 +47,13 @@ export type CoursesType = {
   title: string
 }
 
+export type RequestQueryType = {
+  pageNumber: number
+  pageSize: number
+  sortBy: string
+  sortDirection: string
+}
+
 const url = process.env.MONGO_URL
 
 if(!url){

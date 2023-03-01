@@ -1,6 +1,7 @@
+import { Sort } from "mongodb"
 import { blogsRepository } from "./blogs-repository"
 import { client } from "./db"
-import { PostsType, BloggersType } from "./db"
+import { PostsType, RequestQueryType, BloggersType } from "./db"
 
 const database = client.db('blogspostsvideos').collection<PostsType>('posts')
 
@@ -69,5 +70,18 @@ export const postsRepository = {
     const result = await database.deleteMany({blogId: blogid})
     // result.deletedCount
     return result.deletedCount
+  },
+
+  async getPostsByBlogId(blogId: string, queryObj: RequestQueryType): Promise<PostsType[] | null> {
+    let sortedBy: Sort = queryObj.sortBy === "createdAt" || queryObj.sortBy === undefined ? "createdAt" : queryObj.sortBy
+    // if(queryObj.sortDirection !== undefined ||queryObj.sortDirection ) {
+
+    // }
+     let sortDir: Sort = queryObj.sortDirection === "desc" || queryObj.sortDirection === undefined ? -1 : 1
+    const posts = await database.find({blogId: blogId}, {projection: {_id: 0}}).sort({sortBy: sortDir}).toArray()
+    if(posts.length > 0) {
+      return posts
+    }
+    return null 
   }
 }
