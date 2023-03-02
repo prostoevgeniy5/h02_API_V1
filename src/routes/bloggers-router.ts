@@ -104,10 +104,10 @@ type ErrorsDescriptionType = {
     const newPost = await postsService.createPostByBlogId(req.params.id, req.body)
     if(newPost) {
       return res.status(201).send(newPost)
-    } else if(newPost === null || newPost === undefined) {
+    } else if(newPost === null) {
       return res.sendStatus(404)
     }
-    // return res.sendStatus(40)
+    return res.sendStatus(400)
    })
 ///////////////////////////////////////////////   
    bloggersRouter.put('/:id', 
