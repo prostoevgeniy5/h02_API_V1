@@ -13,7 +13,7 @@ export const blogsRepository = {
   async getBloggerById(id: string): Promise<BloggersType[] | null>{
    
       let result = await blogsCollection.find({id: id}, {projection:{_id: 0}}).toArray()
-    if(result) {
+    if(result.length > 0) {
       return result
     } else {
       return null
