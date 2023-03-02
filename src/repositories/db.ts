@@ -47,12 +47,27 @@ export type CoursesType = {
   title: string
 }
 
-export type RequestQueryType = {
-  pageNumber: number
-  pageSize: number
-  sortBy: string
-  sortDirection: string
+export type ReqQueryType = {
+  pageNumber?: number
+  pageSize?: number
+  sortBy?: string
+  sortDirection?: string
 }
+
+export type PostViewModelType = {
+  pagesCount:number
+  page: number
+  pageSize: number
+  totalCount:number
+  items: PostsType[] | []
+}   
+
+// export type  QueryType ={
+//   pageNumber: number
+//   page: number
+//   pageSize: number
+//   createdAt: string
+//  }
 
 const url = process.env.MONGO_URL
 

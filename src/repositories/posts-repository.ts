@@ -1,7 +1,7 @@
 import { Sort } from "mongodb"
 import { blogsRepository } from "./blogs-repository"
-import { client } from "./db"
-import { PostsType, RequestQueryType, BloggersType } from "./db"
+import { client, PostViewModelType} from "./db"
+import { PostsType, ReqQueryType, BloggersType } from "./db"
 
 const database = client.db('blogspostsvideos').collection<PostsType>('posts')
 
@@ -72,15 +72,40 @@ export const postsRepository = {
     return result.deletedCount
   },
 
-  async getPostsByBlogId(blogId: string, queryObj: RequestQueryType): Promise<PostsType[] | null> {
-    let sortedBy: Sort = queryObj.sortBy === "createdAt" || queryObj.sortBy === undefined ? "createdAt" : queryObj.sortBy
-    // if(queryObj.sortDirection !== undefined ||queryObj.sortDirection ) {
-
-    // }
-     let sortDir: Sort = queryObj.sortDirection === "desc" || queryObj.sortDirection === undefined ? -1 : 1
-    const posts = await database.find({blogId: blogId}, {projection: {_id: 0}}).sort({sortBy: sortDir}).toArray()
+  async getPostsByBlogId(blogId: string, requestQuery: ReqQueryType): Promise<PostViewModelType | null> {
+    const queryObj = requestQuery
+    let pagesCount: number, totalCount: number
+    let pageNumber: number = queryObj.pageNumber !== undefined ? +queryObj.pageNumber : 1;
+    let pageSize: number = queryObj.pageSize !== undefined ? +queryObj.pageSize : 10;
+    let skipDocumentsCount: number = (pageNumber - 1) * pageSize
+    let sortBy: string = queryObj.sortBy === "createdAt" || queryObj.sortBy === undefined ? "createdAt" : queryObj.sortBy
+    let posts: PostsType[] = []
+    let sortDir: Sort =queryObj.sortDirection === "desc" || queryObj.sortDirection === undefined ? -1 : 1
+    totalCount = await database.find({blogId: blogId}, {projection: {_id: 0}}).sort({"createdAt": sortDir}).count()
+    if(totalCount) {
+      if(queryObj.sortBy === "createdAt" || queryObj.sortBy === undefined) {
+        posts = await database.find({blogId: blogId}, {projection: {_id: 0}}).sort({"createdAt": sortDir}).skip(skipDocumentsCount).limit(pageSize).toArray()
+      } else if(queryObj.sortBy === "title") {
+        posts = await database.find({blogId: blogId}, {projection: {_id: 0}}).sort({"title": sortDir}).skip(skipDocumentsCount).limit(pageSize).toArray()
+      } else if(queryObj.sortBy === "shortDescription") {
+        posts = await database.find({blogId: blogId}, {projection: {_id: 0}}).sort({"shortDescription": sortDir}).skip(skipDocumentsCount).limit(pageSize).toArray()
+      }  else if(queryObj.sortBy === "content") {
+        posts = await database.find({blogId: blogId}, {projection: {_id: 0}}).sort({"content": sortDir}).skip(skipDocumentsCount).limit(pageSize).toArray()
+      }      
+    }
     if(posts.length > 0) {
-      return posts
+      // totalCount = posts.length
+      pagesCount = Math.ceil( totalCount / pageSize )
+      const resultObject: PostViewModelType = {
+        "pagesCount": pagesCount,
+        "page": pageNumber,
+        "pageSize": pageSize,
+        "totalCount": totalCount,
+        "items": []
+
+      }
+      resultObject.items = posts.map(item => item)
+      return resultObject
     }
     return null 
   }

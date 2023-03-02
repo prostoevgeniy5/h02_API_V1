@@ -1,4 +1,4 @@
-import {NextFunction, Request, Response, Router} from 'express'
+import {NextFunction, Request, Response, Router } from 'express'
 // import { BloggersType, client, DbType, PostsType } from '../repositories/db'
 import { blogsService } from '../domain/blogs-servise'
 import {blogsRepository} from '../repositories/blogs-repository'
@@ -54,8 +54,8 @@ type ErrorsDescriptionType = {
     
     const postsForBlogId = await postsRepository.getPostsByBlogId(req.params.id, req.query)
     console.log(postsForBlogId)
-    // const posts = await postsRepository.getPosts
-    if (postsForBlogId !== null && postsForBlogId.length > 0 ) {
+    
+    if (postsForBlogId !== null) {
       
       res.status(200).send(postsForBlogId);
     } else {

@@ -8,7 +8,7 @@ import { bloggersRouter } from './routes/bloggers-router'
 import { runDb } from './repositories/db'
 
 export const app = express()
-const port = process.env.PORT || 3501
+const port = process.env.PORT || 3502
 
 const parserMiddleware = express.json()
 
