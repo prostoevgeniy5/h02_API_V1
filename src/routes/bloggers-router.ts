@@ -39,8 +39,8 @@ type ErrorsDescriptionType = {
    bloggersRouter.get('/:id', async (req: Request , res: Response) => {
      // let bloggerItem = bloggers.find( item => +item.id === +req.params.id )
      const bloggerItem = await blogsRepository.getBloggerById(req.params.id)
-     if (bloggerItem !== null && bloggerItem.length > 0 ) {
-       res.status(200).send(bloggerItem[0]);
+     if (bloggerItem !== null) {
+       res.status(200).send(bloggerItem);
      } else {
        res.sendStatus(404)
      }

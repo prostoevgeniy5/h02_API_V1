@@ -10,11 +10,11 @@ export const blogsRepository = {
     return blogsCollection.find({}, {projection: {_id: 0}}).toArray()
   },
 
-  async getBloggerById(id: string): Promise<BloggersType[] | null>{
+  async getBloggerById(id: string): Promise<BloggersType | null>{
    
       let result = await blogsCollection.find({id: id}, {projection:{_id: 0}}).toArray()
     if(result.length > 0) {
-      return result
+      return result[0]
     } else {
       return null
     }
@@ -32,12 +32,12 @@ export const blogsRepository = {
      }
      // резульнат содержит insertedId
     let result = await blogsCollection.insertOne(newBlogger)
-    
+  
     const bloger = await blogsRepository.getBloggerById(blogId)
     
     if(bloger != null) {
       console.log('bloger._id === result.insertedId', bloger)
-      return bloger[0]
+      return bloger
     } else {
       return null
     }

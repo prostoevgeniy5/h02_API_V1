@@ -34,12 +34,11 @@ export const blogsService = {
      }
      // резульнат содержит insertedId
     let result = await blogsRepository.createBlog(newBlogger)
+    // const bloger =  await blogsRepository.getBloggerById(blogId)
     
-    const bloger =  await blogsRepository.getBloggerById(blogId)
-    
-    if(bloger != null && bloger != undefined) {
+    if(result != null && result != undefined) {
       // console.log('bloger._id === result.insertedId', bloger._id === result.insertedId)
-      return bloger[0]
+      return result
     } else {
       return null
     }

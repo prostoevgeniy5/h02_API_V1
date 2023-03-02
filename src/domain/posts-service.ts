@@ -26,7 +26,7 @@ export const postsService = {
   async createPost(obj: PostsType): Promise<PostsType | null | undefined>{
     const blogger = await blogsRepository.getBloggerById(obj.blogId)
     if (blogger) {
-      let name = blogger[0].name
+      let name = blogger.name
       const newPost: PostsType = {
         id: (+(new Date())).toString(),
         "title": obj.title,
@@ -36,7 +36,7 @@ export const postsService = {
         "blogName": name,
         "createdAt": new Date().toISOString()
       };
-      let res = await postsRepository.createPost(newPost)
+      let res = await postsRepository.createPost(newPost, blogger)
       if(res !== null) {
         const result = await postsRepository.getPostsById(newPost.id)
         if(result !== null) {
@@ -54,7 +54,7 @@ export const postsService = {
   async createPostByBlogId(blogId: string, obj: PostsType): Promise<PostsType | null |undefined> {
     const blogger = await blogsRepository.getBloggerById(blogId)
     if (blogger) {
-      let name = blogger[0].name
+      let name = blogger.name
       const newPost: PostsType = {
         id: (+(new Date())).toString(),
         "title": obj.title,
@@ -64,7 +64,7 @@ export const postsService = {
         "blogName": name,
         "createdAt": new Date().toISOString()
       };
-      let res = await postsRepository.createPost(newPost)
+      let res = await postsRepository.createPost(newPost, blogger)
       if(res !== null) {
         // const result = await postsRepository.getPostsById(newPost.id)
         // if(res !== null) {

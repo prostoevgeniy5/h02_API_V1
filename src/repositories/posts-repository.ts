@@ -24,11 +24,11 @@ export const postsRepository = {
     }
   },
 
-  async createPost(obj: PostsType): Promise<PostsType | null>{
-    const blogger = await blogsRepository.getBloggerById(obj.blogId)
+  async createPost(obj: PostsType, objBlogger: BloggersType): Promise<PostsType | null>{
+    // const blogger = await blogsRepository.getBloggerById(obj.blogId)
 
-    if (blogger) {
-      let name = blogger[0].name
+    if (objBlogger) {
+      let name = objBlogger.name
       const newPost: PostsType = {
         id: (+(new Date())).toString(),
         "title": obj.title,
