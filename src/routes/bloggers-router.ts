@@ -53,7 +53,7 @@ type ErrorsDescriptionType = {
     console.log('req', req.path);
     
     const postsForBlogId = await postsRepository.getPostsByBlogId(req.params.id, req.query)
-    console.log(postsForBlogId)
+    console.log('result of getPostByBlogId',postsForBlogId)
     
     if (postsForBlogId !== null) {
       
