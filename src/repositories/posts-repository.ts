@@ -81,7 +81,7 @@ export const postsRepository = {
     let sortBy: string = queryObj.sortBy === "createdAt" || queryObj.sortBy === undefined ? "createdAt" : queryObj.sortBy
     let posts: PostsType[] = []
     let sortDir: Sort =queryObj.sortDirection === "desc" || queryObj.sortDirection === undefined ? -1 : 1
-    totalCount = await database.find({blogId: blogId}, {projection: {_id: 0}}).sort({"createdAt": sortDir}).count()
+    totalCount = await (await database.find({blogId: blogId}, {projection: {_id: 0}}).sort({"createdAt": sortDir}).toArray()).length
     if(totalCount) {
       if(queryObj.sortBy === "createdAt" || queryObj.sortBy === undefined) {
         posts = await database.find({blogId: blogId}, {projection: {_id: 0}}).sort({"createdAt": sortDir}).skip(skipDocumentsCount).limit(pageSize).toArray()
