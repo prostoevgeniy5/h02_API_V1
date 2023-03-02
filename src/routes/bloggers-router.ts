@@ -8,7 +8,7 @@ import { inputBloggersValidation } from '../midlewares/inputBloggersValidationMi
 // import { ObjectId } from 'mongodb'
 import { bodyRequestValidationBlogs } from '../midlewares/blogs-validation'
 import { postsService } from '../domain/posts-service'
-import { bodyRequestValidationPosts } from '../midlewares/posts-validation'
+import { bodyRequestValidationPostsForBlogId } from '../midlewares/posts-validation'
 
 // export let bloggers: BloggersType[] = []
 // let posts: PostsType[] = []
@@ -97,7 +97,7 @@ type ErrorsDescriptionType = {
    bloggersRouter.post('/:id/posts', 
   
    // [nameBodyValidation, websiteUrlBodyValidation, descriptionBodyValidation],
-   bodyRequestValidationPosts,
+   bodyRequestValidationPostsForBlogId,
    inputBloggersValidation,
    
    async (req: Request , res: Response) => {
