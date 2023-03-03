@@ -7,8 +7,9 @@ export const bodyRequestValidationPosts = [
   body('content').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
   body('blogId').isString().trim().notEmpty().custom(async (value) => {
     const blogs = await blogsRepository.getBlogs()
+    if (!blogs) throw new Error()
     const blog = blogs.find(b => b.id === value)
-    if (!blog) throw new Error()
+    if(!blog) throw new Error()
     return true                                                                                                                                                   
   }).withMessage('blogId is invalid')
 ]
@@ -24,7 +25,8 @@ export const bodyRequestValidationPostsUpdate = [
   body('shortDescription').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
   body('content').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
   body('blogId').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').custom(async (value) => {
-    const blogs = await blogsRepository.getBlogs() 
+    const blogs = await blogsRepository.getBlogs()
+    if(!blogs) throw new Error()
     const blog = blogs.find(b => b.id === value)
     if (!blog) throw new Error()
     return true                                                                                                                                                   

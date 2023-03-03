@@ -32,8 +32,11 @@ type ErrorsDescriptionType = {
 
   bloggersRouter.get('/', async (req: Request , res: Response) => {
     const bloggers = await blogsRepository.getBlogs()
-    res.status(200).send(bloggers)
-    return
+    console.log('bloggers = ', bloggers)
+    if(bloggers !== null && bloggers !== undefined) {
+      return res.status(200).send(bloggers)
+    }
+    return res.sendStatus(404)
    })
    
    bloggersRouter.get('/:id', async (req: Request , res: Response) => {

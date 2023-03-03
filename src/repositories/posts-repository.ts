@@ -14,9 +14,9 @@ export const postsRepository = {
     return null
   },
 
-  async getPostsById(id: string): Promise<PostsType[] | null>{
+  async getPostsById(postId: string): Promise<PostsType[] | null>{
     
-    const result =  database.find({id: id}, {projection:{_id: 0}}).toArray()
+    const result = await database.find({id: postId}, {projection:{_id: 0}}).toArray()
     if(result) {
       return result
     } else {
@@ -24,7 +24,7 @@ export const postsRepository = {
     }
   },
 
-  async createPost(obj: PostsType, objBlogger: BloggersType): Promise<PostsType | null>{
+  async createPost(obj: PostsType, objBlogger: BloggersType): Promise<PostsType | null | undefined>{
     // const blogger = await blogsRepository.getBloggerById(obj.blogId)
 
     if (objBlogger) {
@@ -40,8 +40,12 @@ export const postsRepository = {
       };
       let res = await database.insertOne(newPost)
       console.log('insertedIdres.insertedId', res.insertedId)
-      const result = await database.find({id: newPost.id}, {projection: {_id: 0}}).toArray()
-      return result[0]
+      const result = await postsRepository.getPostsById(newPost.id)
+      // database.find({id: newPost.id}, {projection: {_id: 0}}).toArray()
+      if(result !== null && result.length > 0) {
+        return result[0]
+      }
+      return undefined
     } else {
       return null
     }
