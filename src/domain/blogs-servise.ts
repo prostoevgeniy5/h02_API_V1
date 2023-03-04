@@ -1,6 +1,7 @@
 import { client, BloggersType, PostsType } from "../repositories/db"
 import { blogsRepository } from "../repositories/blogs-repository"
 import { ObjectId, WithId, UpdateResult } from "mongodb"
+import { Request } from 'express'
 import { postsRepository } from "../repositories/posts-repository"
 // import { PostsType,  } from "./db"
 // import { postsRepository } from "./posts-repository"
@@ -51,8 +52,8 @@ export const blogsService = {
     return result
   },
 
-  async deleteBlog(id: string): Promise<boolean>{
-    const posts = await postsRepository.getPosts()
+  async deleteBlog(id: string, req: Request): Promise<boolean>{
+    const posts = await postsRepository.getPosts(req)
     let postsOfBlogger: PostsType[] = []
     if(posts !== null) {
       const postsOfBlogger = posts.filter(elem => {
@@ -63,7 +64,7 @@ export const blogsService = {
     if( postsOfBlogger !== null && postsOfBlogger.length > 0 ) {
       const postsDeletedCount = postsRepository.deletePostsByBlogId(id)
     }
-    const result = await blogsRepository.deleteBlog(id)
+    const result = await blogsRepository.deleteBlog(id, req)
     
     return result
   }

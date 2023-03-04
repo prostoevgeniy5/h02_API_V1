@@ -68,7 +68,7 @@ type ErrorsDescriptionType = {
    
    bloggersRouter.delete('/:id', async (req: Request , res: Response) => {
     
-    const result = await blogsService.deleteBlog(req.params.id)
+    const result = await blogsService.deleteBlog(req.params.id, req)
     if(result) {
       res.sendStatus(204)
       return

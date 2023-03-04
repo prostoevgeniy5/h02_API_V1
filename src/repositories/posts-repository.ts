@@ -1,30 +1,31 @@
 import { Sort } from "mongodb"
+import { Request } from 'express'
 import { blogsRepository } from "./blogs-repository"
-import { client, PostViewModelType} from "./db"
+import { client, PostViewModelType } from "./db"
 import { PostsType, ReqQueryType, BloggersType } from "./db"
 
 const database = client.db('blogspostsvideos').collection<PostsType>('posts')
 
 export const postsRepository = {
-  async getPosts(): Promise<PostsType[] | null>{
-    const result = await database.find({},{projection:{_id: 0}}).toArray()
-    if(result !== null) {
-      return result  
+  async getPosts(req: Request): Promise<PostsType[] | null> {
+    const result = await database.find({}, { projection: { _id: 0 } }).toArray()
+    if (result !== null) {
+      return result
     }
     return null
   },
 
-  async getPostsById(postId: string): Promise<PostsType[] | null>{
-    
-    const result = await database.find({id: postId}, {projection:{_id: 0}}).toArray()
-    if(result) {
+  async getPostsById(postId: string): Promise<PostsType[] | null> {
+
+    const result = await database.find({ id: postId }, { projection: { _id: 0 } }).toArray()
+    if (result) {
       return result
     } else {
       return null
     }
   },
 
-  async createPost(obj: PostsType, objBlogger: BloggersType): Promise<PostsType | null | undefined>{
+  async createPost(obj: PostsType, objBlogger: BloggersType): Promise<PostsType | null | undefined> {
     // const blogger = await blogsRepository.getBloggerById(obj.blogId)
 
     if (objBlogger) {
@@ -42,7 +43,7 @@ export const postsRepository = {
       console.log('insertedIdres.insertedId', res.insertedId)
       const result = await postsRepository.getPostsById(newPost.id)
       // database.find({id: newPost.id}, {projection: {_id: 0}}).toArray()
-      if(result !== null && result.length > 0) {
+      if (result !== null && result.length > 0) {
         return result[0]
       }
       return undefined
@@ -51,27 +52,27 @@ export const postsRepository = {
     }
   },
 
-  async updatePost(id: string, obj: PostsType): Promise< boolean | null | undefined>{
+  async updatePost(id: string, obj: PostsType): Promise<boolean | null | undefined> {
     const blogger = await blogsRepository.getBloggerById(obj.blogId)
-    if(blogger) {
+    if (blogger) {
       const post = await postsRepository.getPostsById(id)
-      if(post) {
-        const result = await database.updateOne({id: id}, {$set: {...obj}})
+      if (post) {
+        const result = await database.updateOne({ id: id }, { $set: { ...obj } })
         return result.matchedCount === 1
       }
     } else {
-      return  null
+      return null
     }
     return undefined
   },
 
-  async deletePost(id: string): Promise<boolean | undefined>{
-    const result = await database.deleteOne({id: id})
+  async deletePost(id: string): Promise<boolean | undefined> {
+    const result = await database.deleteOne({ id: id })
     return result.deletedCount === 1
   },
 
-  async deletePostsByBlogId(blogid: string): Promise<number | undefined>{
-    const result = await database.deleteMany({blogId: blogid})
+  async deletePostsByBlogId(blogid: string): Promise<number | undefined> {
+    const result = await database.deleteMany({ blogId: blogid })
     // result.deletedCount
     return result.deletedCount
   },
@@ -84,22 +85,22 @@ export const postsRepository = {
     let skipDocumentsCount: number = (pageNumber - 1) * pageSize
     let sortBy: string = queryObj.sortBy === "createdAt" || queryObj.sortBy === undefined ? "createdAt" : queryObj.sortBy
     let posts: PostsType[] = []
-    let sortDir: Sort =queryObj.sortDirection === "desc" || queryObj.sortDirection === undefined ? -1 : 1
-    totalCount = await (await database.find({blogId: blogId}, {projection: {_id: 0}}).sort({"createdAt": sortDir}).toArray()).length
-    if(totalCount) {
-      if(queryObj.sortBy === "createdAt" || queryObj.sortBy === undefined) {
-        posts = await database.find({blogId: blogId}, {projection: {_id: 0}}).sort({"createdAt": sortDir}).skip(skipDocumentsCount).limit(pageSize).toArray()
-      } else if(queryObj.sortBy === "title") {
-        posts = await database.find({blogId: blogId}, {projection: {_id: 0}}).sort({"title": sortDir}).skip(skipDocumentsCount).limit(pageSize).toArray()
-      } else if(queryObj.sortBy === "shortDescription") {
-        posts = await database.find({blogId: blogId}, {projection: {_id: 0}}).sort({"shortDescription": sortDir}).skip(skipDocumentsCount).limit(pageSize).toArray()
-      }  else if(queryObj.sortBy === "content") {
-        posts = await database.find({blogId: blogId}, {projection: {_id: 0}}).sort({"content": sortDir}).skip(skipDocumentsCount).limit(pageSize).toArray()
-      }      
+    let sortDir: Sort = queryObj.sortDirection === "desc" || queryObj.sortDirection === undefined ? -1 : 1
+    totalCount = await (await database.find({ blogId: blogId }, { projection: { _id: 0 } }).sort({ "createdAt": sortDir }).toArray()).length
+    if (totalCount) {
+      if (queryObj.sortBy === "createdAt" || queryObj.sortBy === undefined) {
+        posts = await database.find({ blogId: blogId }, { projection: { _id: 0 } }).sort({ "createdAt": sortDir }).skip(skipDocumentsCount).limit(pageSize).toArray()
+      } else if (queryObj.sortBy === "title") {
+        posts = await database.find({ blogId: blogId }, { projection: { _id: 0 } }).sort({ "title": sortDir }).skip(skipDocumentsCount).limit(pageSize).toArray()
+      } else if (queryObj.sortBy === "shortDescription") {
+        posts = await database.find({ blogId: blogId }, { projection: { _id: 0 } }).sort({ "shortDescription": sortDir }).skip(skipDocumentsCount).limit(pageSize).toArray()
+      } else if (queryObj.sortBy === "content") {
+        posts = await database.find({ blogId: blogId }, { projection: { _id: 0 } }).sort({ "content": sortDir }).skip(skipDocumentsCount).limit(pageSize).toArray()
+      }
     }
-    if(posts.length > 0) {
+    if (posts.length > 0) {
       // totalCount = posts.length
-      pagesCount = Math.ceil( totalCount / pageSize )
+      pagesCount = Math.ceil(totalCount / pageSize)
       const resultObject: PostViewModelType = {
         "pagesCount": pagesCount,
         "page": pageNumber,
@@ -111,6 +112,6 @@ export const postsRepository = {
       resultObject.items = posts.map(item => item)
       return resultObject
     }
-    return null 
+    return null
   }
 }

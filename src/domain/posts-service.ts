@@ -1,17 +1,46 @@
 import { postsRepository } from "../repositories/posts-repository"
-// import { client } from "./db"
-import { PostsType, BloggersType } from "../repositories/db"
+import { Request } from "express"
+import { PostsType, BloggersType, PostViewModelType } from "../repositories/db"
 import { blogsRepository } from "../repositories/blogs-repository"
+import { Sort } from "mongodb"
 
 // const database = client.db('blogspostsvideos').collection<PostsType>('posts')
 
 export const postsService = {
-  async getPosts(): Promise<PostsType[] | undefined>{
-    const result = await postsRepository.getPosts()
+  async getPosts(req: Request): Promise<PostViewModelType | undefined>{
+    
+    const result = await postsRepository.getPosts(req)
     if(result) {
-      return result
+      console.log('posts-servise');
+      const queryObj = req.query
+      let pagesCount: number, totalCount: number
+      let pageNumber: number = queryObj.pageNumber !== undefined ? +queryObj.pageNumber : 1;
+      let pageSize: number = queryObj.pageSize !== undefined ? +queryObj.pageSize : 10;
+      let skipDocumentsCount: number = (pageNumber - 1) * pageSize
+      // let sortBy: string = queryObj.sortBy === "createdAt" || queryObj.sortBy === undefined ? "createdAt" : queryObj.sortBy
+      let posts: PostsType[] = []
+      let sortDir: Sort =queryObj.sortDirection === "desc" || queryObj.sortDirection === undefined ? -1 : 1
+      totalCount = result.length
+      pagesCount = Math.ceil( totalCount / pageSize )
+      let resultObject: PostViewModelType
+      if(totalCount > 0) {
+        resultObject = {
+          "pagesCount": pagesCount,
+          "page": pageNumber,
+          "pageSize": pageSize,
+          "totalCount": totalCount,
+          "items": result  
+        }
+        return resultObject
+      }
+              // const queryObj = obj.query
+        // const postsResult = await postsRepository.getPostsByBlogId(newPost.blogId, queryObj)
+        //   if(postsResult !== null) {
+        //     return postsResult
+        //   }
+      
     }
-    return []
+    return undefined
   },
 
   async getPostsById(id: string): Promise<PostsType[] | null>{
@@ -22,35 +51,36 @@ export const postsService = {
       return null
     }
   },
-
-  async createPost(obj: PostsType): Promise<PostsType | null | undefined>{
-    const blogger = await blogsRepository.getBloggerById(obj.blogId)
+/////////////////////////////////////////////
+  async createPost(obj: Request): Promise<PostsType | null | undefined>{
+    const blogger = await blogsRepository.getBloggerById(obj.body.blogId)
     if (blogger) {
       let name = blogger.name
       const newPost: PostsType = {
         id: (+(new Date())).toString(),
-        "title": obj.title,
-        "shortDescription": obj.shortDescription,
-        "content": obj.content,
-        "blogId": obj.blogId,
+        "title": obj.body.title,
+        "shortDescription": obj.body.shortDescription,
+        "content": obj.body.content,
+        "blogId": obj.body.blogId,
         "blogName": name,
         "createdAt": new Date().toISOString()
       };
-      let res = await postsRepository.createPost(newPost, blogger)
-      if(res !== null) {
-        const result = await postsRepository.getPostsById(newPost.id)
-        if(result !== null) {
-          return result[0]
-        }
-      }
-      else {
+      const res = await postsRepository.createPost(newPost, blogger)
+      if(res !== undefined && res !== null) {
+        // const queryObj = obj.query
+        // const postsResult = await postsRepository.getPostsByBlogId(newPost.blogId, queryObj)
+        //   if(postsResult !== null) {
+        //     return postsResult
+        //   }
+        return res
+      } else {
         return null
       }
     } else {
       return undefined
     }
   },
-
+/////////////////////////////////////
   async createPostByBlogId(blogId: string, obj: PostsType): Promise<PostsType | null |undefined> {
     const blogger = await blogsRepository.getBloggerById(blogId)
     if (blogger) {

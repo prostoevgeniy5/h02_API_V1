@@ -1,4 +1,5 @@
 import { client } from "./db"
+import { Request } from 'express'
 import { ObjectId, WithId, UpdateResult } from "mongodb"
 import { PostsType, BloggersType } from "./db"
 import { postsRepository } from "./posts-repository"
@@ -56,8 +57,8 @@ export const blogsRepository = {
     return result.matchedCount === 1
   },
 
-  async deleteBlog(id: string): Promise<boolean>{
-    const posts = await postsRepository.getPosts()
+  async deleteBlog(id: string, req: Request): Promise<boolean>{
+    const posts = await postsRepository.getPosts(req)
     let postsOfBlogger = []
     if(posts !== null) {
       postsOfBlogger = posts.filter(elem => {

@@ -23,7 +23,7 @@ import { bodyRequestValidationPosts, bodyRequestValidationPostsUpdate } from '..
 export const postsRouter = Router({})
 
 postsRouter.get('/', async (req: Request, res: Response) => {
-  const posts = await postsService.getPosts()
+  const posts = await postsService.getPosts(req)
   if(posts) {
     return res.status(200).json(posts);
   }
@@ -69,7 +69,7 @@ postsRouter.post('/',
     //   "blogName": blogger.name
     // };
     // posts.push(newPost);
-    const newPost = await postsService.createPost(req.body)
+    const newPost = await postsService.createPost(req)
     if(newPost) {
       return res.status(201).json(newPost);
     }
