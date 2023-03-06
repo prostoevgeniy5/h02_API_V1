@@ -9,12 +9,10 @@ const blogsCollection = client.db('blogspostsvideos').collection<BloggersType>('
 export const blogsRepository = {
   async getBlogs(): Promise<BloggersType[] | undefined> {
     const result = await blogsCollection.find({}, { projection: { _id: 0 } }).toArray()
-    console.log('result getBlogs', result);
-
     if (result.length > 0) {
       return result
     }
-
+    return undefined
   },
 
   async getBloggerById(id: string): Promise<BloggersType | null> {
