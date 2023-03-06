@@ -3,15 +3,49 @@ import { Request } from 'express'
 import { blogsRepository } from "./blogs-repository"
 import { client, PostViewModelType } from "./db"
 import { PostsType, ReqQueryType, BloggersType } from "./db"
+import { sortQueryItems } from "../functions/sortItems-query"
 
 const database = client.db('blogspostsvideos').collection<PostsType>('posts')
 
 export const postsRepository = {
-  async getPosts(req: Request): Promise<PostsType[] | null> {
+  async getPosts(req: Request): Promise<PostViewModelType | null> {
     const result = await database.find({}, { projection: { _id: 0 } }).toArray()
-    if (result !== null) {
-      return result
-    }
+    let resultArray: PostsType[] = []
+    const queryObj = req.query
+    if(result !== null) {
+      // if(typeof req.query === 'string'  && typeof req.query.sortDirection === 'string') {
+        if(queryObj.sortBy !== undefined && queryObj.sortDirection !== undefined) {
+          let sortBy: any = queryObj.sortBy
+          let direction: any = queryObj.sortDirection
+        // if(fieldName !== undefined && direction !== undefined) {
+          resultArray = sortQueryItems(result,  [{fieldName: sortBy,  direction}])
+        // }
+        }
+        
+      // }
+      
+      
+      let pagesCount: number, totalCount: number
+      let pageNumber: number = queryObj.pageNumber !== undefined ? +queryObj.pageNumber : 1;
+      let pageSize: number = queryObj.pageSize !== undefined ? +queryObj.pageSize : 10;
+      let skipDocumentsCount: number = (pageNumber - 1) * pageSize
+      // let sortBy: string = queryObj.sortBy === "createdAt" || queryObj.sortBy === undefined ? "createdAt" : queryObj.sortBy
+      // let posts: PostsType[] = []
+      // let sortDir: Sort =queryObj.sortDirection === "desc" || queryObj.sortDirection === undefined ? -1 : 1
+      totalCount = result.length
+      pagesCount = Math.ceil( totalCount / pageSize )
+      let resultObject: PostViewModelType
+      if(totalCount > 0) {
+        resultObject = {
+          "pagesCount": pagesCount,
+          "page": pageNumber,
+          "pageSize": pageSize,
+          "totalCount": totalCount,
+          "items": resultArray  
+        }
+        return resultObject
+      }
+    } 
     return null
   },
 

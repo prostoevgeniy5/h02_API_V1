@@ -2,55 +2,36 @@ import { postsRepository } from "../repositories/posts-repository"
 import { Request } from "express"
 import { PostsType, BloggersType, PostViewModelType } from "../repositories/db"
 import { blogsRepository } from "../repositories/blogs-repository"
-import { Sort } from "mongodb"
+import { Sort, SortDirection } from "mongodb"
+import { sortQueryItems, SortBy } from "../functions/sortItems-query"
 
 // const database = client.db('blogspostsvideos').collection<PostsType>('posts')
 
 export const postsService = {
-  async getPosts(req: Request): Promise<PostViewModelType | undefined>{
+  // async getPosts(req: Request): Promise<PostViewModelType | undefined>{
     
-    const result = await postsRepository.getPosts(req)
-    if(result) {
-      console.log('posts-servise');
-      const queryObj = req.query
-      let pagesCount: number, totalCount: number
-      let pageNumber: number = queryObj.pageNumber !== undefined ? +queryObj.pageNumber : 1;
-      let pageSize: number = queryObj.pageSize !== undefined ? +queryObj.pageSize : 10;
-      let skipDocumentsCount: number = (pageNumber - 1) * pageSize
-      // let sortBy: string = queryObj.sortBy === "createdAt" || queryObj.sortBy === undefined ? "createdAt" : queryObj.sortBy
-      let posts: PostsType[] = []
-      let sortDir: Sort =queryObj.sortDirection === "desc" || queryObj.sortDirection === undefined ? -1 : 1
-      totalCount = result.length
-      pagesCount = Math.ceil( totalCount / pageSize )
-      let resultObject: PostViewModelType
-      if(totalCount > 0) {
-        resultObject = {
-          "pagesCount": pagesCount,
-          "page": pageNumber,
-          "pageSize": pageSize,
-          "totalCount": totalCount,
-          "items": result  
-        }
-        return resultObject
-      }
-              // const queryObj = obj.query
-        // const postsResult = await postsRepository.getPostsByBlogId(newPost.blogId, queryObj)
-        //   if(postsResult !== null) {
-        //     return postsResult
-        //   }
-      
-    }
-    return undefined
-  },
+  //   const resultObj = await postsRepository.getPosts(req)
+  //   if(resultObj !== null) {
+  //     return resultObj
+  //   }
+  //             // const queryObj = obj.query
+  //       // const postsResult = await postsRepository.getPostsByBlogId(newPost.blogId, queryObj)
+  //       //   if(postsResult !== null) {
+  //       //     return postsResult
+  //       //   }
+     
+  //   //}
+  //   return undefined
+  // },
 
-  async getPostsById(id: string): Promise<PostsType[] | null>{
-    const result = await postsRepository.getPostsById(id)
-    if(result) {
-    return result
-    } else {
-      return null
-    }
-  },
+  // async getPostsById(id: string): Promise<PostsType[] | null>{
+  //   const result = await postsRepository.getPostsById(id)
+  //   if(result) {
+  //   return result
+  //   } else {
+  //     return null
+  //   }
+  // },
 /////////////////////////////////////////////
   async createPost(obj: Request): Promise<PostsType | null | undefined>{
     const blogger = await blogsRepository.getBloggerById(obj.body.blogId)

@@ -69,6 +69,20 @@ export type PostViewModelType = {
 //   createdAt: string
 //  }
 
+// type ErrorsDescriptionType = {
+//     message: string
+//     field: string
+//   }
+  
+//   interface errorsType {
+//     errorsMessages: ErrorsDescriptionType[]
+//   }
+
+//   function errorFields():errorsType {
+//     return {
+//       errorsMessages: []
+//     }
+//   }
 const url = process.env.MONGO_URL
 
 if(!url){

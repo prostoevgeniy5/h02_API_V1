@@ -56,7 +56,7 @@ export const blogsService = {
     const posts = await postsRepository.getPosts(req)
     let postsOfBlogger: PostsType[] = []
     if(posts !== null) {
-      const postsOfBlogger = posts.filter(elem => {
+      const postsOfBlogger = posts.items.filter(elem => {
         return elem.blogId === id
       })
     }
