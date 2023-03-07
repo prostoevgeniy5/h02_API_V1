@@ -12,14 +12,25 @@ export const postsRepository = {
     const result = await database.find({}, { projection: { _id: 0 } }).toArray()
     let resultArray: PostsType[] = []
     const queryObj = req.query
+    let sortBy: any = 'createdAt'
+    let direction: any = 'desc'
     if(result !== null) {
       // if(typeof req.query === 'string'  && typeof req.query.sortDirection === 'string') {
-        if(queryObj.sortBy !== undefined && queryObj.sortDirection !== undefined) {
-          let sortBy: any = queryObj.sortBy
-          let direction: any = queryObj.sortDirection
+        if(queryObj.sortBy === undefined) {
+          if(queryObj.sortDirection === undefined) {
+            resultArray = sortQueryItems(result,  [{fieldName: sortBy,  direction: direction}])
+          } else {
+            direction = queryObj.sortDirection
+            resultArray = sortQueryItems(result,  [{fieldName: sortBy,  direction: direction}])
+          }
+          
         // if(fieldName !== undefined && direction !== undefined) {
-          resultArray = sortQueryItems(result,  [{fieldName: sortBy,  direction}])
+          // resultArray = sortQueryItems(result,  [{fieldName: sortBy,  direction}])
         // }
+        } else {
+          sortBy = queryObj.sortBy
+          direction = queryObj.sortDirection
+          resultArray = sortQueryItems(result,  [{fieldName: sortBy,  direction}])
         }
         
       // }
@@ -41,7 +52,7 @@ export const postsRepository = {
           "page": pageNumber,
           "pageSize": pageSize,
           "totalCount": totalCount,
-          "items": resultArray  
+          "items": resultArray
         }
         return resultObject
       }

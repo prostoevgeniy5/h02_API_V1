@@ -8,7 +8,7 @@ import { blogsRepository } from '../repositories/blogs-repository';
 import { postsRepository } from '../repositories/posts-repository';
 import { postsService } from '../domain/posts-service';
 import { bodyRequestValidationPosts, bodyRequestValidationPostsUpdate } from '../midlewares/posts-validation';
-import { getPostsOrBlogs } from '../domain/query-postsandblogs';
+import { getPostsOrBlogs } from '../repositories/query-repository';
 
 // export let posts: PostsType[] = []
 

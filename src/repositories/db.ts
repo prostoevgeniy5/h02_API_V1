@@ -62,6 +62,14 @@ export type PostViewModelType = {
   items: PostsType[] | []
 }   
 
+export type BlogViewModelType = {
+  pagesCount:number
+  page: number
+  pageSize: number
+  totalCount:number
+  items: BloggersType[] | []
+}
+
 // export type  QueryType ={
 //   pageNumber: number
 //   page: number

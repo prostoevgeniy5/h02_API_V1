@@ -6,14 +6,13 @@ import { inputBloggersValidation } from '../midlewares/inputBloggersValidationMi
 import { bodyRequestValidationBlogs } from '../midlewares/blogs-validation'
 import { postsService } from '../domain/posts-service'
 import { bodyRequestValidationPostsForBlogId } from '../midlewares/posts-validation'
-import { getPostsOrBlogs } from '../domain/query-postsandblogs'
+import { getPostsOrBlogs } from '../repositories/query-repository'
 
   export const bloggersRouter = Router({})
 
   bloggersRouter.get('/', async (req: Request , res: Response) => {
-    const bloggers = await getPostsOrBlogs.getBlogs()
-    console.log('bloggers = ', bloggers)
-    if(bloggers !== null && bloggers !== undefined) {
+    const bloggers = await getPostsOrBlogs.getBlogs(req)
+    if(bloggers !== undefined) {
       return res.status(200).send(bloggers)
     }
     return res.sendStatus(404)
