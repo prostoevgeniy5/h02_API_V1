@@ -69,6 +69,9 @@ export const getPostsOrBlogs = {
         // let sortDir: Sort =queryObj.sortDirection === "desc" || queryObj.sortDirection === undefined ? -1 : 1
         totalCount = result.length
         pagesCount = Math.ceil( totalCount / pageSize )
+        if(totalCount > pageSize) {
+          resultArray.splice(pageSize - 1, totalCount - pagesCount)
+        }
         let resultObject: BlogViewModelType
         if(totalCount > 0) {
           resultObject = {
