@@ -70,7 +70,7 @@ export const getPostsOrBlogs = {
         totalCount = result.length
         pagesCount = Math.ceil( totalCount / pageSize )
         if(totalCount > pageSize) {
-          resultArray.splice(pageSize - 1, totalCount - pagesCount)
+          resultArray.splice(pageSize - 1)
         }
         let resultObject: BlogViewModelType
         if(totalCount > 0) {
