@@ -43,10 +43,10 @@ export const getPostsOrBlogs = {
       // let sortBy: string = queryObj.sortBy === "createdAt" || queryObj.sortBy === undefined ? "createdAt" : queryObj.sortBy
       // let posts: PostsType[] = []
       // let sortDir: Sort =queryObj.sortDirection === "desc" || queryObj.sortDirection === undefined ? -1 : 1
-      totalCount = result.length
+      totalCount = resultArray.length
       pagesCount = Math.ceil( totalCount / pageSize )
       if(totalCount > pageSize) {
-        resultArray.splice(pageSize)
+        resultArray = resultArray.splice(skipDocumentsCount, pageSize)
       }
       let resultObject: PostViewModelType
       // if(totalCount > 0) {
@@ -85,7 +85,7 @@ export const getPostsOrBlogs = {
       return null
     }
   },
-
+//////////////////////////////////////////////////////////////////////////
   async getBlogs(req: Request): Promise<BlogViewModelType | undefined>{
     let result: BloggersType[] = []
     const queryObj: ReqQueryType = req.query

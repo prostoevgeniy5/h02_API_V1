@@ -67,7 +67,7 @@ export const blogsService = {
     if( postsOfBlogger !== null && postsOfBlogger.length > 0 ) {
       postsDeletedCount =  await postsRepository.deletePostsByBlogId(id)
     }
-    if(postsDeletedCount !== undefined && postsDeletedCount > 0 ) {
+    if(postsDeletedCount !== undefined ) {
       result = await blogsRepository.deleteBlog(id, req)
     }
     if(result) {
