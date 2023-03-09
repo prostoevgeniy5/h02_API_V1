@@ -3,6 +3,7 @@ import { blogsRepository } from "../repositories/blogs-repository"
 import { ObjectId, WithId, UpdateResult } from "mongodb"
 import { Request } from 'express'
 import { postsRepository } from "../repositories/posts-repository"
+import { getPostsOrBlogs } from '../repositories/query-repository'
 // import { PostsType,  } from "./db"
 // import { postsRepository } from "./posts-repository"
 
@@ -53,19 +54,25 @@ export const blogsService = {
   },
 
   async deleteBlog(id: string, req: Request): Promise<boolean>{
-    const posts = await postsRepository.getPosts(req)
+    const posts = await getPostsOrBlogs.getPosts(req)
+    let result
+    let postsDeletedCount: number | undefined
     let postsOfBlogger: PostsType[] = []
-    if(posts !== null) {
-      const postsOfBlogger = posts.items.filter(elem => {
+    if(posts !== undefined) {
+      postsOfBlogger = posts.items.filter(elem => {
         return elem.blogId === id
       })
     }
     
     if( postsOfBlogger !== null && postsOfBlogger.length > 0 ) {
-      const postsDeletedCount = postsRepository.deletePostsByBlogId(id)
+      postsDeletedCount =  await postsRepository.deletePostsByBlogId(id)
     }
-    const result = await blogsRepository.deleteBlog(id, req)
-    
-    return result
+    if(postsDeletedCount !== undefined && postsDeletedCount > 0 ) {
+      result = await blogsRepository.deleteBlog(id, req)
+    }
+    if(result) {
+      return result
+    }
+    return false
   }
 }
