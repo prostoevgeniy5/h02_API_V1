@@ -69,7 +69,6 @@ export const blogsService = {
     }
     
     result = await blogsRepository.deleteBlog(id, req)
-    
     if(result) {
       return result
     }
