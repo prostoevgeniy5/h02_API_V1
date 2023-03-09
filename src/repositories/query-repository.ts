@@ -10,7 +10,7 @@ const database = client.db('blogspostsvideos').collection<PostsType>('posts')
 export const getPostsOrBlogs = {
   async getPosts(req: Request): Promise<PostViewModelType | undefined>{
     const result = await database.find({}, { projection: { _id: 0 } }).toArray()
-    let resultArray: PostsType[] = []
+    let resultArray: PostsType[]
     const queryObj = req.query
     let sortBy: any = 'createdAt'
     let direction: any = 'desc'
@@ -49,7 +49,7 @@ export const getPostsOrBlogs = {
         resultArray.splice(pageSize)
       }
       let resultObject: PostViewModelType
-      if(totalCount > 0) {
+      // if(totalCount > 0) {
         resultObject = {
           "pagesCount": pagesCount,
           "page": pageNumber,
@@ -58,7 +58,7 @@ export const getPostsOrBlogs = {
           "items": resultArray
         }
         return resultObject
-      }
+      // }
     } 
 
 

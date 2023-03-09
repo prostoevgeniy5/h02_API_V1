@@ -1,8 +1,9 @@
-import { client } from "./db"
+import { client, PostViewModelType } from "./db"
 import { Request } from 'express'
 import { ObjectId, WithId, UpdateResult } from "mongodb"
 import { PostsType, BloggersType } from "./db"
 import { postsRepository } from "./posts-repository"
+import { getPostsOrBlogs } from "./query-repository"
 
 const blogsCollection = client.db('blogspostsvideos').collection<BloggersType>('bloggers')
 
@@ -55,9 +56,9 @@ export const blogsRepository = {
   },
 
   async deleteBlog(id: string, req: Request): Promise<boolean> {
-    const posts = await postsRepository.getPosts(req)
-    let postsOfBlogger = []
-    if (posts !== null) {
+    let posts= await getPostsOrBlogs.getPosts(req)
+    let postsOfBlogger: PostsType[] = []
+    if (posts !== undefined && posts.items.length > 0 ) {
       postsOfBlogger = posts.items.filter(elem => {
         return elem.blogId === id
       })
