@@ -91,7 +91,7 @@ export const getPostsOrBlogs = {
     const queryObj: ReqQueryType = req.query
     if(queryObj.searchNameTerm) {
       let reg = queryObj.searchNameTerm
-      result = await blogsCollection.find({name:{ $regex: reg}}, { projection: { _id: 0 } }).toArray()
+      result = await blogsCollection.find({name:{ $regex: reg, $options: 'i'}}, { projection: { _id: 0 } }).toArray()
     } else {
       result = await blogsCollection.find({}, { projection: { _id: 0 } }).toArray()
     }
