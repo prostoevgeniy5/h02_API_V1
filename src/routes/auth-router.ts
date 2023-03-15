@@ -4,7 +4,7 @@ import { usersService } from '../domain/users-service'
 export const authRouter =  Router({})
 
 authRouter.post('/login', async (req: Request, res: Response) => {
-  const result = await usersService.checkCredentials(req.body.loginOrEmail, req.body.password )
+  const result = await usersService.checkCredentials(req.body.login, req.body.email, req.body.password )
   if(result) {
     res.sendStatus(204)
   } else {

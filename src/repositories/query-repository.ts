@@ -237,10 +237,12 @@ export const getPostsOrBlogsOrUsers = {
     }
   },
 
-  async getUserByLoginOrEmail(loginOrEmail: string): Promise<UserDBType[] | undefined>  {
-    const result = await databaseUsersCollection.find({$or: [{login: loginOrEmail}, {email: loginOrEmail}]}).toArray()
-    if(result.length) {
+  async getUserByLoginOrEmail(login: string, email: string): Promise<UserDBType[] | null | undefined>  {
+    const result = await databaseUsersCollection.find({$or: [{login: login}, {email: email}]}).toArray()
+    if(result.length > 0) {
       return result
+    } else if(result.length === 0) {
+      return null
     } else {
       return undefined
     }

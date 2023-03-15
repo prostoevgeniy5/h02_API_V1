@@ -1,4 +1,4 @@
-import { UserDBType, UserInputModel, UserViewModel } from "../repositories/db"
+import { ResultUsersViewModel, UserDBType, UserInputModel, UserViewModel } from "../repositories/db"
 import { usersRepository } from "../repositories/users-repository"
 import bcrypt from 'bcrypt'
 import { getPostsOrBlogsOrUsers } from "../repositories/query-repository"
@@ -29,15 +29,25 @@ export const usersService = {
     
   },
 
-  async checkCredentials(loginOrEmail: string, password: string): Promise<boolean>{
-    const result = await getPostsOrBlogsOrUsers.getUserByLoginOrEmail(loginOrEmail)
+  async checkCredentials(login: string, email: string, password: string): Promise<boolean>{
+    const result = await getPostsOrBlogsOrUsers.getUserByLoginOrEmail(login, email)
+    let creationsResult: ResultUsersViewModel | undefined
     if(result === undefined ) {
       return false
-    }
+    } 
+     else if(result !== null) {
+    //   creationsResult = await this.createUser(login, email, password)
+    //   if(creationsResult) {
+
+    //     return 
+    //   }
+    // }
+
     const hash = await this._generateHash(password, result[0].passwordSalt)
     if(hash !== result[0].passwordHash) {
       return false
     } 
+  }
       return true
   },
 
