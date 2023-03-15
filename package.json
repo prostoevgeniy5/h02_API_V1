@@ -15,8 +15,10 @@
   "author": "evgeniy <yevgeniy5@ukr.net>",
   "license": "ISC",
   "dependencies": {
+    "@types/bcrypt": "^5.0.0",
     "@types/jest": "^29.2.4",
     "@types/supertest": "^2.0.12",
+    "bcrypt": "^5.1.0",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-validator": "^6.14.2",

@@ -6,6 +6,8 @@ import { postsRouter } from './routes/posts-router'
 import { bloggersRouter } from './routes/bloggers-router'
 // import { postsErrorHandler } from './midlewares/postsErrorsHandler'
 import { runDb } from './repositories/db'
+import { usersRouter } from './routes/users-router'
+import { authRouter } from './routes/auth-router'
 
 export const app = express()
 const port = process.env.PORT || 3502
@@ -16,9 +18,12 @@ app.use(parserMiddleware)
 
 app.use('/testing/all-data', deleteRouter)
 app.use(authMidleware)
+
+app.use('/auth', authRouter)
 app.use('/videos', videosRouter)
 app.use('/blogs', bloggersRouter)
 app.use('/posts', postsRouter)
+app.use('/users', usersRouter)
 app.get('/', (req: Request, res: Response) => {
   res.send({ message: 'Hello Samurai' })
 })

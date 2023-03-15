@@ -8,7 +8,7 @@ import { blogsRepository } from '../repositories/blogs-repository';
 import { postsRepository } from '../repositories/posts-repository';
 import { postsService } from '../domain/posts-service';
 import { bodyRequestValidationPosts, bodyRequestValidationPostsUpdate } from '../midlewares/posts-validation';
-import { getPostsOrBlogs } from '../repositories/query-repository';
+import { getPostsOrBlogsOrUsers } from '../repositories/query-repository';
 
 // export let posts: PostsType[] = []
 
@@ -24,7 +24,7 @@ import { getPostsOrBlogs } from '../repositories/query-repository';
 export const postsRouter = Router({})
 
 postsRouter.get('/', async (req: Request, res: Response) => {
-  const posts = await getPostsOrBlogs.getPosts(req)
+  const posts = await getPostsOrBlogsOrUsers.getPosts(req)
   if(posts) {
     return res.status(200).json(posts);
   }
@@ -32,7 +32,7 @@ postsRouter.get('/', async (req: Request, res: Response) => {
 });
 
 postsRouter.get('/:id', async (req: Request, res: Response) => {
-  let postsItem = await getPostsOrBlogs.getPostsById(req.params.id)
+  let postsItem = await getPostsOrBlogsOrUsers.getPostsById(req.params.id)
   if (postsItem !== null && postsItem.length >0) {
     res.status(200).json(postsItem[0]);
     return

@@ -6,12 +6,12 @@ import { inputBloggersValidation } from '../midlewares/inputBloggersValidationMi
 import { bodyRequestValidationBlogs } from '../midlewares/blogs-validation'
 import { postsService } from '../domain/posts-service'
 import { bodyRequestValidationPostsForBlogId } from '../midlewares/posts-validation'
-import { getPostsOrBlogs } from '../repositories/query-repository'
+import { getPostsOrBlogsOrUsers } from '../repositories/query-repository'
 
   export const bloggersRouter = Router({})
 
   bloggersRouter.get('/', async (req: Request , res: Response) => {
-    const bloggers = await getPostsOrBlogs.getBlogs(req)
+    const bloggers = await getPostsOrBlogsOrUsers.getBlogs(req)
     if(bloggers !== undefined) {
       return res.status(200).send(bloggers)
     }
@@ -19,7 +19,7 @@ import { getPostsOrBlogs } from '../repositories/query-repository'
    })
    
    bloggersRouter.get('/:id', async (req: Request , res: Response) => {
-     const bloggerItem = await getPostsOrBlogs.getBloggerById(req.params.id)
+     const bloggerItem = await getPostsOrBlogsOrUsers.getBloggerById(req.params.id)
      if (bloggerItem !== null) {
        res.status(200).send(bloggerItem);
      } else {
@@ -29,12 +29,7 @@ import { getPostsOrBlogs } from '../repositories/query-repository'
 
    bloggersRouter.get('/:id/posts', async (req: Request , res: Response) => {
     
-    console.log('req.params', req.params)
-    console.log('req.query', req.query);
-    console.log('req', req.path);
-    
     const postsForBlogId = await postsRepository.getPostsByBlogId(req.params.id, req.query)
-    console.log('result of getPostByBlogId',postsForBlogId)
     
     if (postsForBlogId !== null) {
       res.status(200).send(postsForBlogId);

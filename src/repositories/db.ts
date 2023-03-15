@@ -53,6 +53,8 @@ export type ReqQueryType = {
   sortBy?: string
   sortDirection?: string
   searchNameTerm?: string
+  searchLoginTerm?: string
+  searchEmailTerm?: string
 }
 
 export type PostViewModelType = {
@@ -69,7 +71,38 @@ export type BlogViewModelType = {
   pageSize: number
   totalCount:number
   items: BloggersType[] | []
+} 
+
+export type LoginModelType = {
+  loginOrEmail:	string
+  password:	string
 }
+
+export interface UserInputModel {
+  login: string
+  password: string
+  email: string
+  }
+
+export interface UserViewModel{
+  _id?: ObjectId
+  id: string
+  login: string
+  email: string
+  createdAt?: string
+  }
+
+  export type ResultUsersViewModel = {
+    
+  }
+  export type UserDBType = {
+    id: string
+    login: string
+    email: string
+    passwordSalt: string
+    passwordHash: string
+    createdAt: string
+  }
 
 // export type  QueryType ={
 //   pageNumber: number
