@@ -92,10 +92,15 @@ export interface UserViewModel{
   createdAt?: string
   }
 
-  export type ResultUsersViewModel = {
-    
-  }
-  export type UserDBType = {
+export interface UsersViewModelType {
+  pagesCount:number
+  page: number
+  pageSize: number
+  totalCount:number
+  items: UserViewModel[] | []
+}  
+
+  export interface UserDBType {
     id: string
     login: string
     email: string

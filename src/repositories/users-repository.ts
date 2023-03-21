@@ -3,11 +3,22 @@ import { client, LoginModelType, UserDBType, UserViewModel} from './db'
 const databaseUsersCollecrtion = client.db('blogspostsvideos').collection<UserDBType>('users')
 
 export const usersRepository = {
-  async createUser(user: UserDBType): Promise<UserDBType | undefined> {
+  async createUser(user: UserDBType): Promise<UserViewModel | undefined> {
 
     const result = await databaseUsersCollecrtion.insertOne(user)
     if(result.insertedId) {
-      return user
+      const resultObj: UserViewModel = {  
+        id: '',
+        login: '',
+        email: '',
+        createdAt: ''
+      }
+      Object.keys(user).forEach((elem: string) => {
+        if (elem === 'id' || elem === 'login' || elem === 'email' || elem === 'createdAt') {
+          resultObj[elem] = user[elem]
+        }
+      })
+      return resultObj 
     } else {
       return undefined
     }

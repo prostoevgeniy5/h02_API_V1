@@ -1,10 +1,15 @@
 import { Request, Response, Router } from 'express'
 import bcrypt from 'bcrypt'
 import { usersService } from '../domain/users-service'
+import { userValidation } from '../midlewares/user-validation'
+import { inputValidationMiddleware } from '../midlewares/inputValidationMiddleware'
 
 export const usersRouter = Router({})
 
-usersRouter.post('/', async (req: Request, res: Response) => {
+usersRouter.post('/', 
+userValidation,
+inputValidationMiddleware,
+async (req: Request, res: Response) => {
   const users = await usersService.createUser(req.body.login, req.body.email, req.body.password)
   if(users) {
     res.status(201).send(users)

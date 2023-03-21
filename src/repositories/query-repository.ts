@@ -1,4 +1,4 @@
-import { PostViewModelType, PostsType, BloggersType, BlogViewModelType, client, ReqQueryType, UserViewModel, ResultUsersViewModel, UserDBType } from "./db"
+import { PostViewModelType, PostsType, BloggersType, BlogViewModelType, client, ReqQueryType, UserViewModel, UserDBType, UsersViewModelType } from "./db"
 import { postsRepository } from "./posts-repository"
 import { Request } from "express"
 import { blogsRepository } from "./blogs-repository"
@@ -172,73 +172,97 @@ export const getPostsOrBlogsOrUsers = {
     }
   },
 
-  async getUsers(req: Request): Promise<ResultUsersViewModel[] | undefined> {
-      let result = await databaseUsersCollection.find({}, {projection:{_id: 1}}).toArray()
-      let resultArray: UserViewModel[]
-      // const queryObj: ReqQueryType = req.query
-      const queryObj = req.query
+  async getUsers(req: Request): Promise<UserViewModel[] | undefined> {
+      let result: UserDBType[] | []
+      let resultArray: UserViewModel[] | []
+      let reg: string
+      const queryObj: ReqQueryType = req.query
       if(queryObj.searchNameTerm) {
-        let reg = queryObj.searchNameTerm
-        result = await databaseUsersCollection.find({name:{ $regex: reg, $options: 'i'}}, { projection: { _id: 0 } }).toArray()
+        reg = queryObj.searchNameTerm
+        result = await databaseUsersCollection.find({login:{ $regex: reg, $options: 'i'}}, { projection: { _id: 0 } }).toArray()
+      } else if(queryObj.searchEmailTerm) {
+        reg = queryObj.searchEmailTerm
+        result = await databaseUsersCollection.find({email:{ $regex: reg, $options: 'i'}}, { projection: { _id: 0 } }).toArray()
       } else {
-        result = await databaseUsersCollection.find({}, { projection: { _id: 0 } }).toArray()
+        result = await databaseUsersCollection.find({}, {projection:{_id: 1}}).toArray()
       }
-      if(result) {  
-        // let sortBy: string = 'createdAt'
-        // let direction: string = 'desc'
+      
+      if(result.length) {  
         let sortBy: any = 'createdAt'
         let direction: any = 'desc'
-        // if(result !== null) {
-          // if(typeof req.query === 'string'  && typeof req.query.sortDirection === 'string') {
-            if(queryObj.sortBy === undefined) {
-              if(queryObj.sortDirection === undefined) {
-                resultArray = sortQueryItems(result,  [{fieldName: sortBy,  direction: direction}])
-              } else {
-                direction = queryObj.sortDirection
-                resultArray = sortQueryItems(result,  [{fieldName: sortBy,  direction: direction}])
-              }
-              
-            // if(fieldName !== undefined && direction !== undefined) {
-              // resultArray = sortQueryItems(result,  [{fieldName: sortBy,  direction}])
-            // }
+          if(queryObj.sortBy === undefined) {
+            if(queryObj.sortDirection === undefined) {
+              resultArray = sortQueryItems(result,  [{fieldName: sortBy,  direction: direction}])
             } else {
-              sortBy = queryObj.sortBy
               direction = queryObj.sortDirection
-              resultArray = sortQueryItems(result,  [{fieldName: sortBy,  direction}])
+              resultArray = sortQueryItems(result,  [{fieldName: sortBy,  direction: direction}])
             }
+          } else {
+            sortBy = queryObj.sortBy
+            if(queryObj.sortDirection === undefined) {
+              resultArray = sortQueryItems(result,  [{fieldName: sortBy,  direction: direction}])
+            } else {
+              direction = queryObj.sortDirection
+              resultArray = sortQueryItems(result,  [{fieldName: sortBy,  direction: direction}])
+            }
+            direction = queryObj.sortDirection
+            resultArray = sortQueryItems(result,  [{fieldName: sortBy,  direction}])
+          }
             
-          // }
-          
-          
           let pagesCount: number, totalCount: number
           let pageNumber: number = queryObj.pageNumber !== undefined ? +queryObj.pageNumber : 1;
           let pageSize: number = queryObj.pageSize !== undefined ? +queryObj.pageSize : 10;
           let skipDocumentsCount: number = (pageNumber - 1) * pageSize
-          // let sortBy: string = queryObj.sortBy === "createdAt" || queryObj.sortBy === undefined ? "createdAt" : queryObj.sortBy
-          // let posts: PostsType[] = []
-          // let sortDir: Sort =queryObj.sortDirection === "desc" || queryObj.sortDirection === undefined ? -1 : 1
+
           totalCount = resultArray.length
+          // if(totalCount > 0) {
+
+          
           pagesCount = Math.ceil( totalCount / pageSize )
+          let resultObject: any= {
+            pagesCount: 0,
+            page: 0,
+            pageSize: 0,
+            totalCount: 0,
+            items: []
+          }
           if(totalCount > pageSize) {
             resultArray = resultArray.splice(skipDocumentsCount, pageSize)
-        // return result
-      const resultObject: ResultUsersViewModel = {
-        "pagesCount": 0,
-        "page": 0,
-        "pageSize": 0,
-        "totalCount": 0,
-        "items": result
-      }
-
-        } else {
-          return undefined
-        }
+            resultArray = resultArray.map(item => {
+              let newItem: UserViewModel = {
+                id: '',
+                login: '',
+                email: '',
+                createdAt: ''
+              }
+             return Object.assign(newItem, item)
+            })
+            
+            resultObject = {
+              pagesCount: pagesCount,
+              page: pageNumber,
+              pageSize: pageSize,
+              totalCount: totalCount,
+              items: resultArray
+            }
+          console.log('query-repos resultObject', resultObject)
+            return resultObject
+          }
+          // } else {
+            return undefined
+          // }
       
     }
   },
 
-  async getUserByLoginOrEmail(login: string, email: string): Promise<UserDBType[] | null | undefined>  {
-    const result = await databaseUsersCollection.find({$or: [{login: login}, {email: email}]}).toArray()
+  async getUserByLoginOrEmail(loginOrEmail: string): Promise<UserDBType[] | null | undefined>  {
+    let result: UserDBType[]
+    const pattern = new RegExp("^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$")
+    if(pattern.test(loginOrEmail)) {
+      result = await databaseUsersCollection.find( {email: loginOrEmail} ).toArray()
+    }
+    // result = await databaseUsersCollection.find({$or: [{login: login}, {email: email}]}).toArray()
+    result = await databaseUsersCollection.find( {login: loginOrEmail} ).toArray()
     if(result.length > 0) {
       return result
     } else if(result.length === 0) {
