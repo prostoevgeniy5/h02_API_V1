@@ -1,10 +1,20 @@
 import { Request, Response, Router } from 'express'
-import bcrypt from 'bcrypt'
+// simport bcrypt from 'bcrypt'
 import { usersService } from '../domain/users-service'
 import { userValidation } from '../midlewares/user-validation'
 import { inputValidationMiddleware } from '../midlewares/inputValidationMiddleware'
+import { getPostsOrBlogsOrUsers } from '../repositories/query-repository'
 
 export const usersRouter = Router({})
+
+usersRouter.get('/', async (req: Request, res: Response) => {
+  const result = await getPostsOrBlogsOrUsers.getUsers(req)
+  if(result === undefined){
+    return res.sendStatus(400)
+  } else {
+    return res.status(200).json(result)
+  }
+})
 
 usersRouter.post('/', 
 userValidation,

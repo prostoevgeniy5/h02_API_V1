@@ -235,7 +235,9 @@ export const getPostsOrBlogsOrUsers = {
                 email: '',
                 createdAt: ''
               }
-             return Object.assign(newItem, item)
+              const result = Object.assign(newItem, item)
+              delete result._id
+             return result
             })
             
             resultObject = {
@@ -245,8 +247,7 @@ export const getPostsOrBlogsOrUsers = {
               totalCount: totalCount,
               items: resultArray
             }
-          console.log('query-repos resultObject', resultObject)
-            return resultObject
+              return resultObject
           }
           // } else {
             return undefined
