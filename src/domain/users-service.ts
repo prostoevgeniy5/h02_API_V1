@@ -12,7 +12,7 @@ export const usersService = {
     const passwordHash = await this._generateHash(password, passwordSalt)
 
     const newUser: UserDBType = {
-      id: (new Date()).toString(),
+      id: (+(new Date())).toString(),
       login: login,
       email: email,
       passwordSalt,
@@ -20,9 +20,9 @@ export const usersService = {
       createdAt: (new Date()).toISOString()
     }
 
-    let result = usersRepository.createUser(newUser)
+    let result = await usersRepository.createUser(newUser)
     if(result !== undefined) {
-      return newUser
+      return result
     } else {
       return undefined
     }
@@ -46,7 +46,6 @@ export const usersService = {
 
   async _generateHash(pass: string, salt: string) {
     const hash = await bcrypt.hash(pass, salt)
-    console.log(`pass - ${pass} salt - ${salt} hash - ${hash}`)
     return hash
   },
 

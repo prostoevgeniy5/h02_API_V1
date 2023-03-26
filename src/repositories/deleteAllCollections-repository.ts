@@ -29,6 +29,15 @@ export const deleteAllCollections = {
     }
     return result
   },
+  
+  async deleteUsers(): Promise<boolean | null> {
+    let result = null
+    const usersCollection = await database.collection('users').find({}).toArray()
+    if(usersCollection.length > 0) {
+      result = await database.collection('users').drop()
+    }
+    return result
+  },
 
   async deleteCourses(): Promise<boolean | null | undefined >{
     let result

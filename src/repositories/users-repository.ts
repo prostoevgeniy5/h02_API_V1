@@ -18,6 +18,7 @@ export const usersRepository = {
           resultObj[elem] = user[elem]
         }
       })
+      console.log('resultObj from createUser user-repository.ts', resultObj)
       return resultObj 
     } else {
       return undefined

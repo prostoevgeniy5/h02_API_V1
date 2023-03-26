@@ -174,19 +174,20 @@ export const getPostsOrBlogsOrUsers = {
 
   async getUsers(req: Request): Promise<UserViewModel[] | undefined> {
       let result: UserDBType[] | []
-      let resultArray: UserViewModel[] | []
+      // let resultArray: UserViewModel[] | []
+      let resultArray: UserDBType[] | []
       let reg: string
       const queryObj: ReqQueryType = req.query
-      if(queryObj.searchNameTerm) {
-        reg = queryObj.searchNameTerm
+      if(queryObj.searchLoginTerm) {
+        reg = queryObj.searchLoginTerm
         result = await databaseUsersCollection.find({login:{ $regex: reg, $options: 'i'}}, { projection: { _id: 0 } }).toArray()
       } else if(queryObj.searchEmailTerm) {
         reg = queryObj.searchEmailTerm
         result = await databaseUsersCollection.find({email:{ $regex: reg, $options: 'i'}}, { projection: { _id: 0 } }).toArray()
       } else {
-        result = await databaseUsersCollection.find({}, {projection:{_id: 1}}).toArray()
+        result = await databaseUsersCollection.find().toArray()
       }
-      
+            
       if(result.length) {  
         let sortBy: any = 'createdAt'
         let direction: any = 'desc'
@@ -208,7 +209,7 @@ export const getPostsOrBlogsOrUsers = {
             direction = queryObj.sortDirection
             resultArray = sortQueryItems(result,  [{fieldName: sortBy,  direction}])
           }
-            
+                        
           let pagesCount: number, totalCount: number
           let pageNumber: number = queryObj.pageNumber !== undefined ? +queryObj.pageNumber : 1;
           let pageSize: number = queryObj.pageSize !== undefined ? +queryObj.pageSize : 10;
@@ -219,38 +220,37 @@ export const getPostsOrBlogsOrUsers = {
 
           
           pagesCount = Math.ceil( totalCount / pageSize )
-          let resultObject: any= {
+          // let resultObject: UsersViewModelType  = {
+          let resultObject: any = {
             pagesCount: 0,
             page: 0,
             pageSize: 0,
             totalCount: 0,
             items: []
           }
-          if(totalCount > pageSize) {
+          // if(totalCount > pageSize) {
             resultArray = resultArray.splice(skipDocumentsCount, pageSize)
-            resultArray = resultArray.map(item => {
+            const resArray: UserViewModel[] | [] = resultArray.map(item => {
               let newItem: UserViewModel = {
-                id: '',
-                login: '',
-                email: '',
-                createdAt: ''
+                id: item.id,
+                login: item.login,
+                email: item.email,
+                createdAt: item.createdAt
               }
-              const result = Object.assign(newItem, item)
-              delete result._id
-             return result
+             return newItem
             })
             
-            resultObject = {
+            resultObject= {
               pagesCount: pagesCount,
               page: pageNumber,
               pageSize: pageSize,
               totalCount: totalCount,
-              items: resultArray
+              items: resArray
             }
               return resultObject
-          }
+          // }
           // } else {
-            return undefined
+           // return undefined
           // }
       
     }
@@ -265,6 +265,8 @@ export const getPostsOrBlogsOrUsers = {
     // result = await databaseUsersCollection.find({$or: [{login: login}, {email: email}]}).toArray()
     result = await databaseUsersCollection.find( {login: loginOrEmail} ).toArray()
     if(result.length > 0) {
+      console.log('result', result);
+      
       return result
     } else if(result.length === 0) {
       return null
