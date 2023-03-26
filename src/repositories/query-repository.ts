@@ -265,14 +265,14 @@ export const getPostsOrBlogsOrUsers = {
 
   async getUserByLoginOrEmail(loginOrEmail: string): Promise<UserDBType[] | null | undefined>  {
     let result: UserDBType[]
-    const pattern = new RegExp("^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$")
+    const pattern = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
     if(pattern.test(loginOrEmail)) {
       result = await databaseUsersCollection.find( {email: loginOrEmail} ).toArray()
     }
     // result = await databaseUsersCollection.find({$or: [{login: login}, {email: email}]}).toArray()
     result = await databaseUsersCollection.find( {login: loginOrEmail} ).toArray()
     if(result.length > 0) {
-      console.log('result', result);
+      console.log('275 query0repository.ts result', result);
       
       return result
     } else if(result.length === 0) {
