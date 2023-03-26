@@ -196,8 +196,8 @@ export const getPostsOrBlogsOrUsers = {
       }
       // console.log('result 194 query-repository.ts', result);
       
-      // "pageSize=15&pageNumber=1&searchLoginTerm=seR&searchEmailTerm=.com&sortDirection=asc&sortBy=login"
-      if(result.length) {  
+      
+      if(result.length >= 0) {  
         let sortBy: any = 'createdAt'
         let direction: any = 'desc'
           if(queryObj.sortBy === undefined) {
@@ -258,10 +258,8 @@ export const getPostsOrBlogsOrUsers = {
             }
               return resultObject
           // }
-          // } else {
-           // return undefined
-          // }
-      
+    } else {
+      return undefined
     }
   },
 

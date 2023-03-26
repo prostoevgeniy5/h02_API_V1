@@ -10,7 +10,7 @@ export const usersRouter = Router({})
 usersRouter.get('/', async (req: Request, res: Response) => {
   const result = await getPostsOrBlogsOrUsers.getUsers(req)
   if(result === undefined){
-    return res.sendStatus(400)
+    return res.sendStatus(404)
   } else {
     return res.status(200).json(result)
   }
