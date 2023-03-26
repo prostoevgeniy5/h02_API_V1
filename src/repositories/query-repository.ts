@@ -176,9 +176,16 @@ export const getPostsOrBlogsOrUsers = {
       let result: UserDBType[] | []
       // let resultArray: UserViewModel[] | []
       let resultArray: UserDBType[] | []
-      let reg: string
+      let reg: string, reg2: string
       const queryObj: ReqQueryType = req.query
-      if(queryObj.searchLoginTerm) {
+      if(queryObj.searchLoginTerm && queryObj.searchEmailTerm) {
+        
+        reg = queryObj.searchLoginTerm
+        reg2 = queryObj.searchEmailTerm
+        result = await databaseUsersCollection.find({$or:[{login:{ $regex: reg, $options: 'i'}}, { projection: { _id: 0 } }, {email:{ $regex: reg2, $options: 'i'}}, { projection: { _id: 0 } }]}).toArray()
+        // console.log('187', result);
+        
+      } else if(queryObj.searchLoginTerm) {
         reg = queryObj.searchLoginTerm
         result = await databaseUsersCollection.find({login:{ $regex: reg, $options: 'i'}}, { projection: { _id: 0 } }).toArray()
       } else if(queryObj.searchEmailTerm) {
@@ -187,7 +194,9 @@ export const getPostsOrBlogsOrUsers = {
       } else {
         result = await databaseUsersCollection.find().toArray()
       }
-            
+      // console.log('result 194 query-repository.ts', result);
+      
+      // "pageSize=15&pageNumber=1&searchLoginTerm=seR&searchEmailTerm=.com&sortDirection=asc&sortBy=login"
       if(result.length) {  
         let sortBy: any = 'createdAt'
         let direction: any = 'desc'
@@ -239,7 +248,7 @@ export const getPostsOrBlogsOrUsers = {
               }
              return newItem
             })
-            
+            // console.log('252 restArray', resArray)
             resultObject= {
               pagesCount: pagesCount,
               page: pageNumber,
