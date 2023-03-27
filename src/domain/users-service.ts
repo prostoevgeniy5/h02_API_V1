@@ -39,7 +39,7 @@ export const usersService = {
     const hash = await this._generateHash(password, result[0].passwordSalt)
     if(hash !== result[0].passwordHash) {
       return false
-    } 
+    }  
     return true
   },
 
