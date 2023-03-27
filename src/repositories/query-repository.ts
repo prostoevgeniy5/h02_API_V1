@@ -62,21 +62,8 @@ export const getPostsOrBlogsOrUsers = {
         }
         return resultObject
       // }
-    } 
+    }
 
-
-
-    // const resultObj = await postsRepository.getPosts(req)
-    // if(resultObj !== null) {
-    //   return resultObj
-    // }
-              // const queryObj = obj.query
-        // const postsResult = await postsRepository.getPostsByBlogId(newPost.blogId, queryObj)
-        //   if(postsResult !== null) {
-        //     return postsResult
-        //   }
-     
-    //}
     return undefined
   },
 
@@ -113,9 +100,6 @@ export const getPostsOrBlogsOrUsers = {
               resultArray = sortQueryItems(result,  [{fieldName: sortBy,  direction: direction}])
             }
             
-          // if(fieldName !== undefined && direction !== undefined) {
-            // resultArray = sortQueryItems(result,  [{fieldName: sortBy,  direction}])
-          // }
           } else {
             sortBy = queryObj.sortBy
             direction = queryObj.sortDirection
@@ -153,13 +137,7 @@ export const getPostsOrBlogsOrUsers = {
 
     }
     return undefined
-    // const result = await blogsRepository.getBlogs()
-   
-    
-    // if(result !== undefined) {
-    //   return result
-    // }
-    // return undefined
+
   },
 
   async getBloggerById(id: string): Promise<BloggersType | null>{

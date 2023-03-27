@@ -9,10 +9,12 @@ authRouter.post('/login',
 loginOrEmailPasswordValidation,
 inputValidationMiddleware,
 async (req: Request, res: Response) => {
-  const result = await usersService.checkCredentials(req.body.loginOrEmail, req.body.password )
+  const result = await usersService.checkCredentials(
+    req.body.loginOrEmail, req.body.password 
+    )
   if(result) {
     res.sendStatus(204)
   } else {
-    res.sendStatus(400)
+    res.sendStatus(401)
   }
 })
