@@ -33,16 +33,14 @@ export const usersService = {
     const result = await getPostsOrBlogsOrUsers.getUserByLoginOrEmail(loginOrEmail)
     console.log('34 users-servise.ts result', result );
     
-    if(result === undefined ) {
+    if(!result) {
       return false
-    } 
-     else if(result !== null) {
+    }
     const hash = await this._generateHash(password, result[0].passwordSalt)
     if(hash !== result[0].passwordHash) {
       return false
     } 
-  }
-      return true
+    return true
   },
 
   async _generateHash(pass: string, salt: string) {
