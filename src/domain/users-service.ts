@@ -31,7 +31,8 @@ export const usersService = {
 
   async checkCredentials(loginOrEmail: string, password: string): Promise<boolean>{
     const result = await getPostsOrBlogsOrUsers.getUserByLoginOrEmail(loginOrEmail)
-    let creationsResult: UserViewModel | undefined
+    console.log('34 users-servise.ts result', result );
+    
     if(result === undefined ) {
       return false
     } 
