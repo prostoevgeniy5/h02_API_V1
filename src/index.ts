@@ -20,7 +20,6 @@ app.use('/testing/all-data', deleteRouter)
 app.use('/auth', authRouter)
 app.use(authMidleware)
 
-
 app.use('/videos', videosRouter)
 app.use('/blogs', bloggersRouter)
 app.use('/posts', postsRouter)
