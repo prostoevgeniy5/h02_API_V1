@@ -172,8 +172,7 @@ export const getPostsOrBlogsOrUsers = {
       } else {
         result = await databaseUsersCollection.find().toArray()
       }
-      console.log('result 194 query-repository.ts', result);
-      
+          
       
       if(result.length >= 0) {  
         let sortBy: any = 'createdAt'

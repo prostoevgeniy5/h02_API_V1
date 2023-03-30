@@ -29,7 +29,7 @@ export const usersService = {
     
   },
 
-  async checkCredentials(loginOrEmail: string, password: string): Promise<boolean>{
+  async checkCredentials(loginOrEmail: string, password: string): Promise<UserDBType | false>{
     const result = await getPostsOrBlogsOrUsers.getUserByLoginOrEmail(loginOrEmail)
     console.log('34 users-servise.ts result', result );
     
@@ -40,7 +40,7 @@ export const usersService = {
     if(hash !== result[0].passwordHash) {
       return false
     }  
-    return true
+    return result[0]
   },
 
   async _generateHash(pass: string, salt: string) {
