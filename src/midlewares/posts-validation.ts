@@ -2,7 +2,7 @@ import { body } from "express-validator";
 import { blogsRepository } from "../repositories/blogs-repository";
 
 export const bodyRequestValidationPosts = [
-  body('title').isString().trim().notEmpty().isLength({ max: 30 }),
+  body('title').isString().trim().notEmpty().isLength({ max: 30 }).withMessage('title is invalid'),
   body('shortDescription').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
   body('content').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
   body('blogId').isString().trim().notEmpty().custom(async (value) => {

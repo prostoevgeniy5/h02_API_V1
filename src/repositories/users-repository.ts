@@ -1,4 +1,5 @@
-import { client, LoginModelType, UserDBType, UserViewModel} from './db'
+import { client } from './db'
+import { LoginModelType, UserDBType, UserViewModel } from './types'
 
 const databaseUsersCollecrtion = client.db('blogspostsvideos').collection<UserDBType>('users')
 
@@ -18,7 +19,7 @@ export const usersRepository = {
           resultObj[elem] = user[elem]
         }
       })
-      console.log('resultObj from createUser user-repository.ts', resultObj)
+     
       return resultObj 
     } else {
       return undefined

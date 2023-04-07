@@ -4,6 +4,7 @@ import { usersService } from '../domain/users-service'
 import { userValidation } from '../midlewares/user-validation'
 import { inputValidationMiddleware } from '../midlewares/inputValidationMiddleware'
 import { getPostsOrBlogsOrUsers } from '../repositories/query-repository'
+import { authMidleware } from '../midlewares/authorization-midleware'
 
 export const usersRouter = Router({})
 
@@ -17,6 +18,7 @@ usersRouter.get('/', async (req: Request, res: Response) => {
 })
 
 usersRouter.post('/', 
+authMidleware,
 userValidation,
 inputValidationMiddleware,
 async (req: Request, res: Response) => {
@@ -28,7 +30,9 @@ async (req: Request, res: Response) => {
   }
 })
 
-usersRouter.delete('/:id', async (req: Request, res: Response) => {
+usersRouter.delete('/:id', 
+authMidleware,
+async (req: Request, res: Response) => {
   const result = await usersService.deleteUser(req.params.id)
   if(result) {
     res.sendStatus(204)

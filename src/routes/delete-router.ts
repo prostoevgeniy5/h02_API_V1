@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { HTTP_STATUSES } from "../repositories/constants"
-import { Videos, PostsType, BloggersType, CoursesType } from "../repositories/db"
+import { Videos, PostsType, BloggersType, CoursesType } from "../repositories/types"
 import { deleteAllCollections } from '../repositories/deleteAllCollections-repository'
 // import { bloggers } from './bloggers-router'
 // import { posts } from './posts-router'

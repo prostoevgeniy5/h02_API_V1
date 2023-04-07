@@ -1,11 +1,12 @@
 import { Sort } from "mongodb"
 import { Request } from 'express'
 import { blogsRepository } from "./blogs-repository"
-import { client, PostViewModelType } from "./db"
-import { PostsType, ReqQueryType, BloggersType } from "./db"
+import { client } from "./db"
+import { PostsType, ReqQueryType, BloggersType, PostViewModelType, CommentViewModel, CommentViewModelMyDBType} from "./types"
 import { sortQueryItems } from "../functions/sortItems-query"
 
 const database = client.db('blogspostsvideos').collection<PostsType>('posts')
+const databaseCommentsCollection = client.db('blogspostsvideos').collection<CommentViewModelMyDBType>('comments')
 
 export const postsRepository = {
   // async getPosts(req: Request): Promise<PostViewModelType | null> {
@@ -159,6 +160,23 @@ export const postsRepository = {
       }
       resultObject.items = posts.map(item => item)
       return resultObject
+    }
+    return null
+  },
+
+  async createComment(obj: CommentViewModel, postId: string): Promise<boolean | null>{
+    const post = await database.findOne({id: postId}, {projection: {_id: 0}})
+    if(post !== null){
+      let newComment: CommentViewModelMyDBType = {
+        ...obj,
+        postId: "",
+        blogId: ""
+      }
+      newComment.postId = postId,
+      newComment.blogId = post.blogId
+      const result = await databaseCommentsCollection.insertOne(newComment)
+      if(result)
+      return true
     }
     return null
   }

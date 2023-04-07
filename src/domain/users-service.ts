@@ -1,4 +1,4 @@
-import { UserDBType, UserInputModel, UserViewModel } from "../repositories/db"
+import { UserDBType, UserInputModel, UserViewModel } from "../repositories/types"
 import { usersRepository } from "../repositories/users-repository"
 import bcrypt from 'bcrypt'
 import { getPostsOrBlogsOrUsers } from "../repositories/query-repository"

@@ -1,7 +1,7 @@
 import {Router, Request, Response, NextFunction} from 'express'
 import { ObjectId } from 'mongodb'
 import { HTTP_STATUSES } from '../repositories/constants'
-// import { db } from '../repositories/db'
+import { authMidleware } from '../midlewares/authorization-midleware'
 import { videosRepository, Videos, ErrorType, ErrorsType } from '../repositories/videos-repository'
 
 // const videos: Videos[] = db.videos
@@ -24,7 +24,9 @@ videosRouter.get('/', async (_req: Request, res: Response) => {
     res.status(HTTP_STATUSES.OK_200).json(video)
   })  
 
-  videosRouter.post('/', async (req: Request, res: Response) => {
+  videosRouter.post('/',
+  authMidleware,
+  async (req: Request, res: Response) => {
     const errorsObject: ErrorsType = {"errorsMessages":[]}
     if (!req.body.title || req.body.title.trim().length > 40 ) {
       errorsObject.errorsMessages.push({
@@ -53,8 +55,7 @@ videosRouter.get('/', async (_req: Request, res: Response) => {
     if (errorsObject.errorsMessages.length > 0) {
       res.status(HTTP_STATUSES.BAD_REQUEST_400).send(errorsObject)
       return;
-    }  
-    
+    }      
     // let currentDate = new Date()
     // const day = currentDate.getDate() + 1
     // const dateInMs = currentDate.setDate(day)
@@ -77,13 +78,14 @@ videosRouter.get('/', async (_req: Request, res: Response) => {
     res.status(HTTP_STATUSES.CREATED_201).json(createdVideo)
   })
 
-  videosRouter.put('/:id', async (req: Request, res: Response) => {
+  videosRouter.put('/:id',
+  authMidleware, 
+  async (req: Request, res: Response) => {
     let result = await videosRepository.updateVideosById(new ObjectId(req.params.id), req.body)
     if (!result) {
       res.sendStatus(HTTP_STATUSES.NOT_FOUND)
       return
-    }
-  
+    }  
     // else if(result && Object.entries(result)[0][0] === 'errorsMessages') {
     //   res.status(HTTP_STATUSES.BAD_REQUEST_400).send(result)
     //   return
@@ -100,7 +102,9 @@ videosRouter.get('/', async (_req: Request, res: Response) => {
     }
   })
 
-  videosRouter.delete('/:id', async (req: Request, res: Response) => {
+  videosRouter.delete('/:id',
+  authMidleware, 
+  async (req: Request, res: Response) => {
     const result = await videosRepository.deleteVideosById(new ObjectId(req.params.id))
     
     if(typeof result === undefined) {

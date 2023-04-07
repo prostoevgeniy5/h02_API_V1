@@ -1,6 +1,6 @@
 import { postsRepository } from "../repositories/posts-repository"
 import { Request } from "express"
-import { PostsType, BloggersType, PostViewModelType } from "../repositories/db"
+import { PostsType, BloggersType, PostViewModelType } from "../repositories/types"
 import { blogsRepository } from "../repositories/blogs-repository"
 import { Sort, SortDirection } from "mongodb"
 import { sortQueryItems, SortBy } from "../functions/sortItems-query"

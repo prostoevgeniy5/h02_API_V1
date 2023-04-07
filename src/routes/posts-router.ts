@@ -1,5 +1,5 @@
 import express, { Request, Response, Router, NextFunction } from 'express'
-import { PostsType, BloggersType } from '../repositories/db'
+import { PostsType, BloggersType } from '../repositories/types'
 import { body, check, validationResult, CustomValidator, CustomSanitizer } from 'express-validator'
 import { param } from 'express-validator';
 import { errorsType, errorsDescription, errorFields } from '../midlewares/postsErrorsHandler'
@@ -9,6 +9,9 @@ import { postsRepository } from '../repositories/posts-repository';
 import { postsService } from '../domain/posts-service';
 import { bodyRequestValidationPosts, bodyRequestValidationPostsUpdate } from '../midlewares/posts-validation';
 import { getPostsOrBlogsOrUsers } from '../repositories/query-repository';
+import { authMidleware, authObjectWithAuthMiddleware } from '../midlewares/authorization-midleware';
+import { commentsValidation } from '../midlewares/commentsValidation';
+import { serviceComments } from '../domain/comments-service';
 
 // export let posts: PostsType[] = []
 
@@ -43,7 +46,7 @@ postsRouter.get('/:id', async (req: Request, res: Response) => {
 });
 //////////////////////////////////////////////
 postsRouter.post('/',
-
+authMidleware,
   // body('title').isString().trim().notEmpty().isLength({ max: 30 }),
   // body('shortDescription').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 100 }).withMessage('length must be less than 100 characters'),
   // body('content').isString().withMessage('must be string').trim().notEmpty().withMessage('must be not empty').isLength({ max: 1000 }).withMessage('length must be less than 1000 characters'),
@@ -94,6 +97,7 @@ postsRouter.post('/',
 // inputValidationMiddleware]
 
 postsRouter.put('/:postId',
+authMidleware,
 bodyRequestValidationPostsUpdate,
 inputValidationMiddleware,
   async (req: Request, res: Response) => {
@@ -112,7 +116,9 @@ inputValidationMiddleware,
     
   });
 
-postsRouter.delete('/:id', async (req: Request, res: Response) => {
+postsRouter.delete('/:id', 
+authMidleware,
+async (req: Request, res: Response) => {
   // let length = posts.length;
   // posts = posts.filter(item => {
   //   return +item.id !== +req.params.id;
@@ -127,3 +133,28 @@ postsRouter.delete('/:id', async (req: Request, res: Response) => {
     return
   }
 });
+//////////////////////////////////////////////////////
+
+postsRouter.get('/:id/comments', async (req: Request, res: Response) => {
+  let comments = await getPostsOrBlogsOrUsers.getComments(req)
+  if (comments !== null) {
+    res.status(200).json(comments);
+    return
+  } else {
+    res.sendStatus(404);
+    return
+  }
+});
+//////////////////////////////////////////////
+postsRouter.post('/:id/comments',
+  authObjectWithAuthMiddleware.authMidleware,
+  commentsValidation,
+  inputValidationMiddleware,
+  async (req: Request, res: Response) => {
+    const result = serviceComments.createComment(authObjectWithAuthMiddleware.user, req)
+
+    if(result !== undefined) {
+      return res.status(201).json(result);
+    }
+      return res.sendStatus(404)
+  });

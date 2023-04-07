@@ -1,5 +1,5 @@
 import { body } from "express-validator";
-import { BloggersType} from "../repositories/db";
+import { BloggersType} from "../repositories/types";
 
 const bloggers : BloggersType[] = []
 

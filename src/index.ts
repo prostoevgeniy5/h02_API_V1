@@ -1,13 +1,14 @@
 import express, { Request, Response, NextFunction } from 'express'
 import { videosRouter } from './routes/videos-route'
 import { deleteRouter } from './routes/delete-router'
-import { authMidleware } from './midlewares/authorization-midleware'
+// import { authMidleware } from './midlewares/authorization-midleware'
 import { postsRouter } from './routes/posts-router'
 import { bloggersRouter } from './routes/bloggers-router'
 // import { postsErrorHandler } from './midlewares/postsErrorsHandler'
 import { runDb } from './repositories/db'
 import { usersRouter } from './routes/users-router'
 import { authRouter } from './routes/auth-router'
+import { commentsRouter } from './routes/comments-router'
 
 export const app = express()
 const port = process.env.PORT || 3502
@@ -18,12 +19,13 @@ app.use(parserMiddleware)
 
 app.use('/testing/all-data', deleteRouter)
 app.use('/auth', authRouter)
-app.use(authMidleware)
+// app.use(authMidleware)
 
 app.use('/videos', videosRouter)
 app.use('/blogs', bloggersRouter)
 app.use('/posts', postsRouter)
 app.use('/users', usersRouter)
+app.use('/comments', commentsRouter)
 app.get('/', (req: Request, res: Response) => {
   res.send({ message: 'Hello Samurai' })
 })

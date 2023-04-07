@@ -1,14 +1,16 @@
-import { PostViewModelType, PostsType, BloggersType, BlogViewModelType, client, ReqQueryType, UserViewModel, UserDBType, UsersViewModelType } from "./db"
-import { postsRepository } from "./posts-repository"
+import { PostViewModelType, PostsType, BloggersType, BlogViewModelType, ReqQueryType, UserViewModel, UserDBType, UsersViewModelType, CommentViewModelMyDBType, CommentViewModel, CommentViewModelType } from "./types"
+import { createResultObjectWithSortingAndPagination, sortQueryItems } from "../functions/sortItems-query"
 import { Request } from "express"
 import { blogsRepository } from "./blogs-repository"
-import { sortQueryItems } from "../functions/sortItems-query"
+// import { sortQueryItems } from "../functions/sortItems-query"
+import { client } from './db'
 // import { usersRepository } from "./users-repository"
 
 
 const blogsCollection = client.db('blogspostsvideos').collection<BloggersType>('bloggers')
 const database = client.db('blogspostsvideos').collection<PostsType>('posts')
 const databaseUsersCollection = client.db('blogspostsvideos').collection<UserDBType>('users')
+const databaseCommentsCollection = client.db('blogspostsvideos').collection<CommentViewModelMyDBType>('comments')
 
 export const getPostsOrBlogsOrUsers = {
   async getPosts(req: Request): Promise<PostViewModelType | undefined>{
@@ -35,9 +37,6 @@ export const getPostsOrBlogsOrUsers = {
           direction = queryObj.sortDirection
           resultArray = sortQueryItems(result,  [{fieldName: sortBy,  direction}])
         }
-        
-      // }
-      
       
       let pagesCount: number, totalCount: number
       let pageNumber: number = queryObj.pageNumber !== undefined ? +queryObj.pageNumber : 1;
@@ -68,8 +67,8 @@ export const getPostsOrBlogsOrUsers = {
   },
 
   async getPostsById(id: string): Promise<PostsType[] | null>{
-    const result = await postsRepository.getPostsById(id)
-    if(result) {
+    const result = await database.find({ id: id }, { projection: { _id: 0 } }).toArray()
+    if(result.length > 0) {
     return result
     } else {
       return null
@@ -172,8 +171,7 @@ export const getPostsOrBlogsOrUsers = {
       } else {
         result = await databaseUsersCollection.find().toArray()
       }
-          
-      
+  
       if(result.length >= 0) {  
         let sortBy: any = 'createdAt'
         let direction: any = 'desc'
@@ -258,4 +256,98 @@ export const getPostsOrBlogsOrUsers = {
       return undefined
     }
   },
+
+  async findUserById(id: string): Promise<UserViewModel | undefined>{
+    const user = await databaseUsersCollection.findOne({id: id})
+    if(user) {
+      let resultUser: UserViewModel
+      if(user.createdAt) {
+        resultUser = {
+          id: user.id,
+          email: user.email,
+          createdAt: user.createdAt,
+          login: user.login
+        }
+      } else {
+        resultUser = {
+          id: user.id,
+          email: user.email,
+          login: user.login
+        }
+      }
+      return resultUser
+    }
+    return undefined
+  },
+
+  async getCommentById(id: string): Promise<CommentViewModel | undefined >{
+    const comment: CommentViewModelMyDBType | null = await databaseCommentsCollection.findOne({items: [{id: id}]}, {projection: {_id: 0}})
+    console.log('288 query-repository.ts comment', comment);
+    if(comment === null) {
+      return undefined
+    }
+    let commentResultObj: CommentViewModel = {
+      id: comment.id,
+      content: comment.content,
+      commentatorInfo: { 
+        userId: comment.commentatorInfo.userId,
+        userLogin: comment.commentatorInfo.userLogin
+      },
+      createdAt: comment.createdAt
+    }
+    return commentResultObj
+  },
+///////////////////////////////////////////////////////////
+  async getComments(req: Request): Promise<CommentViewModelType | undefined> {
+    let result = await databaseCommentsCollection.find({postId: req.params.id}, {projection: {_id: 0}}).toArray()
+    if(result.length > 0) {
+      const resultArray: CommentViewModel[] = result.map((el, ind) => {
+        const newElement: CommentViewModel = {
+          id: el.id,
+          content: el.content,
+          commentatorInfo: {
+            userId: el.commentatorInfo.userId,
+            userLogin: el.commentatorInfo.userLogin
+          },
+          createdAt: el.createdAt
+        }
+        return newElement
+      })
+
+      const resultObj: CommentViewModelType | null = createResultObjectWithSortingAndPagination(req, resultArray, sortQueryItems)
+      if(resultObj !== null) {
+        return resultObj
+      }
+      
+    } else {
+      return undefined
+    }
+   
+  }
 }
+// function createResultObjectWithSortingAndPagination(req: Request, result: CommentViewModel[], sortQueryItems: any) {
+//   const queryObj = req.query
+//   let sortBy = queryObj.sortBy !== undefined ? queryObj.sortBy : 'id'
+//   let direction = queryObj.sortDirection !== undefined ? queryObj.sortDirection : 'desc'
+//   let resultArray: CommentViewModel[] = sortQueryItems(result,  [{fieldName: sortBy,  direction}])
+
+//   let pagesCount: number
+//   let totalCount: number = resultArray.length
+//   let pageNumber: number = queryObj.pageNumber !== undefined ? +queryObj.pageNumber : 1;
+//   let pageSize: number = queryObj.pageSize !== undefined ? +queryObj.pageSize : 10;
+//   let skipDocumentsCount: number = (pageNumber - 1) * pageSize
+//   pagesCount = Math.ceil( totalCount / pageSize )
+//   resultArray = resultArray.splice(skipDocumentsCount, pageSize)
+//   if(resultArray.length > 0) {
+//     const obj: CommentViewModelType = {
+//       pagesCount,
+//       page:	pageNumber,
+//       pageSize,
+//       totalCount,
+//       items: resultArray
+//     }
+//       return obj
+//   } else {
+//     return null
+//   }
+// }
