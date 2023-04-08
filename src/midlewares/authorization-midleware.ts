@@ -3,7 +3,8 @@ import { getPostsOrBlogsOrUsers } from "../repositories/query-repository";
 import { jwtService } from "../routes/application/jwt-service";
 
 export const authMidleware  =  (req: Request, res: Response, next: NextFunction) => {
-    if(req.method === "GET") {
+  console.log('7 authorisation-midleware req.path', req.path)
+    if(req.method === "GET" || (req.method === "POST"  && (req.path === '/login'))) {
         next()
         return
     }

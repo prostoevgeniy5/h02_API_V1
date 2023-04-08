@@ -122,7 +122,7 @@ export const getPostsOrBlogsOrUsers = {
           resultArray = resultArray.splice(skipDocumentsCount, pageSize)
         }
         let resultObject: BlogViewModelType
-        if(totalCount > 0) {
+        // if(totalCount > 0) {
           resultObject = {
             "pagesCount": pagesCount,
             "page": pageNumber,
@@ -131,7 +131,7 @@ export const getPostsOrBlogsOrUsers = {
             "items": resultArray
           }
           return resultObject
-        }
+        // }
      // } 
 
     }
@@ -238,7 +238,7 @@ export const getPostsOrBlogsOrUsers = {
     }
   },
 
-  async getUserByLoginOrEmail(loginOrEmail: string): Promise<UserDBType[] | null | undefined>  {
+  async getUserByLoginOrEmail(loginOrEmail: string): Promise<UserDBType | null | undefined>  {
     let result: UserDBType[]
     const pattern = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
     if(pattern.test(loginOrEmail)) {
@@ -247,9 +247,9 @@ export const getPostsOrBlogsOrUsers = {
     // result = await databaseUsersCollection.find({$or: [{login: login}, {email: email}]}).toArray()
     result = await databaseUsersCollection.find( {login: loginOrEmail} ).toArray()
     if(result.length > 0) {
-      console.log('275 query0repository.ts result', result);
+      console.log('250 query0repository.ts result', result);
       
-      return result
+      return result[0]
     } else if(result.length === 0) {
       return null
     } else {

@@ -3,25 +3,27 @@ import { usersService } from '../domain/users-service'
 import { jwtService } from './application/jwt-service'
 import { inputValidationMiddleware } from '../midlewares/inputValidationMiddleware'
 import { loginOrEmailPasswordValidation } from '../midlewares/loginisation-validation'
-import { authObjectWithAuthMiddleware } from '../midlewares/authorization-midleware'
+import { authMidleware, authObjectWithAuthMiddleware } from '../midlewares/authorization-midleware'
 import { MeViewModel, UserDBType, UserViewModel } from '../repositories/types'
 
 export const authRouter =  Router({})
 
-authRouter.post('/login', 
+authRouter.post('/login',
+  // authMidleware,
   loginOrEmailPasswordValidation,
   inputValidationMiddleware,
   async (req: Request, res: Response) => {
     const user = await usersService.checkCredentials(
       req.body.loginOrEmail, req.body.password 
       )
+      console.log('19 auth-router.ts user', user)
     if(user) {
       const token = await jwtService.createJWT(user)
       console.log('20 auth-router.ts token', token.token)
       res.status(201).send(token.token)
       // res.sendStatus(204)
     } else {
-      res.sendStatus(401)
+      res.status(401).send('user no rassed checking')
     }
 })
 

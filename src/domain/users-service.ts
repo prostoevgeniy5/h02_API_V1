@@ -3,7 +3,6 @@ import { usersRepository } from "../repositories/users-repository"
 import bcrypt from 'bcrypt'
 import { getPostsOrBlogsOrUsers } from "../repositories/query-repository"
 
-
 export const usersService = {
   async createUser(login: string, email:string, password: string): Promise<UserViewModel | undefined>{
     // 1 create salt for password
@@ -31,16 +30,18 @@ export const usersService = {
 
   async checkCredentials(loginOrEmail: string, password: string): Promise<UserDBType | false>{
     const result = await getPostsOrBlogsOrUsers.getUserByLoginOrEmail(loginOrEmail)
-    console.log('34 users-servise.ts result', result );
-    
+    console.log('34 users-servise.ts result', result );    
     if(!result) {
       return false
     }
-    const hash = await this._generateHash(password, result[0].passwordSalt)
-    if(hash !== result[0].passwordHash) {
+    const hash = await this._generateHash(password, result.passwordSalt)
+    // const compareResult = await bcrypt.compare(password, result.passwordHash)
+    if(result.passwordHash !== hash) {
+      debugger
       return false
     }  
-    return result[0]
+    debugger
+    return result
   },
 
   async _generateHash(pass: string, salt: string) {
