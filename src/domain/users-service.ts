@@ -37,10 +37,8 @@ export const usersService = {
     const hash = await this._generateHash(password, result.passwordSalt)
     // const compareResult = await bcrypt.compare(password, result.passwordHash)
     if(result.passwordHash !== hash) {
-      debugger
       return false
     }  
-    debugger
     return result
   },
 
