@@ -300,6 +300,7 @@ export const getPostsOrBlogsOrUsers = {
 ///////////////////////////////////////////////////////////
   async getComments(req: Request): Promise<CommentViewModelType | undefined> {
     let result = await databaseCommentsCollection.find({postId: req.params.id}, {projection: {_id: 0}}).toArray()
+    
     if(result.length > 0) {
       const resultArray: CommentViewModel[] = result.map((el, ind) => {
         const newElement: CommentViewModel = {
@@ -315,6 +316,7 @@ export const getPostsOrBlogsOrUsers = {
       })
 
       const resultObj: CommentViewModelType | null = createResultObjectWithSortingAndPagination(req, resultArray, sortQueryItems)
+      console.log('318 query-reposn getComments resultObj', resultObj)
       if(resultObj !== null) {
         return resultObj
       }

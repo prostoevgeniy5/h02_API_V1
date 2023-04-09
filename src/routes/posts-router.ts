@@ -137,7 +137,7 @@ async (req: Request, res: Response) => {
 
 postsRouter.get('/:id/comments', async (req: Request, res: Response) => {
   let comments = await getPostsOrBlogsOrUsers.getComments(req)
-  if (comments !== null) {
+  if (comments !== undefined) {
     res.status(200).json(comments);
     return
   } else {
