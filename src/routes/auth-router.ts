@@ -20,7 +20,7 @@ authRouter.post('/login',
     if(user) {
       const token = await jwtService.createJWT(user)
       console.log('20 auth-router.ts token', token.token)
-      res.status(200).send(token.token)
+      res.status(200).send({accessToken: token.token})
       // res.sendStatus(204)
     } else {
       res.status(401).send('user no passed checking')

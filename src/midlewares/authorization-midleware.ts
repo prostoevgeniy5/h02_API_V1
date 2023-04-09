@@ -42,7 +42,6 @@ export const authMidleware  =  (req: Request, res: Response, next: NextFunction)
   }
 
   const token = req.headers.authorization.split(' ')[1]
-  console.log('36 authorisation-midldleware.ts token', token)
   const userId = await jwtService.getUserIdByToken(token)
   if(userId) {
     const user = await getPostsOrBlogsOrUsers.findUserById(userId)
