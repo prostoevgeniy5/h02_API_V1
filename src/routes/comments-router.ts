@@ -37,9 +37,11 @@ commentsRouter.delete('/:id',
   authObjectWithAuthMiddleware.authMidleware,
 
   async (req: Request, res: Response) => {
-    const result: boolean | undefined = await serviceComments.deleteComment(req) 
+    const result: boolean | undefined = await serviceComments.deleteComment(req, authObjectWithAuthMiddleware.user.id) 
     if(result) {
       return res.sendStatus(204)
+    } else if(result === false) {
+      return res.sendStatus(403)
     } else {
       return res.sendStatus(404)
     }

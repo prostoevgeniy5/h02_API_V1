@@ -39,10 +39,12 @@ export const serviceComments = {
     }
   },
 
-  async deleteComment(req: Request): Promise<boolean | undefined>{
-    const result = await commentsRepository.deleteComment(req)
+  async deleteComment(req: Request, userId: string): Promise<boolean | undefined>{
+    const result = await commentsRepository.deleteComment(req, userId)
     if(result) {
       return true
+    } else if(result === false) {
+      return false
     } else {
       return undefined
     }

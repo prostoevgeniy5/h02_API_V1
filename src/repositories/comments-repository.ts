@@ -20,13 +20,15 @@ export const commentsRepository = {
     }
   },
 
-  async deleteComment(req: Request): Promise<boolean | null | undefined> {
+  async deleteComment(req: Request, userId: string): Promise<boolean | undefined> {
+    const comment = await commentsCollection.findOne({id: req.params.id})
+    if(comment !== null && comment.commentatorInfo.userId !== userId) {
+      return false
+    }
     const result = await commentsCollection.deleteOne({id: req.params.id})
     if(result.deletedCount > 0) {
       return true
-    } else {
-      return null
-    }
+    } 
     return undefined
   }
 }
