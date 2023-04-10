@@ -281,8 +281,7 @@ export const getPostsOrBlogsOrUsers = {
   },
 
   async getCommentById(id: string): Promise<CommentViewModel | undefined >{
-    const comment: CommentViewModelMyDBType | null = await databaseCommentsCollection.findOne({items: [{id: id}]}, {projection: {_id: 0}})
-    console.log('288 query-repository.ts comment', comment);
+    const comment: CommentViewModelMyDBType | null = await databaseCommentsCollection.findOne({id: id}, {projection: {_id: 0}})
     if(comment === null) {
       return undefined
     }
