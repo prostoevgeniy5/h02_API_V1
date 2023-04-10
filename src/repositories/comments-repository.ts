@@ -12,8 +12,8 @@ export const commentsRepository = {
       return false
     }
     const result = await commentsCollection.updateOne({id: req.params.id}, {$set: {content: req.body.content}})
-    console.log('10 comments-repository.ts result.upsertedId', result.upsertedId)
-    if(result.upsertedId) {
+    // console.log('10 comments-repository.ts result.upsertedId', result.upsertedId)
+    if(result.modifiedCount) {
       return true
     } else {
       return undefined
