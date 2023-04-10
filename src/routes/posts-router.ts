@@ -151,8 +151,7 @@ postsRouter.post('/:id/comments',
   commentsValidation,
   inputValidationMiddleware,
   async (req: Request, res: Response) => {
-    const result = serviceComments.createComment(authObjectWithAuthMiddleware.user, req)
-
+    const result = await serviceComments.createComment(authObjectWithAuthMiddleware.user, req)
     if(result !== undefined) {
       return res.status(201).json(result);
     }

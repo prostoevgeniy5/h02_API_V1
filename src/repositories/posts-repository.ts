@@ -175,7 +175,7 @@ export const postsRepository = {
       newComment.postId = postId,
       newComment.blogId = post.blogId
       const result = await databaseCommentsCollection.insertOne(newComment)
-      if(result)
+      if(result.insertedId)
       return true
     }
     return null
