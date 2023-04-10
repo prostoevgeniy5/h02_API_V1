@@ -315,7 +315,7 @@ export const getPostsOrBlogsOrUsers = {
       })
 
       const resultObj: CommentViewModelType | null = createResultObjectWithSortingAndPagination(req, resultArray, sortQueryItems)
-      console.log('318 query-reposn getComments resultObj', resultObj)
+      // console.log('318 query-reposn getComments resultObj', resultObj)
       if(resultObj !== null) {
         return resultObj
       }

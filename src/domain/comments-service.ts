@@ -33,7 +33,11 @@ export const serviceComments = {
   },
 
   async deleteComment(req: Request): Promise<boolean | undefined>{
-
-    return
+    const result = await commentsRepository.deleteComment(req)
+    if(result) {
+      return true
+    } else {
+      return undefined
+    }
   }
 }
