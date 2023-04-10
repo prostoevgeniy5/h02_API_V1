@@ -1,10 +1,15 @@
 import { commentsRepository } from "../repositories/comments-repository";
 import { postsRepository } from "../repositories/posts-repository";
 import { CommentViewModel, CommentatorInfoType,CommentViewModelMyDBType, UserViewModel } from "../repositories/types";
+import { getPostsOrBlogsOrUsers } from '../repositories/query-repository'
 import { Request } from 'express'
 
 export const serviceComments = {
-  async createComment(user: UserViewModel, req: Request): Promise<CommentViewModel | undefined>{
+  async createComment(user: UserViewModel, req: Request): Promise<CommentViewModel | null | undefined>{
+    const post = await getPostsOrBlogsOrUsers.getPostsById(req.params.id)
+    if(post === null) {
+      return null
+    }
     const comment = {
       id: (+(new Date())).toString(),
       content: req.body.content,
