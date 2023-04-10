@@ -23,10 +23,12 @@ export const serviceComments = {
 
   },
 
-  async updateComment(req: Request): Promise<boolean | undefined>{
-    const result = await commentsRepository.updateComment(req)
-    if(result) {
+  async updateComment(req: Request, userId: string): Promise<boolean | undefined>{
+    const result = await commentsRepository.updateComment(req, userId)
+    if(result ) {
       return true
+    } else if(result === false) {
+      return false
     } else {
       return undefined
     }

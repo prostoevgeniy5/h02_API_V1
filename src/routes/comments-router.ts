@@ -22,9 +22,11 @@ commentsRouter.put('/:id',
   commentsValidation,
   inputValidationMiddleware,
   async (req: Request, res: Response) => {
-    let result: boolean | undefined = await serviceComments.updateComment(req)
+    let result: boolean | undefined = await serviceComments.updateComment(req, authObjectWithAuthMiddleware.user.id)
     if(result) {
       return res.sendStatus(204)
+    } else if(result === false) {
+      return res.sendStatus(403)
     } else {
       return res.sendStatus(404)
     }

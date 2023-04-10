@@ -5,7 +5,12 @@ import { client } from './db'
 const commentsCollection = client.db('blogspostsvideos').collection<CommentViewModelMyDBType>('comments')
 
 export const commentsRepository = {
-  async updateComment(req: Request): Promise<boolean | undefined> {
+
+  async updateComment(req: Request, userId: string): Promise<boolean | undefined> {
+    const comment = await commentsCollection.findOne({id: req.params .id})
+    if( comment !== null && userId !== comment.commentatorInfo.userId) {
+      return false
+    }
     const result = await commentsCollection.updateOne({id: req.params.id}, {$set: {content: req.body.content}})
     console.log('10 comments-repository.ts result.upsertedId', result.upsertedId)
     if(result.upsertedId) {
