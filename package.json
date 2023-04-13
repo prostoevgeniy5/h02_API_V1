@@ -15,12 +15,16 @@
   "author": "evgeniy <yevgeniy5@ukr.net>",
   "license": "ISC",
   "dependencies": {
+    "@types/bcrypt": "^5.0.0",
     "@types/jest": "^29.2.4",
+    "@types/jsonwebtoken": "^9.0.1",
     "@types/supertest": "^2.0.12",
+    "bcrypt": "^5.1.0",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-validator": "^6.14.2",
     "jest": "^29.3.1",
+    "jsonwebtoken": "^9.0.0",
     "mongodb": "^4.11.0",
     "supertest": "^6.3.3",
     "ts-jest": "^29.0.3"

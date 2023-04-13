@@ -1,7 +1,7 @@
 import { body } from "express-validator";
-import { BloggersType, db } from "../repositories/db";
+import { BloggersType} from "../repositories/types";
 
-const bloggers = db.bloggers
+const bloggers : BloggersType[] = []
 
 export function checkRequestBodyField(name: string, field: string): boolean {
     let result = false;

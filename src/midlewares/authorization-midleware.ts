@@ -1,7 +1,10 @@
 import { Request, Response, NextFunction } from "express";
+import { getPostsOrBlogsOrUsers } from "../repositories/query-repository";
+import { jwtService } from "../routes/application/jwt-service";
 
-export const authMidleware =  (req: Request, res: Response, next: NextFunction) => {
-    if(req.method === "GET") {
+export const authMidleware  =  (req: Request, res: Response, next: NextFunction) => {
+  
+    if(req.method === "GET" || (req.method === "POST"  && (req.path === '/login'))) {
         next()
         return
     }
@@ -25,3 +28,33 @@ export const authMidleware =  (req: Request, res: Response, next: NextFunction) 
      }
    }
  }
+/////////////////////////////////////////////////////////
+ export const authObjectWithAuthMiddleware = {
+  user: {
+    id: '',
+    login: '',
+    email: ''
+  },
+  authMidleware : async (req: Request, res: Response, next: NextFunction) => {
+  if(!req.headers.authorization) {
+    res.sendStatus(401)
+    return
+  }
+
+  const token = req.headers.authorization.split(' ')[1]
+  const userId = await jwtService.getUserIdByToken(token)
+  if(userId) {
+    const user = await getPostsOrBlogsOrUsers.findUserById(userId)
+    if(user !== undefined) {
+      authObjectWithAuthMiddleware.user = user
+    next()
+    return
+    }
+    
+  } else {
+    res.sendStatus(401)
+    return
+  }
+
+ }
+}
