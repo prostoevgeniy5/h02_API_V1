@@ -5,6 +5,7 @@ import { inputValidationMiddleware } from '../midlewares/inputValidationMiddlewa
 import { loginOrEmailPasswordValidation } from '../midlewares/loginisation-validation'
 import { authMidleware, authObjectWithAuthMiddleware } from '../midlewares/authorization-midleware'
 import { MeViewModel, UserDBType, UserViewModel } from '../repositories/types'
+import { userValidation } from '../midlewares/user-validation'
 
 export const authRouter =  Router({})
 
@@ -26,7 +27,7 @@ authRouter.post('/login',
       res.status(401).send('user no passed checking')
     }
 })
-
+/////////////////////////////////////
 authRouter.get('/me',
   authObjectWithAuthMiddleware.authMidleware,
   async (req:Request, res: Response) => {
@@ -43,3 +44,17 @@ authRouter.get('/me',
     }
   }
 )
+////////////////////////////////////////
+authRouter.post('/registration', 
+userValidation,
+inputValidationMiddleware,
+async (req: Request, res: Response) => {
+  const result = await usersService.createUser(req.body.login, req.body.email, req.body.password)
+  if(!result) {
+    return res.status(400).send("Try to register again")
+  } else {
+
+    return res.status(204).send("Check your email for confirmation registration")
+  }
+})
+///////////////////////////////////////

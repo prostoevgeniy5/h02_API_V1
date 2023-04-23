@@ -65,7 +65,7 @@ export const getPostsOrBlogsOrUsers = {
 
     return undefined
   },
-
+//////////////////////////////////////////////////////////
   async getPostsById(id: string): Promise<PostsType[] | null>{
     const result = await database.find({ id: id }, { projection: { _id: 0 } }).toArray()
     if(result.length > 0) {
@@ -105,9 +105,7 @@ export const getPostsOrBlogsOrUsers = {
             resultArray = sortQueryItems(result,  [{fieldName: sortBy,  direction}])
           }
           
-        // }
-        
-        
+        // }      
         let pagesCount: number
         let totalCount: number = resultArray.length
         let pageNumber: number = queryObj.pageNumber !== undefined ? +queryObj.pageNumber : 1;
@@ -138,7 +136,7 @@ export const getPostsOrBlogsOrUsers = {
     return undefined
 
   },
-
+///////////////////////////////////////////////////////////
   async getBloggerById(id: string): Promise<BloggersType | null>{
    
       let result = await blogsRepository.getBloggerById(id)
@@ -148,7 +146,7 @@ export const getPostsOrBlogsOrUsers = {
       return null
     }
   },
-
+/////////////////////////////////////////////////
   async getUsers(req: Request): Promise<UserViewModel[] | undefined> {
       let result: UserDBType[] | []
       // let resultArray: UserViewModel[] | []
@@ -200,9 +198,7 @@ export const getPostsOrBlogsOrUsers = {
           let skipDocumentsCount: number = (pageNumber - 1) * pageSize
 
           totalCount = resultArray.length
-          // if(totalCount > 0) {
-
-          
+          // if(totalCount > 0) {          
           pagesCount = Math.ceil( totalCount / pageSize )
           // let resultObject: UsersViewModelType  = {
           let resultObject: any = {
@@ -216,10 +212,10 @@ export const getPostsOrBlogsOrUsers = {
             resultArray = resultArray.splice(skipDocumentsCount, pageSize)
             const resArray: UserViewModel[] | [] = resultArray.map(item => {
               let newItem: UserViewModel = {
-                id: item.id,
-                login: item.login,
-                email: item.email,
-                createdAt: item.createdAt
+                id: item.accountData.id,
+                login: item.accountData.login,
+                email: item.accountData.email,
+                createdAt: item.accountData.createdAt
               }
              return newItem
             })
@@ -237,7 +233,7 @@ export const getPostsOrBlogsOrUsers = {
       return undefined
     }
   },
-
+////////////////////////////////////////////////
   async getUserByLoginOrEmail(loginOrEmail: string): Promise<UserDBType | null | undefined>  {
     let result: UserDBType[]
     const pattern = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
@@ -256,30 +252,30 @@ export const getPostsOrBlogsOrUsers = {
       return undefined
     }
   },
-
+////////////////////////////////////////////////////
   async findUserById(id: string): Promise<UserViewModel | undefined>{
     const user = await databaseUsersCollection.findOne({id: id})
     if(user) {
       let resultUser: UserViewModel
-      if(user.createdAt) {
+      if(user.accountData.createdAt) {
         resultUser = {
-          id: user.id,
-          email: user.email,
-          createdAt: user.createdAt,
-          login: user.login
+          id: user.accountData.id,
+          email: user.accountData.email,
+          createdAt: user.accountData.createdAt,
+          login: user.accountData.login
         }
       } else {
         resultUser = {
-          id: user.id,
-          email: user.email,
-          login: user.login
+          id: user.accountData.id,
+          email: user.accountData.email,
+          login: user.accountData.login
         }
       }
       return resultUser
     }
     return undefined
   },
-
+//////////////////////////////////////////////////
   async getCommentById(id: string): Promise<CommentViewModel | undefined >{
     const comment: CommentViewModelMyDBType | null = await databaseCommentsCollection.findOne({id: id}, {projection: {_id: 0}})
     if(comment === null) {

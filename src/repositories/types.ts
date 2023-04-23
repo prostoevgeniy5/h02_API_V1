@@ -99,12 +99,23 @@ export interface UsersViewModelType {
 }  
 
   export interface UserDBType {
-    id: string
-    login: string
-    email: string
-    passwordSalt: string
-    passwordHash: string
-    createdAt: string
+    // id: string
+    // login: string
+    // email: string
+    // createdAt: string | undefined
+    accountData: {
+      id: string
+      login: string
+      email: string
+      passwordSalt: string
+      passwordHash: string
+      createdAt: string
+    }
+    emailConfirmation: {
+      confirmationCode: string
+      expirationDate:  Date,
+      isConfirmed: boolean
+    }
   }
 
   export type ResultTokenType = {

@@ -8,17 +8,18 @@ export const usersRepository = {
 
     const result = await databaseUsersCollecrtion.insertOne(user)
     if(result.insertedId) {
-      const resultObj: UserViewModel = {  
-        id: '',
-        login: '',
-        email: '',
-        createdAt: ''
-      }
-      Object.keys(user).forEach((elem: string) => {
-        if (elem === 'id' || elem === 'login' || elem === 'email' || elem === 'createdAt') {
-          resultObj[elem] = user[elem]
-        }
-      })
+      const resultObj: UserViewModel = Object.assign({}, user.accountData)
+      // {  
+      //   id: '',
+      //   login: '',
+      //   email: '',
+      //   createdAt: ''
+      // }
+      // Object.keys(user.accountData).forEach((elem: string) => {
+      //   if (elem === 'id' || elem === 'login' || elem === 'email' || elem === 'createdAt') {
+      //     resultObj[elem] = user[elem]
+      //   }
+      // })
      
       return resultObj 
     } else {
