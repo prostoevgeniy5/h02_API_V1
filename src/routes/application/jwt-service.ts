@@ -12,7 +12,7 @@ export const jwtService = {
   async createJWT(obj: UserDBType): Promise<ResultTokenType> {
     console.log('13 jwt-service.ts ', settings.JWT_SECRET);
     
-    const token = jwt.sign({userId: obj.id}, settings.JWT_SECRET, {expiresIn: '1h'} )
+    const token = jwt.sign({userId: obj.accountData.id}, settings.JWT_SECRET, {expiresIn: '1h'} )
     return { resultCode: 0,
             token: token
     }
