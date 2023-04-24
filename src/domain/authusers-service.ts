@@ -77,15 +77,15 @@ export const usersService = {
   },
 /////////////////////////////////////////////////////
   async confirmEmail(code: string): Promise<boolean | null | undefined>{
-    const result = await getPostsOrBlogsOrUsers.getUserByConfirmationCode(code)
+    const user = await getPostsOrBlogsOrUsers.getUserByConfirmationCode(code)
     let updatedUser: boolean | null | undefined
-    if(result) {
-      if(+Date.parse(result.emailConfirmation.expirationDate.toString()) < +Date.now()) {
+    if(user) {
+      if(+Date.parse(user.emailConfirmation.expirationDate.toString()) < +Date.now()) {
         return null
-      } else if(result.emailConfirmation.isConfirmed) {
+      } else if(user.emailConfirmation.isConfirmed) {
         return null
       } else {
-        updatedUser = await usersRepository.updateUserByConfirmationCode(code)
+        updatedUser = await usersRepository.updateUserByConfirmationCode(user)
       } if( updatedUser === null) {
         return null
       } else if(updatedUser === true) {

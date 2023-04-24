@@ -19,7 +19,10 @@ export const emailAdapter = {
     to: user.accountData.email,
     subject: "registration",
     // text: 'text message',
-    html: `<div><p>Confirmation code is ${user.emailConfirmation.confirmationCode}</p><div><a href=#>link registration confirmation</a></div></div>`
+    html: `<h1>Thank for your registration</h1>
+    <p>To finish registration please follow the link below:
+        <a href='https://somesite.com/confirm-email?code=${user.emailConfirmation.confirmationCode}'>complete registration</a>
+    </p>`
   })
   if(info && info.accepted.length > 0) {
     return info

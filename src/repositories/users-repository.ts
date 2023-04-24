@@ -46,10 +46,10 @@ export const usersRepository = {
     }
   },
 //////////////////////////////////////////////
-  async updateUserByConfirmationCode(code: string): Promise<boolean | null>{
-    const result = await databaseUsersCollection.updateOne({"emailConfirmation.confirmationCode": code}, {$set: {"emailConfirmation.isConfirmed": true, "emailConfirmation.expirationDate": add(new Date(), {
+  async updateUserByConfirmationCode(user: UserDBType): Promise<boolean | null>{
+    const result = await databaseUsersCollection.updateOne({"emailConfirmation.confirmationCode": user.emailConfirmation.confirmationCode}, {$set: {"emailConfirmation.isConfirmed": true, "emailConfirmation.expirationDate": add(new Date(), {
       hours: 0,
-      minutes: 10
+      minutes: user.emailConfirmation.expirationDate.getMinutes() - 1
     })}})
     console.log("54 user-repository.ts result", result)
     if(result.modifiedCount) {
