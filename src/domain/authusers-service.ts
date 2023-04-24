@@ -8,6 +8,10 @@ import add from "date-fns/add"
 
 export const usersService = {
   async createUser(login: string, email: string, password: string): Promise<UserViewModel | undefined | null> {
+    const getingUser = await getPostsOrBlogsOrUsers.getUserByLoginOrEmail(login)
+    if(getingUser) {
+      return undefined
+    }
     // 1 create salt for password
     const passwordSalt = await bcrypt.genSalt(10)
     // 2 create hash with ising salt

@@ -51,10 +51,12 @@ userValidation,
 inputValidationMiddleware,
 async (req: Request, res: Response) => {
   const result = await usersService.createUser(req.body.login, req.body.email, req.body.password)
-  if(!result) {
+  if(result === null) {
     return res.status(400).send("Try to register again")
-  } else {
-
+  } else if(result === undefined) {
+    return res.status(400).send("such user already exists")
+  }
+  else {
     return res.status(204).send("Check your email for confirmation registration")
   }
 })
