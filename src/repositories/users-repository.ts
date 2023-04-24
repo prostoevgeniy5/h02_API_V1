@@ -1,12 +1,13 @@
+import add from 'date-fns/add'
 import { client } from './db'
 import { LoginModelType, UserDBType, UserViewModel } from './types'
 
-const databaseUsersCollecrtion = client.db('blogspostsvideos').collection<UserDBType>('users')
+const databaseUsersCollection = client.db('blogspostsvideos').collection<UserDBType>('users')
 
 export const usersRepository = {
   async createUser(user: UserDBType): Promise<UserViewModel | undefined> {
 
-    const result = await databaseUsersCollecrtion.insertOne(user)
+    const result = await databaseUsersCollection.insertOne(user)
     if(result.insertedId) {
       const resultObj: UserViewModel = Object.assign({}, user.accountData)
       // {  
@@ -37,11 +38,26 @@ export const usersRepository = {
   // },
 
   async deleteUser(userId: string): Promise<number | null> {
-    const result = await databaseUsersCollecrtion.deleteOne({ id: userId })
+    const result = await databaseUsersCollection.deleteOne({ id: userId })
     if(result.deletedCount === 1) {
       return result.deletedCount
     } else {
       return null
     }
-  }
+  },
+//////////////////////////////////////////////
+  async updateUserByConfirmationCode(code: string): Promise<boolean | null>{
+    const result = await databaseUsersCollection.updateOne({"emailConfirmation.confirmationCode": code}, {$set: {"emailConfirmation.isConfirmed": true, "emailConfirmation.expirationDate": add(new Date(), {
+      hours: 0,
+      minutes: 10
+    })}})
+    console.log("54 user-repository.ts result", result)
+    if(result.modifiedCount) {
+      return true
+    } else {
+    console.log('58 users-repository.ts before deleted result.upsertedId', result.upsertedId)
+      // await databaseUsersCollection.deleteOne({_id: result.upsertedId})
+      return null
+    }
+  } 
 }

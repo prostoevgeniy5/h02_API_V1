@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express'
 // simport bcrypt from 'bcrypt'
-import { usersService } from '../domain/users-service'
+import { usersService } from '../domain/authusers-service'
 import { userValidation } from '../midlewares/user-validation'
 import { inputValidationMiddleware } from '../midlewares/inputValidationMiddleware'
 import { getPostsOrBlogsOrUsers } from '../repositories/query-repository'

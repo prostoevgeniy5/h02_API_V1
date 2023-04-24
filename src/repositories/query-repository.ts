@@ -4,6 +4,7 @@ import { Request } from "express"
 import { blogsRepository } from "./blogs-repository"
 // import { sortQueryItems } from "../functions/sortItems-query"
 import { client } from './db'
+import { WithId } from "mongodb"
 // import { usersRepository } from "./users-repository"
 
 
@@ -320,6 +321,14 @@ export const getPostsOrBlogsOrUsers = {
       return undefined
     }
    
+  },
+////////////////////////////////////////////////
+  async getUserByConfirmationCode(code: string): Promise<UserDBType | undefined>{
+    const result: UserDBType | null = await databaseUsersCollection.findOne({"emailConfirmation.confirmationCode": code})
+    if(!result) {
+      return undefined
+    }
+    return result
   }
 }
 // function createResultObjectWithSortingAndPagination(req: Request, result: CommentViewModel[], sortQueryItems: any) {

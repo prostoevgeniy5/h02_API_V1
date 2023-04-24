@@ -1,11 +1,13 @@
 import { Request, Response, Router } from 'express'
-import { usersService } from '../domain/users-service'
+import { usersService } from '../domain/authusers-service'
 import { jwtService } from './application/jwt-service'
 import { inputValidationMiddleware } from '../midlewares/inputValidationMiddleware'
 import { loginOrEmailPasswordValidation } from '../midlewares/loginisation-validation'
 import { authMidleware, authObjectWithAuthMiddleware } from '../midlewares/authorization-midleware'
 import { MeViewModel, UserDBType, UserViewModel } from '../repositories/types'
 import { userValidation } from '../midlewares/user-validation'
+import { codeConfirmation } from '../midlewares/codevalidation-confirmregistration'
+import { emailValidation } from '../midlewares/email-validation'
 
 export const authRouter =  Router({})
 
@@ -22,7 +24,6 @@ authRouter.post('/login',
       const token = await jwtService.createJWT(user)
       console.log('20 auth-router.ts token', token.token)
       res.status(200).send({accessToken: token.token})
-      // res.sendStatus(204)
     } else {
       res.status(401).send('user no passed checking')
     }
@@ -58,3 +59,26 @@ async (req: Request, res: Response) => {
   }
 })
 ///////////////////////////////////////
+authRouter.post('/registration-confirmation',
+  codeConfirmation,
+  inputValidationMiddleware,
+  async (req: Request, res: Response) => {
+    const result = usersService.confirmEmail(req.body.code)
+    if(!result) {
+      return res.status(400).send('do not passed registration confirmation')
+    } else {
+      return res.status(204)
+    }
+  })
+  /////////////////////////////////////////////////////
+authRouter.post('/registration-email-resending',
+  emailValidation,
+  inputValidationMiddleware,
+  async (req: Request, res: Response) => {
+    const result = await usersService.confirmEmailResending(req.body.email)
+    if(!result) {
+      res.status(400).send('Resending no pass')
+    } else {
+      res.status(204).send('Resending email successfully.')
+    }
+  })

@@ -33,21 +33,23 @@ export const usersService = {
         isConfirmed: false
       },
     }
-
     let result = await usersRepository.createUser(newUser)
     if (result !== undefined) {
       const info = await businesService.sendEmailConfirmation(newUser)
       if (info) {
         return result
       } else {
-        return null
+        let res = await usersRepository.deleteUser(newUser.accountData.id)
+        if(res) {
+          return null
+        }
+        return undefined
       }
     } else {
       return undefined
     }
-
   },
-
+///////////////////////////////////////////////////
   async checkCredentials(loginOrEmail: string, password: string): Promise<UserDBType | false> {
     const result = await getPostsOrBlogsOrUsers.getUserByLoginOrEmail(loginOrEmail)
     console.log('34 users-servise.ts result', result);
@@ -58,17 +60,52 @@ export const usersService = {
     // const compareResult = await bcrypt.compare(password, result.passwordHash)
     if (result.accountData.passwordHash !== hash) {
       return false
+    } else if(!result.emailConfirmation.isConfirmed) {
+      return false
     }
     return result
   },
-
+///////////////////////////////////////////////////////
   async _generateHash(pass: string, salt: string) {
     const hash = await bcrypt.hash(pass, salt)
     return hash
   },
-
+//////////////////////////////////////////////////////
   async deleteUser(userId: string): Promise<number | null> {
     const result = await usersRepository.deleteUser(userId)
     return result
-  }
+  },
+/////////////////////////////////////////////////////
+  async confirmEmail(code: string): Promise<boolean | null | undefined>{
+    const result = await getPostsOrBlogsOrUsers.getUserByConfirmationCode(code)
+    let updatedUser: boolean | null | undefined
+    if(result) {
+      if(+Date.parse(result.emailConfirmation.expirationDate.toString()) < +Date.now()) {
+        return null
+      } else if(result.emailConfirmation.isConfirmed) {
+        return null
+      } else {
+        updatedUser = await usersRepository.updateUserByConfirmationCode(code)
+      } if( updatedUser === null) {
+        return null
+      } else if(updatedUser === true) {
+        return true
+      }
+    }
+    return undefined
+  },
+///////////////////////////////////////////////////
+  async confirmEmailResending(email: string): Promise<boolean | null> {
+    const user: UserDBType | null | undefined = await getPostsOrBlogsOrUsers.getUserByLoginOrEmail(email)
+      if (!user) {
+        return null
+      } else {
+        const result = await this.confirmEmail(user.emailConfirmation.confirmationCode)
+        if(result) {
+          return true
+        } else {
+          return null
+        }  
+      }    
+  }    
 }
