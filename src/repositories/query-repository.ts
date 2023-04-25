@@ -238,11 +238,11 @@ export const getPostsOrBlogsOrUsers = {
   async getUserByLoginOrEmail(loginOrEmail: string): Promise<UserDBType | null | undefined>  {
     let result: UserDBType[]
     const pattern = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
-    if(pattern.test(loginOrEmail)) {
-      result = await databaseUsersCollection.find( {email: loginOrEmail} ).toArray()
-    }
-    // result = await databaseUsersCollection.find({$or: [{login: login}, {email: email}]}).toArray()
-    result = await databaseUsersCollection.find( {login: loginOrEmail} ).toArray()
+    // if(pattern.test(loginOrEmail)) {
+    //   result = await databaseUsersCollection.find( {'accountData.email': loginOrEmail} ).toArray()
+    // }
+    result = await databaseUsersCollection.find({$or: [{'accountData.login': loginOrEmail}, {'accountData.email': loginOrEmail}]}).toArray()
+    // result = await databaseUsersCollection.find( {login: loginOrEmail} ).toArray()
     if(result.length > 0) {
       console.log('250 query0repository.ts result', result);
       

@@ -12,7 +12,7 @@ import { commentsRouter } from './routes/comments-router'
 // import { emailRouter } from './routes/email-router'
 
 export const app = express()
-const port = process.env.PORT || 3502
+const port = process.env.PORT || 3501
 
 const parserMiddleware = express.json()
 
