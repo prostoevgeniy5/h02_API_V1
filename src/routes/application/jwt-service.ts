@@ -10,7 +10,7 @@ import { settings } from "../../repositories/settings";
 
 export const jwtService = {
   async createJWT(obj: UserDBType): Promise<ResultTokenType> {
-    console.log('13 jwt-service.ts ', settings.JWT_SECRET);
+    // console.log('13 jwt-service.ts ', settings.JWT_SECRET);
     
     const token = jwt.sign({userId: obj.accountData.id}, settings.JWT_SECRET, {expiresIn: '1h'} )
     return { resultCode: 0,
@@ -21,7 +21,7 @@ export const jwtService = {
   async getUserIdByToken(token: string): Promise<string | null>{
     try{
       const result: any = jwt.verify(token, settings.JWT_SECRET)
-      console.log('24 jwt-service result', result);      
+      // console.log('24 jwt-service result', result);      
       return result.userId
     } catch(error) {
       return null

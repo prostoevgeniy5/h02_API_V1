@@ -8,7 +8,9 @@ import add from "date-fns/add"
 
 export const usersService = {
   async createUser(login: string, email: string, password: string): Promise<UserViewModel | undefined | null> {
-    const getingUser = await getPostsOrBlogsOrUsers.getUserByLoginOrEmail(login)
+    const getingUser = await getPostsOrBlogsOrUsers
+    .getUserByLoginOrEmail(email)
+    
     if(getingUser) {
       return undefined
     }
