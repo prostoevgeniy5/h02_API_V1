@@ -54,7 +54,12 @@ async (req: Request, res: Response) => {
   if(result === null) {
     return res.status(400).send("Try to register again")
   } else if(result === undefined) {
-    return res.status(400).send("such user already exists")
+    return res.status(400).send(
+      {
+        errorsMessages: [
+          { message: 'user exist' , field: "email" }
+        ]
+      })
   }
   else {
     return res.status(204).send("Check your email for confirmation registration")
