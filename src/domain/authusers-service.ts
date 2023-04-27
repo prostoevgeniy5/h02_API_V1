@@ -17,16 +17,17 @@ import add from "date-fns/add"
 export const usersService = {
   async createUser(login: string, email: string, password: string): Promise<UserViewModel | string | undefined | null> {
     const pattern = /^[\w-\. ]+@([\w-]+\.)+[\w-]{2,4}$/
-    let logOrEmail: LoginOrEmailType = {'field': 'login'}
+    // let logOrEmail: LoginOrEmailType = {'field': 'login'}
     const field = await getPostsOrBlogsOrUsers.checkExistingUser(login, email)
     
     if(field) {
-      if(pattern.test(field)) {
-         // logOrEmail = {'field': 'email'}
-        return 'email'
-      } else {
-        return 'login'
-      }
+      return field
+      // if(pattern.test(field)) {
+      //    // logOrEmail = {'field': 'email'}
+      //   return 'email'
+      // } else {
+      //   return 'login'
+      // }
     }
     // 1 create salt for password
     const passwordSalt = await bcrypt.genSalt(10)
