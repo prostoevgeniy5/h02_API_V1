@@ -104,7 +104,7 @@ export const usersService = {
       if(+Date.parse(user.emailConfirmation.expirationDate.toString()) < +Date.now()) {
         return null
       } else if(user.emailConfirmation.isConfirmed) {
-        return true
+        return null
       } else {
         updatedUser = await usersRepository.updateUserByConfirmationCode(user)
       } if( updatedUser === null) {
