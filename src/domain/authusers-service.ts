@@ -1,4 +1,4 @@
-import { UserDBType, UserInputModel, UserViewModel } from "../repositories/types"
+import { LoginOrEmailType, UserDBType, UserInputModel, UserViewModel } from "../repositories/types"
 import { usersRepository } from "../repositories/users-repository"
 import bcrypt from 'bcrypt'
 import { getPostsOrBlogsOrUsers } from "../repositories/query-repository"
@@ -6,13 +6,27 @@ import { businesService } from "./busines-service"
 import { v4 as uuidv4 } from 'uuid'
 import add from "date-fns/add"
 
+// type EmailType = {
+//   field: string
+// }
+
+// type LoginType = {
+//   data: string
+// }
+
 export const usersService = {
-  async createUser(login: string, email: string, password: string): Promise<UserViewModel | undefined | null> {
-    const getingUser = await getPostsOrBlogsOrUsers
-    .getUserByLoginOrEmail(email)
+  async createUser(login: string, email: string, password: string): Promise<UserViewModel | string | undefined | null> {
+    const pattern = /^[\w-\. ]+@([\w-]+\.)+[\w-]{2,4}$/
+    let logOrEmail: LoginOrEmailType = {'field': 'login'}
+    const field = await getPostsOrBlogsOrUsers.checkExistingUser(login, email)
     
-    if(getingUser) {
-      return undefined
+    if(field) {
+      if(pattern.test(field)) {
+         // logOrEmail = {'field': 'email'}
+        return 'email'
+      } else {
+        return 'login'
+      }
     }
     // 1 create salt for password
     const passwordSalt = await bcrypt.genSalt(10)

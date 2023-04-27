@@ -154,3 +154,11 @@ export  interface CommentViewModelMyDBType extends CommentViewModel {
   postId: string
   blogId: string
 }
+
+export type LoginOrEmailType = {
+  field: string
+}
+
+// export type LoginType = {
+//   data: string
+// }

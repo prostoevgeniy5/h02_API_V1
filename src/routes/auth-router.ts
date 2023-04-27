@@ -4,7 +4,7 @@ import { jwtService } from './application/jwt-service'
 import { inputValidationMiddleware } from '../midlewares/inputValidationMiddleware'
 import { loginOrEmailPasswordValidation } from '../midlewares/loginisation-validation'
 import { authMidleware, authObjectWithAuthMiddleware } from '../midlewares/authorization-midleware'
-import { MeViewModel, UserDBType, UserViewModel } from '../repositories/types'
+import { LoginOrEmailType, MeViewModel, UserDBType, UserViewModel } from '../repositories/types'
 import { userValidation } from '../midlewares/user-validation'
 import { codeConfirmation } from '../midlewares/codevalidation-confirmregistration'
 import { emailValidation } from '../midlewares/email-validation'
@@ -50,20 +50,25 @@ authRouter.post('/registration',
 userValidation,
 inputValidationMiddleware,
 async (req: Request, res: Response) => {
-  const result = await usersService.createUser(req.body.login, req.body.email, req.body.password)
-  if(result === null) {
+  const result: UserViewModel | string | undefined | null = await usersService.createUser(req.body.login, req.body.email, req.body.password)
+  if(result === undefined) {
     return res.status(400).send("Try to register again")
-  } else if(result === undefined) {
+  }  else if( result !== null && result !== 'email' && result !== 'login'){
+    return res.status(204).send("Check your email for confirmation registration")
+  } else if(result === 'email') {
     return res.status(400).send(
       {
         errorsMessages: [
           { message: 'user exist' , field: "email" }
-        ]
-      })
+        ]})
+  } else if(result === 'login') {
+    return res.status(400).send(
+      {
+        errorsMessages: [
+          { message: 'user exist' , field: "login" }
+        ]})
   }
-  else {
-    return res.status(204).send("Check your email for confirmation registration")
-  }
+ 
 })
 ///////////////////////////////////////
 authRouter.post('/registration-confirmation',

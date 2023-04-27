@@ -329,6 +329,26 @@ export const getPostsOrBlogsOrUsers = {
       return undefined
     }
     return result
+  },
+
+  async checkExistingUser(login: string, email: string): Promise<string | null>{
+   
+    const user: UserDBType | null = await databaseUsersCollection.findOne({$or: [{"accountData.email": email}, {"accountData.login": login}]})
+      if( user !== null && user.accountData) {
+        if(login !== user.accountData.login) {
+          return 'login'
+        } else {
+          return 'email'
+        }
+      }
+      
+      return  null
+    
+    //findbylogin
+    //return login
+    //findbyemail
+    //return email
+    //if all  no good return null
   }
 }
 // function createResultObjectWithSortingAndPagination(req: Request, result: CommentViewModel[], sortQueryItems: any) {
