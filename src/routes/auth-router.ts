@@ -75,9 +75,9 @@ authRouter.post('/registration-confirmation',
   codeConfirmation,
   inputValidationMiddleware,
   async (req: Request, res: Response) => {
-    const result = usersService.confirmEmail(req.body.code)
+    const result = await usersService.confirmEmail(req.body.code)
     if(!result) {
-      return res.status(400).send('do not passed registration confirmation')
+      return res.status(400).send({ errorsMessages: [{ message: "Confirmation code did not pass", field: "code" }] })
     } else {
       return res.status(204)
     }
