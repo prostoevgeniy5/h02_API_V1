@@ -330,15 +330,15 @@ export const getPostsOrBlogsOrUsers = {
     }
     return result
   },
-
+///////////////////////////////////////////////////////////
   async checkExistingUser(login: string, email: string): Promise<string | null>{
    
     const user: UserDBType | null = await databaseUsersCollection.findOne({$or: [{"accountData.email": email}, {"accountData.login": login}]})
       if( user !== null && user.accountData) {
         if(login !== user.accountData.login) {
-          return 'login'
-        } else {
           return 'email'
+        } else {
+          return 'login'
         }
       }
       
