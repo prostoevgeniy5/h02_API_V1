@@ -1,8 +1,9 @@
 import add from 'date-fns/add'
 import { client } from './db'
-import { LoginModelType, UserDBType, UserViewModel } from './types'
+import { CommentViewModelMyDBType, LoginModelType, UserDBType, UserViewModel } from './types'
 
 const databaseUsersCollection = client.db('blogspostsvideos').collection<UserDBType>('users')
+const commentsCollection = client.db('blogspostsvideos').collection<CommentViewModelMyDBType>('comments')
 
 export const usersRepository = {
   async createUser(user: UserDBType): Promise<UserViewModel | undefined> {
@@ -39,6 +40,7 @@ export const usersRepository = {
 
   async deleteUser(userId: string): Promise<number | null> {
     const result = await databaseUsersCollection.deleteOne({ id: userId })
+    const deletedComment = await commentsCollection.deleteMany({"commentatorInfo.userId": userId})
     if(result.deletedCount === 1) {
       return result.deletedCount
     } else {
