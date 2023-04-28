@@ -1,7 +1,7 @@
 import { SentMessageInfo } from 'nodemailer'
 import { emailAdapter } from '../adapters/email-adapter'
 import { UserDBType } from '../repositories/types'
-import SMTPTransport from 'nodemailer/lib/smtp-transport'
+// import SMTPTransport from 'nodemailer/lib/smtp-transport'
 
 export const businesService = {
   async sendEmailConfirmation(user: UserDBType): Promise<SentMessageInfo | boolean | undefined>{

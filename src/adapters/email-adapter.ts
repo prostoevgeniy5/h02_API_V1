@@ -24,6 +24,7 @@ export const emailAdapter = {
         <a href='https://somesite.com/confirm-email?code=${user.emailConfirmation.confirmationCode}'>complete registration</a>
     </p>`
   })
+  console.log('27 email-adapter.ts info ', info)
   if(info && info.accepted.length > 0) {
     return info
   }
