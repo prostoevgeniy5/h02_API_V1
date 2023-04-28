@@ -116,11 +116,13 @@ export const postsRepository = {
   },
 
   async deletePost(id: string): Promise<boolean | undefined> {
+    const comments = await databaseCommentsCollection.deleteMany({postId: id})
     const result = await database.deleteOne({ id: id })
     return result.deletedCount === 1
   },
 
   async deletePostsByBlogId(blogid: string): Promise<number | undefined> {
+    const commentsDelited = await databaseCommentsCollection.deleteMany({blogId: blogid})
     const result = await database.deleteMany({ blogId: blogid })
     // result.deletedCount
     return result.deletedCount

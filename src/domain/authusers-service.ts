@@ -48,7 +48,7 @@ export const usersService = {
       emailConfirmation: {
         confirmationCode: uuidv4(),
         expirationDate: add(new Date(), {
-          hours: 0,
+          hours: 1,
           minutes: 7
         }),
         isConfirmed: false
@@ -93,7 +93,8 @@ export const usersService = {
   },
 //////////////////////////////////////////////////////
   async deleteUser(userId: string): Promise<number | null> {
-    const result = await usersRepository.deleteUser(userId)
+    const userComments = await 
+    let result = await usersRepository.deleteUser(userId)
     return result
   },
 /////////////////////////////////////////////////////

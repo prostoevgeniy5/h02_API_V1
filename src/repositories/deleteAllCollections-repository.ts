@@ -49,5 +49,14 @@ export const deleteAllCollections = {
       return null
     }
     return result
+  },
+
+  async deleteComments(): Promise<boolean | null>{
+    let result: boolean | null = null
+    const comments = await database.collection('comments').find({}).toArray()
+    if(comments.length > 0) {
+      result = await database.collection('comments').drop()
+    }
+    return result
   }
 }
