@@ -99,21 +99,27 @@ export const usersService = {
   },
 /////////////////////////////////////////////////////
   async confirmEmail(code: string): Promise<boolean | null | undefined>{
+    let updatedResult: boolean | null | undefined
     const user = await getPostsOrBlogsOrUsers.getUserByConfirmationCode(code)
-    let updatedUser: boolean | null | undefined
     if(user) {
       if(+Date.parse(user.emailConfirmation.expirationDate.toString()) < +Date.now()) {
         return null
       } else if(user.emailConfirmation.isConfirmed) {
         return true
       } else {
-        updatedUser = await usersRepository.updateUserByConfirmationCode(user)
-      } if( !updatedUser) {
+        updatedResult = await usersRepository.updateUserByConfirmationCode(code)
+      } if( !updatedResult) {
         return null
-      } else if(updatedUser) {
+      } else if(updatedResult) {
         return true
       }
     }
+    // let updatedResult: boolean | null | undefined = await usersRepository.updateUserByConfirmationCode(code)
+    // if(updatedResult) {
+    //   return true
+    // } else if(updatedResult === null) {
+    //   return null
+    // }
     return undefined
   },
 ///////////////////////////////////////////////////

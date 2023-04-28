@@ -84,7 +84,7 @@ authRouter.post('/registration-confirmation',
       return res.status(400).send({ errorsMessages: [{ message: "Expiration data is passed", field: "code" }] })
     } else {
       console.log('86 result auth-router.ts', result)
-      return res.status(204)
+      return res.sendStatus(204)
     }
     console.log('89 result auth-router.ts', result)
   })
