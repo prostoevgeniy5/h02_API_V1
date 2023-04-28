@@ -49,12 +49,12 @@ export const usersRepository = {
   },
 //////////////////////////////////////////////
   async updateUserByConfirmationCode(user: UserDBType): Promise<boolean | null>{
-    const result = await databaseUsersCollection.updateOne({"emailConfirmation.isConfirmed" : true}, {$set: {"emailConfirmation.isConfirmed": true, "emailConfirmation.expirationDate": add(new Date(), {
+    const result = await databaseUsersCollection.updateOne({"emailConfirmation.confirmationCode" : user.emailConfirmation.confirmationCode}, {$set: {"emailConfirmation.isConfirmed": true, "emailConfirmation.expirationDate": add(new Date(), {
       hours: 0,
       minutes: 0
     })}})
     console.log("56 user-repository.ts result.upsertedCount", result)
-    if(result.upsertedCount) {
+    if(result.modifiedCount) {
       return true
     } else {
     console.log('58 users-repository.ts before deleted result.upsertedId', result.upsertedId)

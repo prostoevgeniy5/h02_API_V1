@@ -15,13 +15,15 @@ export const emailAdapter = {
   })
 
   let info = await transport.sendMail({
-    from: user.accountData.login,
+    from: "NodemailApp",
     to: user.accountData.email,
     subject: "registration",
     // text: 'text message',
     html: `<h1>Thank for your registration</h1>
+    <p>Code registration: ${user.emailConfirmation.confirmationCode}</p>
     <p>To finish registration please follow the link below:
         <a href='https://somesite.com/confirm-email?code=${user.emailConfirmation.confirmationCode}'>complete registration</a>
+
     </p>`
   })
   console.log('27 email-adapter.ts info ', info)

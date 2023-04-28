@@ -76,11 +76,17 @@ authRouter.post('/registration-confirmation',
   inputValidationMiddleware,
   async (req: Request, res: Response) => {
     const result = await usersService.confirmEmail(req.body.code)
-    if(!result) {
+    if(result === undefined) {
+      console.log('80 result auth-router.ts', result)
       return res.status(400).send({ errorsMessages: [{ message: "Confirmation code did not pass", field: "code" }] })
+    } else if(result === null) {
+      console.log('83 result auth-router.ts', result)
+      return res.status(400).send({ errorsMessages: [{ message: "Expiration data is passed", field: "code" }] })
     } else {
+      console.log('86 result auth-router.ts', result)
       return res.status(204)
     }
+    console.log('89 result auth-router.ts', result)
   })
   /////////////////////////////////////////////////////
 authRouter.post('/registration-email-resending',
