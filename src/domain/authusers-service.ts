@@ -100,26 +100,27 @@ export const usersService = {
 /////////////////////////////////////////////////////
   async confirmEmail(code: string): Promise<boolean | null | undefined>{
     let updatedResult: boolean | null | undefined
-    const user = await getPostsOrBlogsOrUsers.getUserByConfirmationCode(code)
-    if(user) {
-      if(+Date.parse(user.emailConfirmation.expirationDate.toString()) < +Date.now()) {
-        return null
-      } else if(user.emailConfirmation.isConfirmed) {
-        return true
-      } else {
-        updatedResult = await usersRepository.updateUserByConfirmationCode(code)
-      } if( !updatedResult) {
-        return null
-      } else if(updatedResult) {
-        return true
-      }
+    const userConfirmation = await getPostsOrBlogsOrUsers.getUserByConfirmationCode(code)
+    if(userConfirmation === false) {
+      return false
+      // if(+Date.parse(user.emailConfirmation.expirationDate.toString()) < +Date.now()) {
+      //   return false
+      // } else if(user.emailConfirmation.isConfirmed) {
+      //   return true
+      // } else {
+      //   updatedResult = await usersRepository.updateUserByConfirmationCode(code)
+      // } if( !updatedResult) {
+      //   return null
+      // } else if(updatedResult) {
+      //   return true
+      // }
+    } else if(userConfirmation === true)
+    updatedResult = await usersRepository.updateUserByConfirmationCode(code)
+    if(updatedResult) {
+      return true
+    } else if(updatedResult === null) {
+      return null
     }
-    // let updatedResult: boolean | null | undefined = await usersRepository.updateUserByConfirmationCode(code)
-    // if(updatedResult) {
-    //   return true
-    // } else if(updatedResult === null) {
-    //   return null
-    // }
     return undefined
   },
 ///////////////////////////////////////////////////

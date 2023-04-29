@@ -78,15 +78,18 @@ authRouter.post('/registration-confirmation',
     const result = await usersService.confirmEmail(req.body.code)
     if(result === undefined) {
       console.log('80 result auth-router.ts', result)
-      return res.status(400).send({ errorsMessages: [{ message: "Confirmation code did not pass", field: "code" }] })
+      return res.status(400).send({ errorsMessages: [{ message: "User no exists or expirean code incorrect", field: "code" }] })
     } else if(result === null) {
-      console.log('83 result auth-router.ts', result)
-      return res.status(400).send({ errorsMessages: [{ message: "Expiration data is passed", field: "code" }] })
-    } else {
+      return res.status(400).send({ errorsMessages: [{ message: "The user was retrieved but not updated", field: "code" }] })
+    }
+     else if(result === false) {
       console.log('86 result auth-router.ts', result)
+      return res.status(400).send({ errorsMessages: [{ message: "Expiration data is passed or user is confirmed", field: "code" }] })
+    } else if(result) {
+      console.log('89 result auth-router.ts', result)
       return res.sendStatus(204)
     }
-    console.log('89 result auth-router.ts', result)
+    console.log('92 result auth-router.ts', result)
   })
   /////////////////////////////////////////////////////
 authRouter.post('/registration-email-resending',
