@@ -78,7 +78,7 @@ authRouter.post('/registration-confirmation',
     const result = await usersService.confirmEmail(req.body.code)
     if(result === undefined) {
       console.log('80 result auth-router.ts', result)
-      return res.status(400).send({ errorsMessages: [{ message: "User no exists or expirean code incorrect", field: "code" }] })
+      return res.status(400).send({ errorsMessages: [{ message: "User no exists or code incorrect", field: "code" }] })
     } else if(result === null) {
       return res.status(400).send({ errorsMessages: [{ message: "The user was retrieved but not updated", field: "code" }] })
     }
@@ -98,7 +98,7 @@ authRouter.post('/registration-email-resending',
   async (req: Request, res: Response) => {
     const result = await usersService.confirmEmailResending(req.body.email)
     if(!result) {
-      res.status(400).send('Resending no pass')
+      res.status(400).send({ errorsMessages: [{ message: "Resending no pass", field: "email" }] })
     } else {
       res.status(204).send('Resending email successfully.')
     }
