@@ -5,6 +5,8 @@ import { getPostsOrBlogsOrUsers } from "../repositories/query-repository"
 import { businesService } from "./busines-service"
 import { v4 as uuidv4 } from 'uuid'
 import add from "date-fns/add"
+import { emailAdapter } from "../adapters/email-adapter"
+import SMTPTransport from "nodemailer/lib/smtp-transport"
 
 // type EmailType = {
 //   field: string
@@ -77,6 +79,10 @@ export const usersService = {
     if (!result) {
       return false
     }
+    if(!result.emailConfirmation.isConfirmed) {
+      return false
+    }
+
     const hash = await this._generateHash(password, result.accountData.passwordSalt)
     // const compareResult = await bcrypt.compare(password, result.passwordHash)
     if (result.accountData.passwordHash !== hash) {
@@ -124,17 +130,24 @@ export const usersService = {
     return undefined
   },
 ///////////////////////////////////////////////////
-  async confirmEmailResending(email: string): Promise<boolean | null> {
-    const user: UserDBType | null | undefined = await getPostsOrBlogsOrUsers.getUserByLoginOrEmail(email)
-      if (!user) {
-        return null
-      } else {
-        const result = await this.confirmEmail(user.emailConfirmation.confirmationCode)
-        if(result) {
-          return true
-        } else {
-          return null
-        }  
-      }    
+  async resendConfirmationCode(email: string): Promise<SMTPTransport.SentMessageInfo | boolean | undefined> {
+    const confirmationCode: string = uuidv4()
+    const result: SMTPTransport.SentMessageInfo | boolean  = await emailAdapter.resendingEmail(email, confirmationCode)
+    if(result && result !== undefined) {
+      return result
+    } else if( result === false) {
+      return false
+    }
+    // const user: UserDBType | null | undefined = await getPostsOrBlogsOrUsers.getUserByLoginOrEmail(email)
+    //   if (!user) {
+    //     return null
+    //   } else {
+    //     const result = await this.confirmEmail(user.emailConfirmation.confirmationCode)
+    //     if(result) {
+    //       return true
+    //     } else {
+    //       return null
+    //     }  
+    //   }    
   }    
 }

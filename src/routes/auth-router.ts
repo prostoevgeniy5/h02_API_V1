@@ -96,7 +96,13 @@ authRouter.post('/registration-email-resending',
   emailValidation,
   inputValidationMiddleware,
   async (req: Request, res: Response) => {
-    const result = await usersService.confirmEmailResending(req.body.email)
+    // const result = await usersService.confirmEmailResending(req.body.email)
+    // if(!result) {
+    //   res.status(400).send({ errorsMessages: [{ message: "Resending no pass", field: "email" }] })
+    // } else {
+    //   res.status(204).send('Resending email successfully.')
+    // }
+    const result = await usersService.resendConfirmationCode(req.body.email)
     if(!result) {
       res.status(400).send({ errorsMessages: [{ message: "Resending no pass", field: "email" }] })
     } else {
