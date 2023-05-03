@@ -68,5 +68,13 @@ export const usersRepository = {
   
   async confirmEmailCode(code: string){
     return databaseUsersCollection.updateOne({"emailConfirmation.confirmationCode" : code}, {$set: {"emailConfirmation.isConfirmed": true, "emailConfirmation.expirationDate": null, "emailConfirmation.confirmationCode" : null}})
+  },
+
+  async updateConfirmationCodByResent(email: string, code: string) {
+    const expireData = add(new Date(), {
+      hours: 10,
+      minutes: 10
+    }) 
+    return databaseUsersCollection.updateOne({"accountData.email" : email}, {$set: {"emailConfirmation.isConfirmed": false, "emailConfirmation.expirationDate": expireData, "emailConfirmation.confirmationCode" : code}})
   }
 }

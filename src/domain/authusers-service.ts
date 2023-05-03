@@ -141,7 +141,14 @@ export const usersService = {
     const confirmationCode: string = uuidv4()
     const result: SMTPTransport.SentMessageInfo | boolean  = await emailAdapter.resendingEmail(email, confirmationCode)
     if(result && result !== undefined) {
-      return result
+      const resulConfirmationt = await usersRepository.updateConfirmationCodByResent(email, confirmationCode)
+      console.log('146 authusers-service.ts resultConf.upsertedId', resulConfirmationt.upsertedId)
+      if(resulConfirmationt.upsertedId){
+        return result
+      } else {
+        return false
+      }     
+      
     } else if( result === false) {
       return false
     }
