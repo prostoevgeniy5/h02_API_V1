@@ -50,7 +50,7 @@ export const usersRepository = {
 //////////////////////////////////////////////
   async updateUserByConfirmationCode(code: string): Promise<boolean | null>{
     const expireData = add(new Date(), {
-      hours: 0,
+      hours: 10,
       minutes: 10
     }) 
     console.log('Date.now',new Date(Date.now()))
