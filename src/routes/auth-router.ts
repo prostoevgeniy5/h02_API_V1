@@ -77,20 +77,23 @@ authRouter.post('/registration-confirmation',
   inputValidationMiddleware,
   async (req: Request, res: Response) => {
     const result = await usersService.confirmEmail(req.body.code)
-    if(result === undefined) {
-      console.log('80 result auth-router.ts', result)
-      return res.status(400).send({ errorsMessages: [{ message: "User no exists or code incorrect", field: "code" }] })
-    } else if(result === null) {
-      return res.status(400).send({ errorsMessages: [{ message: "The user was retrieved but not updated", field: "code" }] })
-    }
-     else if(result === false) {
-      console.log('86 result auth-router.ts', result)
-      return res.status(400).send({ errorsMessages: [{ message: "Expiration data is passed or user is confirmed", field: "code" }] })
-    } else if(result) {
-      console.log('89 result auth-router.ts', result)
-      return res.sendStatus(204)
-    }
-    console.log('92 result auth-router.ts', result)
+    if (!result) return res.sendStatus(400)
+    return res.sendStatus(204)
+    
+    // if(result === undefined) {
+    //   console.log('80 result auth-router.ts', result)
+    //   return res.status(400).send({ errorsMessages: [{ message: "User no exists or code incorrect", field: "code" }] })
+    // } else if(result === null) {
+    //   return res.status(400).send({ errorsMessages: [{ message: "The user was retrieved but not updated", field: "code" }] })
+    // }
+    //  else if(result === false) {
+    //   console.log('86 result auth-router.ts', result)
+    //   return res.status(400).send({ errorsMessages: [{ message: "Expiration data is passed or user is confirmed", field: "code" }] })
+    // } else if(result) {
+    //   console.log('89 result auth-router.ts', result)
+    //   return res.sendStatus(204)
+    // }
+    // console.log('92 result auth-router.ts', result)
   })
   /////////////////////////////////////////////////////
 authRouter.post('/registration-email-resending',

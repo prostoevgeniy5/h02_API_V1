@@ -323,18 +323,20 @@ export const getPostsOrBlogsOrUsers = {
    
   },
 ////////////////////////////////////////////////
-  async getUserByConfirmationCode(code: string): Promise<boolean | undefined>{
+  async getUserByConfirmationCode(code: string): Promise<UserDBType | null>{
     const result: UserDBType | null = await databaseUsersCollection.findOne({"emailConfirmation.confirmationCode": code})
-    if(result === null) {
-      return undefined
-    } else if(result) {
-      if(+Date.parse(result.emailConfirmation.expirationDate.toString()) < +Date.now() || result.emailConfirmation.isConfirmed) {
-        return false
-      } else {
-        return true
-      }
+   
+return result
+    // if(result === null) {
+    //   return undefined
+    // } else if(result) {
+    //   if(+Date.parse(result.emailConfirmation.expirationDate.toString()) < +Date.now() || result.emailConfirmation.isConfirmed) {
+    //     return false
+    //   } else {
+    //     return true
+    //   }
     
-    }
+    // }
   },
 ///////////////////////////////////////////////////////////
   async checkExistingUser(login: string, email: string): Promise<string | null>{

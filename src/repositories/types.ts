@@ -112,8 +112,8 @@ export interface UsersViewModelType {
       createdAt: string
     }
     emailConfirmation: {
-      confirmationCode: string
-      expirationDate:  Date,
+      confirmationCode: string | null,
+      expirationDate:  Date | null,
       isConfirmed: boolean
     }
   }

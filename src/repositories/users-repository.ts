@@ -64,5 +64,9 @@ export const usersRepository = {
       // await databaseUsersCollection.deleteOne({_id: result.upsertedId})
       return null
     }
-  } 
+  },
+  
+  async confirmEmailCode(code: string){
+    return databaseUsersCollection.updateOne({"emailConfirmation.confirmationCode" : code}, {$set: {"emailConfirmation.isConfirmed": true, "emailConfirmation.expirationDate": null, "emailConfirmation.confirmationCode" : null}})
+  }
 }

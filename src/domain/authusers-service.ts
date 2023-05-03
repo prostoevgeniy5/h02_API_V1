@@ -104,19 +104,26 @@ export const usersService = {
     return result
   },
 /////////////////////////////////////////////////////
-  async confirmEmail(code: string): Promise<boolean | null | undefined>{
-    let updatedResult: boolean | null | undefined
-    const userConfirmation = await getPostsOrBlogsOrUsers.getUserByConfirmationCode(code)
-    if(userConfirmation === false) {
-      return false
-    } else if(userConfirmation === true)
-    updatedResult = await usersRepository.updateUserByConfirmationCode(code)
-    if(updatedResult) {
-      return true
-    } else if(updatedResult === null) {
+  async confirmEmail(code: string): Promise<boolean | null>{
+    //let updatedResult: boolean | null | undefined
+    const user = await getPostsOrBlogsOrUsers.getUserByConfirmationCode(code)
+    if(!user || !user.emailConfirmation.expirationDate || user.emailConfirmation.isConfirmed) {
+      return null
+    } 
+  
+    if (user.emailConfirmation.expirationDate < new Date()){
       return null
     }
-    return undefined
+    await usersRepository.confirmEmailCode(code)
+    return true
+    // else if(userConfirmation === true)
+    // updatedResult = await usersRepository.updateUserByConfirmationCode(code)
+    // if(updatedResult) {
+    //   return true
+    // } else if(updatedResult === null) {
+    //   return null
+    // }
+    // return undefined
           // if(+Date.parse(user.emailConfirmation.expirationDate.toString()) < +Date.now()) {
       //   return false
       // } else if(user.emailConfirmation.isConfirmed) {
