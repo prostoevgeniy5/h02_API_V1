@@ -109,7 +109,15 @@ export const usersService = {
     const userConfirmation = await getPostsOrBlogsOrUsers.getUserByConfirmationCode(code)
     if(userConfirmation === false) {
       return false
-      // if(+Date.parse(user.emailConfirmation.expirationDate.toString()) < +Date.now()) {
+    } else if(userConfirmation === true)
+    updatedResult = await usersRepository.updateUserByConfirmationCode(code)
+    if(updatedResult) {
+      return true
+    } else if(updatedResult === null) {
+      return null
+    }
+    return undefined
+          // if(+Date.parse(user.emailConfirmation.expirationDate.toString()) < +Date.now()) {
       //   return false
       // } else if(user.emailConfirmation.isConfirmed) {
       //   return true
@@ -120,14 +128,6 @@ export const usersService = {
       // } else if(updatedResult) {
       //   return true
       // }
-    } else if(userConfirmation === true)
-    updatedResult = await usersRepository.updateUserByConfirmationCode(code)
-    if(updatedResult) {
-      return true
-    } else if(updatedResult === null) {
-      return null
-    }
-    return undefined
   },
 ///////////////////////////////////////////////////
   async resendConfirmationCode(email: string): Promise<SMTPTransport.SentMessageInfo | boolean | undefined> {

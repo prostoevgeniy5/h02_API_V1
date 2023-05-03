@@ -8,6 +8,7 @@ import { LoginOrEmailType, MeViewModel, UserDBType, UserViewModel } from '../rep
 import { userValidation } from '../midlewares/user-validation'
 import { codeConfirmation } from '../midlewares/codevalidation-confirmregistration'
 import { emailValidation } from '../midlewares/email-validation'
+import { getPostsOrBlogsOrUsers } from '../repositories/query-repository'
 
 export const authRouter =  Router({})
 
@@ -102,10 +103,15 @@ authRouter.post('/registration-email-resending',
     // } else {
     //   res.status(204).send('Resending email successfully.')
     // }
-    const result = await usersService.resendConfirmationCode(req.body.email)
-    if(!result) {
-      res.status(400).send({ errorsMessages: [{ message: "Resending no pass", field: "email" }] })
+    const user = await getPostsOrBlogsOrUsers.getUserByLoginOrEmail(req.body.email)
+    if(user) {
+      const result = await usersService.resendConfirmationCode(req.body.email)
+      if(!result) {
+        res.status(400).send({ errorsMessages: [{ message: "Resending no pass", field: "email" }] })
+      } else {
+        res.status(204).send('Resending email successfully.')
+      }
     } else {
-      res.status(204).send('Resending email successfully.')
+      res.status(400).send({ errorsMessages: [{ message: "User not find. Resending no pass", field: "email" }] })
     }
   })

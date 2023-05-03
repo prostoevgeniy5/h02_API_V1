@@ -158,15 +158,15 @@ export const getPostsOrBlogsOrUsers = {
         
         reg = queryObj.searchLoginTerm
         reg2 = queryObj.searchEmailTerm
-        result = await databaseUsersCollection.find({$or:[{login:{ $regex: reg, $options: 'i'}}, { projection: { _id: 0 } }, {email:{ $regex: reg2, $options: 'i'}}, { projection: { _id: 0 } }]}).toArray()
+        result = await databaseUsersCollection.find({$or:[{'accountData.login':{ $regex: reg, $options: 'i'}}, { projection: { _id: 0 } }, {'accountData.email':{ $regex: reg2, $options: 'i'}}, { projection: { _id: 0 } }]}).toArray()
         // console.log('187', result);
         
       } else if(queryObj.searchLoginTerm) {
         reg = queryObj.searchLoginTerm
-        result = await databaseUsersCollection.find({login:{ $regex: reg, $options: 'i'}}, { projection: { _id: 0 } }).toArray()
+        result = await databaseUsersCollection.find({'accountData.login':{ $regex: reg, $options: 'i'}}, { projection: { _id: 0 } }).toArray()
       } else if(queryObj.searchEmailTerm) {
         reg = queryObj.searchEmailTerm
-        result = await databaseUsersCollection.find({email:{ $regex: reg, $options: 'i'}}, { projection: { _id: 0 } }).toArray()
+        result = await databaseUsersCollection.find({'accountData.email':{ $regex: reg, $options: 'i'}}, { projection: { _id: 0 } }).toArray()
       } else {
         result = await databaseUsersCollection.find().toArray()
       }
@@ -255,7 +255,7 @@ export const getPostsOrBlogsOrUsers = {
   },
 ////////////////////////////////////////////////////
   async findUserById(id: string): Promise<UserViewModel | undefined>{
-    const user = await databaseUsersCollection.findOne({id: id})
+    const user = await databaseUsersCollection.findOne({'accountData.id': id})
     if(user) {
       let resultUser: UserViewModel
       if(user.accountData.createdAt) {

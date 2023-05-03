@@ -10,7 +10,7 @@ import { settings } from "../../repositories/settings";
 
 export const jwtService = {
   async createJWT(obj: UserDBType): Promise<ResultTokenType> {
-    // console.log('13 jwt-service.ts ', settings.JWT_SECRET);
+    console.log('13 jwt-service.ts ', settings.JWT_SECRET);
     
     const token = jwt.sign({userId: obj.accountData.id}, settings.JWT_SECRET, {expiresIn: '1h'} )
     return { resultCode: 0,
