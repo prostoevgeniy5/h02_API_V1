@@ -14,7 +14,8 @@ deleteRouter.delete('/', async (req, res) => {
     result.push(await deleteAllCollections.deleteBlogs())
     result.push(await deleteAllCollections.deleteCourses())
     result.push(await deleteAllCollections.deleteUsers())
-    result.push(await deleteAllCollections.deleteComments())    
+    result.push(await deleteAllCollections.deleteComments())  
+    console.log('18 delete-router.ts result ', result)  
     // if(result.some(el => el !== null)) {
     // await db.videos.splice(0)
     // await posts.splice(0)
