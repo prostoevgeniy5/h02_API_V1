@@ -109,15 +109,19 @@ authRouter.post('/registration-email-resending',
     // }
     const user = await getPostsOrBlogsOrUsers.getUserByLoginOrEmail(req.body.email)
     console.log('111 user auth-router.ts', user)
-    if(user) {
+    if(user === null || user === undefined) {
+      return res.status(400).send({ errorsMessages: [{ message: "User did not found", field: "email" }] })
+    }
+    if(!user.emailConfirmation.isConfirmed) {
       const result = await usersService.resendConfirmationCode(req.body.email)
-      console.log('114 result of resending auth-router.ts', result)
-      if(!result) {
+      console.log('117 user.emailConfirmation.isConfirmed auth-router.ts', user.emailConfirmation.isConfirmed)
+      console.log('118 result auth-router.ts', result)
+      if(!result) {        
         res.status(400).send({ errorsMessages: [{ message: "Resending no pass", field: "email" }] })
       } else {
         res.status(204).send('Resending email successfully.')
       }
-    } else {
-      res.status(400).send({ errorsMessages: [{ message: "User not find. Resending no pass", field: "email" }] })
+    } else if(user.emailConfirmation.isConfirmed) {
+      res.status(400).send({ errorsMessages: [{ message: "User was confirmed succesfuly", field: "email" }] })
     }
   })

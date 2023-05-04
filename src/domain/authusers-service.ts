@@ -143,14 +143,20 @@ export const usersService = {
     if(result && result !== undefined) {
       const resulConfirmationt = await usersRepository.updateConfirmationCodByResent(email, confirmationCode)
       console.log('146 authusers-service.ts resultConf', resulConfirmationt)
-      if(resulConfirmationt.modifiedCount){
-        return result
-      } else {
-        return false
+        // if(resulConfirmationt === false) {
+        // return false
+        // } else if(resulConfirmationt === true) {
+        //   return true
+        // } else 
+        if(resulConfirmationt.modifiedCount > 0 ) {
+          return result
+        }
+       else {
+        return undefined
       }     
       
     } else if( result === false) {
-      return false
+      return undefined
     }
     // const user: UserDBType | null | undefined = await getPostsOrBlogsOrUsers.getUserByLoginOrEmail(email)
     //   if (!user) {

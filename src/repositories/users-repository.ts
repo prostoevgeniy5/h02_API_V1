@@ -71,6 +71,12 @@ export const usersRepository = {
   },
 
   async updateConfirmationCodByResent(email: string, code: string) {
+    // const user: UserDBType | null = await databaseUsersCollection.findOne({'accountData.email': email})
+    // if( user == null) {
+    //   return false
+    // } else if(user.emailConfirmation.isConfirmed) {
+    //   return true
+    // }
     const expireData = add(new Date(), {
       hours: 10,
       minutes: 10
