@@ -9,6 +9,7 @@ import { userValidation } from '../midlewares/user-validation'
 import { codeConfirmation } from '../midlewares/codevalidation-confirmregistration'
 import { emailValidation } from '../midlewares/email-validation'
 import { getPostsOrBlogsOrUsers } from '../repositories/query-repository'
+import { log } from 'console'
 
 export const authRouter =  Router({})
 
@@ -107,8 +108,10 @@ authRouter.post('/registration-email-resending',
     //   res.status(204).send('Resending email successfully.')
     // }
     const user = await getPostsOrBlogsOrUsers.getUserByLoginOrEmail(req.body.email)
+    console.log('111 user auth-router.ts', user)
     if(user) {
       const result = await usersService.resendConfirmationCode(req.body.email)
+      console.log('114 result of resending auth-router.ts', result)
       if(!result) {
         res.status(400).send({ errorsMessages: [{ message: "Resending no pass", field: "email" }] })
       } else {

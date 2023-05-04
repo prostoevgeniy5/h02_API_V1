@@ -242,9 +242,10 @@ export const getPostsOrBlogsOrUsers = {
     //   result = await databaseUsersCollection.find( {'accountData.email': loginOrEmail} ).toArray()
     // }
     result = await databaseUsersCollection.find({$or: [{'accountData.login': loginOrEmail}, {'accountData.email': loginOrEmail}]}).toArray()
+    console.log('245 result find user', result)
     // result = await databaseUsersCollection.find( {login: loginOrEmail} ).toArray()
     if(result.length > 0) {
-      console.log('250 query0repository.ts result', result);
+      console.log('248 query0repository.ts result', result);
       
       return result[0]
     } else if(result.length === 0) {
