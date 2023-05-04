@@ -52,6 +52,7 @@ export const authMidleware  =  (req: Request, res: Response, next: NextFunction)
     }
     
   } else {
+    console.log('55 authorisation-middlevare.ts userId', userId)
     res.sendStatus(401)
     return
   }
