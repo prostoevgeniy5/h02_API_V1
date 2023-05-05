@@ -2,8 +2,9 @@ import { Request, Response, NextFunction } from "express";
 import { getPostsOrBlogsOrUsers } from "../repositories/query-repository";
 import { jwtService } from "../routes/application/jwt-service";
 import { CommentViewModel } from "../repositories/types";
+import { createAwait } from "typescript";
 
-export const authMidleware  =  (req: Request, res: Response, next: NextFunction) => {
+export const authMidleware  = async (req: Request, res: Response, next: NextFunction) => {
   
     if(req.method === "GET" || (req.method === "POST"  && (req.path === '/login'))) {
         next()
@@ -16,12 +17,17 @@ export const authMidleware  =  (req: Request, res: Response, next: NextFunction)
    if((req.method === "POST" || req.method === "PUT" || req.method === "DELETE") && req.headers.authorization) {
     //  let parole = "Basic YWRtaW46cXdlcnR5"
      let loginPasswordEncoded = btoa("admin:qwerty")
+     // let comment: CommentViewModel | undefined
      // console.log(req.headers)
     // console.log(req.headers.authorization.split(' ')[0])
     // console.log(req.headers.authorization.split(' ')[1], "===", loginPasswordEncoded)
     // console.log(atob(req.headers.authorization.split(' ')[1]))
      if(req.headers.authorization.split(' ')[0] === 'Basic' && req.headers.authorization.split(' ')[1] === loginPasswordEncoded) {
-        next()
+      // if(req.originalUrl.split('/')[1] === 'comments') {
+      //   comment = await getPostsOrBlogsOrUsers.getCommentById(req.params.id)
+
+      // }        
+      next()
         return
      } else {
       res.status(401).send("Your did'nt pass authorisation")

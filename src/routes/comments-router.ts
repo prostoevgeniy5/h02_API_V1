@@ -26,7 +26,7 @@ commentsRouter.put('/:id',
     if(result) {
       return res.sendStatus(204)
     } else if(result === false) {
-      return res.sendStatus(403)
+      return res.sendStatus(401)
     } else {
       return res.sendStatus(404)
     }
@@ -41,7 +41,7 @@ commentsRouter.delete('/:id',
     if(result) {
       return res.sendStatus(204)
     } else if(result === false) {
-      return res.sendStatus(403)
+      return res.sendStatus(401)
     } else {
       return res.sendStatus(404)
     }
