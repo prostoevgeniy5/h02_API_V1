@@ -56,10 +56,11 @@ export const authMidleware  = async (req: Request, res: Response, next: NextFunc
 
   const token = req.headers.authorization.split(' ')[1]
   const userId = await jwtService.getUserIdByToken(token)
-  if(comment !== undefined && userId !== comment.commentatorInfo.userId) {
-    return res.status(403).send('User is not author of the comment')
-  }
+  
   if(userId) {
+    if(comment !== undefined && userId !== comment.commentatorInfo.userId) {
+      return res.status(403).send('User is not author of the comment')
+    }
     const user = await getPostsOrBlogsOrUsers.findUserById(userId)
     if(user !== undefined) {
       authObjectWithAuthMiddleware.user = user
