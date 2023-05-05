@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { getPostsOrBlogsOrUsers } from "../repositories/query-repository";
 import { jwtService } from "../routes/application/jwt-service";
+import { CommentViewModel } from "../repositories/types";
 
 export const authMidleware  =  (req: Request, res: Response, next: NextFunction) => {
   
@@ -36,13 +37,22 @@ export const authMidleware  =  (req: Request, res: Response, next: NextFunction)
     email: ''
   },
   authMidleware : async (req: Request, res: Response, next: NextFunction) => {
+  console.log('39 authorization.ts req.headers.authorization', req.headers.authorization)
+  console.log('40 authorization.ts req.originalUrl', req.originalUrl.split('/')[1])
+  let comment: CommentViewModel | undefined
   if(!req.headers.authorization) {
-    res.sendStatus(401)
-    return
-  }
+      res.sendStatus(401)
+      return
+    }
+    if(req.originalUrl.split('/')[1] === 'comments') {
+      comment = await getPostsOrBlogsOrUsers.getCommentById(req.params.id)
+    }
 
   const token = req.headers.authorization.split(' ')[1]
   const userId = await jwtService.getUserIdByToken(token)
+  if(comment !== undefined && userId !== comment.commentatorInfo.userId) {
+    return res.status(403).send('User is not author of the comment')
+  }
   if(userId) {
     const user = await getPostsOrBlogsOrUsers.findUserById(userId)
     if(user !== undefined) {
@@ -53,7 +63,7 @@ export const authMidleware  =  (req: Request, res: Response, next: NextFunction)
     
   } else {
     console.log('55 authorisation-middlevare.ts userId', userId)
-    res.sendStatus(401)
+    res.sendStatus(403)
     return
   }
 
