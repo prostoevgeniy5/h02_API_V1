@@ -17,7 +17,7 @@ import SMTPTransport from "nodemailer/lib/smtp-transport"
 // }
 
 export const usersService = {
-  async createUser(login: string, email: string, password: string): Promise<UserViewModel | string | undefined | null> {
+  async createUser(login: string, email: string, password: string, endpoint: string = ''): Promise<UserViewModel | string | undefined | null> {
     const pattern = /^[\w-\. ]+@([\w-]+\.)+[\w-]{2,4}$/
     // let logOrEmail: LoginOrEmailType = {'field': 'login'}
     const field = await getPostsOrBlogsOrUsers.checkExistingUser(login, email)

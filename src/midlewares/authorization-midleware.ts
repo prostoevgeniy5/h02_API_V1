@@ -3,6 +3,7 @@ import { getPostsOrBlogsOrUsers } from "../repositories/query-repository";
 import { jwtService } from "../routes/application/jwt-service";
 import { CommentViewModel } from "../repositories/types";
 import { createAwait } from "typescript";
+import { usersService } from "../domain/authusers-service";
 
 export const authMidleware  = async (req: Request, res: Response, next: NextFunction) => {
   
@@ -17,16 +18,21 @@ export const authMidleware  = async (req: Request, res: Response, next: NextFunc
    if((req.method === "POST" || req.method === "PUT" || req.method === "DELETE") && req.headers.authorization) {
     //  let parole = "Basic YWRtaW46cXdlcnR5"
      let loginPasswordEncoded = btoa("admin:qwerty")
-     // let comment: CommentViewModel | undefined
-     // console.log(req.headers)
-    // console.log(req.headers.authorization.split(' ')[0])
-    // console.log(req.headers.authorization.split(' ')[1], "===", loginPasswordEncoded)
-    // console.log(atob(req.headers.authorization.split(' ')[1]))
+    //  let comment: CommentViewModel | undefined
+    //  if(req.originalUrl.split('/')[1] === 'comments') {
+    //   comment = await getPostsOrBlogsOrUsers.getCommentById(req.params.id)
+    //   if(comment) {
+    //     console.log('25authorization-midleware.ts get password',req.headers.authorization.split(' ')[1], "===")
+    //     const result = await usersService.checkCredentials(comment.commentatorInfo.userLogin, req.headers.authorization.split(' ')[1])
+    //   }
+      
+    // }     
+    console.log('30 authorization-midleware.ts',req.headers)
+    console.log(req.headers.authorization.split(' ')[0])
+    console.log(req.headers.authorization.split(' ')[1], "===", loginPasswordEncoded)
+    console.log('33 authorization-midleware.ts', atob(req.headers.authorization.split(' ')[1]))
      if(req.headers.authorization.split(' ')[0] === 'Basic' && req.headers.authorization.split(' ')[1] === loginPasswordEncoded) {
-      // if(req.originalUrl.split('/')[1] === 'comments') {
-      //   comment = await getPostsOrBlogsOrUsers.getCommentById(req.params.id)
-
-      // }        
+       
       next()
         return
      } else {
@@ -43,16 +49,16 @@ export const authMidleware  = async (req: Request, res: Response, next: NextFunc
     email: ''
   },
   authMidleware : async (req: Request, res: Response, next: NextFunction) => {
-  console.log('39 authorization.ts req.headers.authorization', req.headers.authorization)
-  console.log('40 authorization.ts req.originalUrl', req.originalUrl.split('/')[1])
+  console.log('52 authorization.ts req.headers.authorization', req.headers.authorization)
+  console.log('53 authorization.ts req.originalUrl', req.originalUrl.split('/')[1])
   let comment: CommentViewModel | undefined
   if(!req.headers.authorization) {
-      res.sendStatus(401)
-      return
-    }
-    if(req.originalUrl.split('/')[1] === 'comments') {
-      comment = await getPostsOrBlogsOrUsers.getCommentById(req.params.id)
-    }
+    res.sendStatus(401)
+    return
+  }
+  if(req.originalUrl.split('/')[1] === 'comments') {
+    comment = await getPostsOrBlogsOrUsers.getCommentById(req.params.id)
+  }
 
   const token = req.headers.authorization.split(' ')[1]
   const userId = await jwtService.getUserIdByToken(token)
@@ -69,7 +75,7 @@ export const authMidleware  = async (req: Request, res: Response, next: NextFunc
     }
     
   } else {
-    console.log('55 authorisation-middlevare.ts userId', userId)
+    console.log('78 authorisation-middlevare.ts userId', userId)
     res.sendStatus(401)
     return
   }
