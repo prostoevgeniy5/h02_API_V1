@@ -58,8 +58,8 @@ export const usersService = {
     }
     
     if( endpoint === 'usersEndpoint') {      // for POST method '/users' endpoint
-      newUser.emailConfirmation.confirmationCode = ''
-      newUser.emailConfirmation.expirationDate = null
+      // newUser.emailConfirmation.confirmationCode = ''
+      // newUser.emailConfirmation.expirationDate = null
       newUser.emailConfirmation.isConfirmed = true
     }
     let result = await usersRepository.createUser(newUser)
