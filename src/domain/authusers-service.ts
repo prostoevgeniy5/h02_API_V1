@@ -90,8 +90,10 @@ export const usersService = {
     }
 
     const hash = await this._generateHash(password, result.accountData.passwordSalt)
-    // const compareResult = await bcrypt.compare(password, result.passwordHash)
-    if (result.accountData.passwordHash !== hash) {
+  const compareResult = await bcrypt.compare(password, result.accountData.passwordHash)
+  console.log('94 authusers-service.ts bcrypt.compare', compareResult)
+  console.log('95 authusers-service.ts bcrypt.compare valueOf()', compareResult.valueOf())
+  if (!compareResult.valueOf()) {
       return false
     } else if(!result.emailConfirmation.isConfirmed) {
       return false
