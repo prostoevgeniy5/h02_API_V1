@@ -41,8 +41,8 @@ export const usersService = {
         id: (+(new Date())).toString(),
         login: login,
         email: email,
-        passwordSalt,
-        passwordHash,
+        passwordSalt: passwordSalt,
+        passwordHash: passwordHash,
         createdAt: (new Date()).toISOString()
       },
       // uuidv4() create unique id
@@ -89,7 +89,7 @@ export const usersService = {
       return false
     }
 
-    const hash = await this._generateHash(password, result.accountData.passwordSalt)
+    // const hash = await this._generateHash(password, result.accountData.passwordSalt)
   const compareResult = await bcrypt.compare(password, result.accountData.passwordHash)
   console.log('94 authusers-service.ts bcrypt.compare', compareResult)
   console.log('95 authusers-service.ts bcrypt.compare valueOf()', compareResult.valueOf())
