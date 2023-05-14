@@ -9,7 +9,6 @@ import { userValidation } from '../midlewares/user-validation'
 import { codeConfirmation } from '../midlewares/codevalidation-confirmregistration'
 import { emailValidation } from '../midlewares/email-validation'
 import { getPostsOrBlogsOrUsers } from '../repositories/query-repository'
-import { log } from 'console'
 
 export const authRouter =  Router({})
 
@@ -55,15 +54,15 @@ async (req: Request, res: Response) => {
   const result: UserViewModel | string | undefined | null = await usersService.createUser(req.body.login, req.body.email, req.body.password)
   if(result === undefined) {
     return res.status(400).send("Try to register again")
-  }  else if( result !== null && result !== 'email' && result !== 'login'){
+  }  else if( result !== null && typeof result !== "string"){
     return res.status(204).send("Check your email for confirmation registration")
-  } else if(result === 'email') {
+  } else if(typeof result === "string" && result === 'email') {
     return res.status(400).send(
       {
         errorsMessages: [
           { message: 'user exist' , field: "email" }
         ]})
-  } else if(result === 'login') {
+  } else if(typeof result === "string" && result === 'login') {
     return res.status(400).send(
       {
         errorsMessages: [

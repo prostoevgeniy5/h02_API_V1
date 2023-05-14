@@ -23,9 +23,11 @@ userValidation,
 inputValidationMiddleware,
 async (req: Request, res: Response) => {
   const users = await usersService.createUser(req.body.login, req.body.email, req.body.password, 'usersEndpoint')
-  if(users === 'login' || users === 'email') {
-    res.status(400).send('User already exists')
+  if(users === null) {
+    res.status(400).send('User already exists and confirmed')
     return
+  } else if(typeof users === "string") {
+    res.status(400).send(users)
   }
   if(users) {
     res.status(201).send(users)

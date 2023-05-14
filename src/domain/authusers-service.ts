@@ -20,10 +20,27 @@ export const usersService = {
   async createUser(login: string, email: string, password: string, endpoint: string = ''): Promise<UserViewModel | string | undefined | null> {
     const pattern = /^[\w-\. ]+@([\w-]+\.)+[\w-]{2,4}$/
     // let logOrEmail: LoginOrEmailType = {'field': 'login'}
-    const field = await getPostsOrBlogsOrUsers.checkExistingUser(login, email)
+    const user = await getPostsOrBlogsOrUsers.checkExistingUser(login, email)
     
-    if(field) {
-      return field
+    if(user !== null && typeof user !== 'string') {
+      if(user.emailConfirmation.isConfirmed) {
+        return null
+      } else if(typeof user === 'string' && user === 'login') {
+        return 'login'
+      } else if(typeof user === 'string' && user === 'email') {
+        return 'email'
+      }
+      else if (!user.emailConfirmation.isConfirmed) {
+        user.emailConfirmation.expirationDate = add(new Date(), {
+          hours: 10,
+          minutes: 7
+        })
+        const info = await businesService.sendEmailConfirmation(user)
+        if (info) {
+          return 'Check your email for confirmation registration'          
+        }
+      }
+      
       // if(pattern.test(field)) {
       //    // logOrEmail = {'field': 'email'}
       //   return 'email'
@@ -67,13 +84,14 @@ export const usersService = {
       const info = await businesService.sendEmailConfirmation(newUser)
       if (info) {
         return result
-      } else {
-        let res = await usersRepository.deleteUser(newUser.accountData.id)
-        if(res) {
-          return null
-        }
-        return undefined
       }
+      // else {
+      //   let res = await usersRepository.deleteUser(newUser.accountData.id)
+      //   if(res) {
+      //     return null
+      //   }
+      //   return undefined
+      // }
     } else {
       return undefined
     }
