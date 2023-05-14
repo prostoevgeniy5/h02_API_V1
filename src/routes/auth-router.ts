@@ -69,7 +69,6 @@ async (req: Request, res: Response) => {
           { message: 'user exist' , field: "login" }
         ]})
   }
- 
 })
 ///////////////////////////////////////
 authRouter.post('/registration-confirmation',

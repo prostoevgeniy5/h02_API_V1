@@ -16,7 +16,7 @@ usersRouter.get('/', async (req: Request, res: Response) => {
     return res.status(200).json(result)
   }
 })
-
+//////////////////////////////////////////////////
 usersRouter.post('/', 
 authMidleware,
 userValidation,
@@ -35,7 +35,7 @@ async (req: Request, res: Response) => {
     res.status(400).send('Bad rrequest')
   }
 })
-
+///////////////////////////////////////////////
 usersRouter.delete('/:id', 
 authMidleware,
 async (req: Request, res: Response) => {
