@@ -60,13 +60,13 @@ async (req: Request, res: Response) => {
     return res.status(400).send(
       {
         errorsMessages: [
-          { message: 'user exist' , field: "login" }
+          { message: 'user exist' , field: "email" }
         ]})
   } else if(typeof result === "string" && result === 'login') {
     return res.status(400).send(
       {
         errorsMessages: [
-          { message: 'user exist' , field: "email" }
+          { message: 'user exist' , field: "login" }
         ]})
   } else if(typeof result === "string" && result === 'password') {
     return res.status(400).send(
