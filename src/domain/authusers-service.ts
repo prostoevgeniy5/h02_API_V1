@@ -20,7 +20,7 @@ export const usersService = {
   async createUser(login: string, email: string, password: string, endpoint: string = ''): Promise<UserViewModel | string | undefined | null> {
     const pattern = /^[\w-\. ]+@([\w-]+\.)+[\w-]{2,4}$/
     // let logOrEmail: LoginOrEmailType = {'field': 'login'}
-    const user = await getPostsOrBlogsOrUsers.checkExistingUser(login, email)
+    const user = await getPostsOrBlogsOrUsers.getUserByLoginAndEmail(login, email)
     
     if(user !== null && typeof user !== 'string') {
       if(user.emailConfirmation.isConfirmed) {
@@ -30,6 +30,11 @@ export const usersService = {
       } else if(typeof user === 'string' && user === 'email') {
         return 'email'
       }
+      const hash = await this._generateHash(password, user.accountData.passwordSalt)
+      const compareResult = await bcrypt.compare(password, user.accountData.passwordHash)
+      if (!compareResult.valueOf()) {
+        return 'password'
+      } 
       else if (!user.emailConfirmation.isConfirmed) {
         user.emailConfirmation.expirationDate = add(new Date(), {
           hours: 10,
@@ -40,13 +45,7 @@ export const usersService = {
           return 'Check your email for confirmation registration'          
         }
       }
-      
-      // if(pattern.test(field)) {
-      //    // logOrEmail = {'field': 'email'}
-      //   return 'email'
-      // } else {
-      //   return 'login'
-      // }
+     
     }
     // 1 create salt for password
     const passwordSalt = await bcrypt.genSalt(10)
@@ -97,7 +96,7 @@ export const usersService = {
     }
   },
 ///////////////////////////////////////////////////
-  async checkCredentials(loginOrEmail: string, password: string): Promise<UserDBType | false> {
+  async checkCredentials(loginOrEmail: string, password: string): Promise<UserDBType | string | false> {
     const result = await getPostsOrBlogsOrUsers.getUserByLoginOrEmail(loginOrEmail)
     console.log('34 users-servise.ts result', result);
     if (!result) {
@@ -109,13 +108,14 @@ export const usersService = {
 
     const hash = await this._generateHash(password, result.accountData.passwordSalt)
   const compareResult = await bcrypt.compare(password, result.accountData.passwordHash)
-  console.log('94 authusers-service.ts bcrypt.compare', compareResult)
-  console.log('95 authusers-service.ts bcrypt.compare valueOf()', compareResult.valueOf())
+  console.log('112 authusers-service.ts bcrypt.compare', compareResult)
+  console.log('113 authusers-service.ts bcrypt.compare valueOf()', compareResult.valueOf())
   if (!compareResult.valueOf()) {
-      return false
-    } else if(!result.emailConfirmation.isConfirmed) {
-      return false
-    }
+      return 'password'
+    } 
+    // else if(!result.emailConfirmation.isConfirmed) {
+    //   return false
+    // }
     return result
   },
 ///////////////////////////////////////////////////////

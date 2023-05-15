@@ -340,15 +340,15 @@ return result
     // }
   },
 ///////////////////////////////////////////////////////////
-  async checkExistingUser(login: string, email: string): Promise<UserDBType | string  | null>{
+  async getUserByLoginAndEmail(login: string, email: string): Promise<UserDBType | string  | null>{
    
     const user: UserDBType| null = await databaseUsersCollection.findOne({$or: [{"accountData.email": email}, {"accountData.login": login}]})
       if( user !== null) {
         if(user.accountData.login === login && user.accountData.email === email) {
           return user
-        } else if(user.accountData.login === login) {
+        } else if(user.accountData.login === login && user.accountData.email !== email ) {
           return 'login'
-        } else if (user.accountData.email === email) {
+        } else if (user.accountData.email === email && user.accountData.login !== login) {
           return 'email'
         } else {
           return null

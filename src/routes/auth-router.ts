@@ -21,7 +21,7 @@ authRouter.post('/login',
       req.body.loginOrEmail, req.body.password 
       )
       console.log('19 auth-router.ts user', user)
-    if(user) {
+    if(user && typeof user !== 'string') {
       const token = await jwtService.createJWT(user)
       console.log('20 auth-router.ts token', token.token)
       res.status(200).send({accessToken: token.token})
@@ -60,13 +60,19 @@ async (req: Request, res: Response) => {
     return res.status(400).send(
       {
         errorsMessages: [
-          { message: 'user exist' , field: "email" }
+          { message: 'user exist' , field: "login" }
         ]})
   } else if(typeof result === "string" && result === 'login') {
     return res.status(400).send(
       {
         errorsMessages: [
-          { message: 'user exist' , field: "login" }
+          { message: 'user exist' , field: "email" }
+        ]})
+  } else if(typeof result === "string" && result === 'password') {
+    return res.status(400).send(
+      {
+        errorsMessages: [
+          { message: 'user exist' , field: "password" }
         ]})
   }
 })
