@@ -25,11 +25,7 @@ export const usersService = {
     if(user !== null && typeof user !== 'string') {
       if(user.emailConfirmation.isConfirmed) {
         return null
-      } else if(typeof user === 'string' && user === 'login') {
-        return 'login'
-      } else if(typeof user === 'string' && user === 'email') {
-        return 'email'
-      }
+      } 
       const compareResult = await bcrypt.compare(password, user.accountData.passwordHash)
       if (!compareResult.valueOf()) {
         return 'password'
@@ -45,6 +41,10 @@ export const usersService = {
         }
       }
      
+    } else if(typeof user === 'string' && user === 'login') {
+      return 'login'
+    } else if(typeof user === 'string' && user === 'email') {
+      return 'email'
     }
     // 1 create salt for password
     const passwordSalt = await bcrypt.genSalt(10)

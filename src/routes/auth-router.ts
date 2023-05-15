@@ -52,9 +52,9 @@ userValidation,
 inputValidationMiddleware,
 async (req: Request, res: Response) => {
   const result: UserViewModel | string | undefined | null = await usersService.createUser(req.body.login, req.body.email, req.body.password)
-  if(result === undefined) {
-    return res.status(400).send("Try to register again")
-  }  else if( result !== null && typeof result !== "string"){
+  if(result === null) {
+    return res.status(400).send("User exists and confirmed")
+  }  else if( result !== undefined && typeof result !== "string"){
     return res.status(204).send("Check your email for confirmation registration")
   } else if(typeof result === "string" && result === 'email') {
     return res.status(400).send(
