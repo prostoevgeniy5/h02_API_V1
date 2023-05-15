@@ -30,8 +30,7 @@ export const usersService = {
       } else if(typeof user === 'string' && user === 'email') {
         return 'email'
       }
-      const hash = await this._generateHash(password, user.accountData.passwordSalt)
-      const compareResult = await bcrypt.compare(hash, user.accountData.passwordHash)
+      const compareResult = await bcrypt.compare(password, user.accountData.passwordHash)
       if (!compareResult.valueOf()) {
         return 'password'
       } 
@@ -106,8 +105,7 @@ export const usersService = {
       return false
     }
 
-    const hash = await this._generateHash(password, result.accountData.passwordSalt)
-  const compareResult = await bcrypt.compare(hash, result.accountData.passwordHash)
+  const compareResult = await bcrypt.compare(password, result.accountData.passwordHash)
   console.log('112 authusers-service.ts bcrypt.compare', compareResult)
   console.log('113 authusers-service.ts bcrypt.compare valueOf()', compareResult.valueOf())
   if (!compareResult.valueOf()) {
