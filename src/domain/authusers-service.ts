@@ -8,14 +8,40 @@ import add from "date-fns/add"
 import { emailAdapter } from "../adapters/email-adapter"
 import SMTPTransport from "nodemailer/lib/smtp-transport"
 
-// type EmailType = {
-//   field: string
-// }
+async function  createUserByEndpoint (endpoint: string, password: string, login: string, email: string, generateHash:(pass: string, passS: string)=>{}): Promise<UserDBType>{
+  // 1 create salt for password
+  const passwordSalt = await bcrypt.genSalt(10)
+  // 2 create hash with ising salt
+  const passwordHash: any = await generateHash(password, passwordSalt)
 
-// type LoginType = {
-//   data: string
-// }
-
+    const newUser: UserDBType = {
+      accountData: {
+        id: (+(new Date())).toString(),
+        login: login,
+        email: email,
+        passwordSalt: passwordSalt,
+        passwordHash: passwordHash,
+        createdAt: (new Date()).toISOString()
+      },
+      // uuidv4() create unique id
+      // add Добавляет к текущей дате new Date() время здесь 1 час 7 минут
+      emailConfirmation: {
+        confirmationCode: uuidv4(),
+        expirationDate: add(new Date(), {
+          hours: 10,
+          minutes: 7
+        }),
+        isConfirmed: false
+      },
+    }
+    if (endpoint === 'usersEndpoint') {
+      newUser.emailConfirmation.confirmationCode = null
+      newUser.emailConfirmation.expirationDate = null
+      newUser.emailConfirmation.isConfirmed = true
+    }
+    return newUser 
+}
+///////////////////////////////////////////////////////
 export const usersService = {
   async createUser(login: string, email: string, password: string, endpoint: string = ''): Promise<UserViewModel | string | undefined | null> {
     const pattern = /^[\w-\. ]+@([\w-]+\.)+[\w-]{2,4}$/
@@ -46,32 +72,32 @@ export const usersService = {
     } else if(typeof user === 'string' && user === 'email') {
       return 'email'
     }
-    // 1 create salt for password
-    const passwordSalt = await bcrypt.genSalt(10)
-    // 2 create hash with ising salt
-    const passwordHash = await this._generateHash(password, passwordSalt)
+    // // 1 create salt for password
+    // const passwordSalt = await bcrypt.genSalt(10)
+    // // 2 create hash with ising salt
+    // const passwordHash = await this._generateHash(password, passwordSalt)
 
-    const newUser: UserDBType = {
-      accountData: {
-        id: (+(new Date())).toString(),
-        login: login,
-        email: email,
-        passwordSalt,
-        passwordHash,
-        createdAt: (new Date()).toISOString()
-      },
-      // uuidv4() create unique id
-      // add Добавляет к текущей дате new Date() время здесь 1 час 7 минут
-      emailConfirmation: {
-        confirmationCode: uuidv4(),
-        expirationDate: add(new Date(), {
-          hours: 10,
-          minutes: 7
-        }),
-        isConfirmed: false
-      },
-    }
-    
+    // const newUser: UserDBType = {
+    //   accountData: {
+    //     id: (+(new Date())).toString(),
+    //     login: login,
+    //     email: email,
+    //     passwordSalt,
+    //     passwordHash,
+    //     createdAt: (new Date()).toISOString()
+    //   },
+    //   // uuidv4() create unique id
+    //   // add Добавляет к текущей дате new Date() время здесь 1 час 7 минут
+    //   emailConfirmation: {
+    //     confirmationCode: uuidv4(),
+    //     expirationDate: add(new Date(), {
+    //       hours: 10,
+    //       minutes: 7
+    //     }),
+    //     isConfirmed: false
+    //   },
+    // }
+    const newUser = await createUserByEndpoint(endpoint, password, login, email, this._generateHash)
     // if( endpoint === 'usersEndpoint') {      // for POST method '/users' endpoint
     //   // newUser.emailConfirmation.confirmationCode = ''
     //   // newUser.emailConfirmation.expirationDate = null
@@ -131,14 +157,17 @@ export const usersService = {
   async confirmEmail(code: string): Promise<boolean | null>{
     //let updatedResult: boolean | null | undefined
     const user = await getPostsOrBlogsOrUsers.getUserByConfirmationCode(code)
+    console.log('134 authusers-service.ts user', user)
     if(!user || !user.emailConfirmation.expirationDate || user.emailConfirmation.isConfirmed) {
       return null
     } 
-  
+    console.log('138 authusers-service.ts user.emailConfirmation.exppirationDate and new Date()',user.emailConfirmation.expirationDate,)
+    console.log('139 authusers-service.ts new Date()', new Date())
     if (user.emailConfirmation.expirationDate < new Date()){
       return null
     }
-    await usersRepository.confirmEmailCode(code)
+    const  confirmation = await usersRepository.confirmEmailCode(code)
+    console.log('144 authusers-service.ts confirmation', confirmation)
     return true
     // else if(userConfirmation === true)
     // updatedResult = await usersRepository.updateUserByConfirmationCode(code)
