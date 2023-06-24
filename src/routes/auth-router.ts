@@ -152,5 +152,4 @@ authRouter.post('/logout', async (req: Request, res: Response) => {
   return res.status(401).send('The JWT refreshToken inside cookie is missing')
   //   res.cookie('cookie_name', value, {httpOnly: true,secure: true})
   // return  res.status(204).send('Hello samurai from it-incubator!!!')
-
 })
