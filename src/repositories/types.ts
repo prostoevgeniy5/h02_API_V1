@@ -119,8 +119,9 @@ export interface UsersViewModelType {
   }
 
   export type ResultTokenType = {
-    resultCode: number
-    token: string
+    resultCode?: number
+    accessToken: string
+    refreshToken: string
   }
 
   export type MeViewModel =  {
@@ -159,6 +160,22 @@ export type LoginOrEmailType = {
   field: string
 }
 
+export type TokensType = {
+  token: string
+  refreshToken: string
+}
+
+export type UserIdWithTokensType = {
+  userId: string
+  token: string
+  refreshToken: string
+}
+
+export type TokensDBItemType = {
+  usedToken: string
+  expiresTime: number
+  userId: string
+}
 // export type LoginType = {
 //   data: string
 // }

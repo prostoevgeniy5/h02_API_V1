@@ -28,8 +28,8 @@ async function  createUserByEndpoint (endpoint: string, password: string, login:
       emailConfirmation: {
         confirmationCode: uuidv4(),
         expirationDate: add(new Date(), {
-          hours: 10,
-          minutes: 7
+          hours: 1,
+          minutes: 30
         }),
         isConfirmed: false
       },

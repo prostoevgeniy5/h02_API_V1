@@ -10,7 +10,7 @@ import { codeConfirmation } from '../midlewares/codevalidation-confirmregistrati
 import { emailValidation } from '../midlewares/email-validation'
 import { getPostsOrBlogsOrUsers } from '../repositories/query-repository'
 
-export const authRouter =  Router({})
+export const authRouter = Router({})
 
 authRouter.post('/login',
   // authMidleware,
@@ -18,28 +18,31 @@ authRouter.post('/login',
   inputValidationMiddleware,
   async (req: Request, res: Response) => {
     const user = await usersService.checkCredentials(
-      req.body.loginOrEmail, req.body.password 
-      )
-      console.log('19 auth-router.ts user', user)
-    if(user && typeof user !== 'string') {
-      const token = await jwtService.createJWT(user)
-      console.log('20 auth-router.ts token', token.token)
-      res.status(200).send({accessToken: token.token})
+      req.body.loginOrEmail, req.body.password
+    )
+    console.log('19 auth-router.ts user', user)
+    if (user && typeof user !== 'string') {
+      const tokens = await jwtService.createJWT(user, req.cookies.refreshToken)
+      console.log('26 auth-router.ts tokens', tokens)
+      if (tokens !== undefined) {
+        res.cookie('refreshToken', tokens.refreshToken, { httpOnly: true, secure: true })
+        res.status(200).send({ accessToken: tokens.accessToken })
+      }
     } else {
       res.status(401).send('user no passed checking')
     }
-})
+  })
 /////////////////////////////////////
 authRouter.get('/me',
   authObjectWithAuthMiddleware.authMidleware,
-  async (req:Request, res: Response) => {
+  async (req: Request, res: Response) => {
 
     let user: MeViewModel = {
       userId: authObjectWithAuthMiddleware.user.id,
       login: authObjectWithAuthMiddleware.user.login,
       email: authObjectWithAuthMiddleware.user.email
     }
-    if(user.userId) {
+    if (user.userId) {
       return res.status(200).send(user)
     } else {
       return res.status(401).send('You do not authorised')
@@ -47,35 +50,38 @@ authRouter.get('/me',
   }
 )
 ////////////////////////////////////////
-authRouter.post('/registration', 
-userValidation,
-inputValidationMiddleware,
-async (req: Request, res: Response) => {
-  const result: UserViewModel | string | undefined | null = await usersService.createUser(req.body.login, req.body.email, req.body.password)
-  if(result === null) {
-    return res.status(400).send("User exists and confirmed")
-  }  else if( result !== undefined && typeof result !== "string"){
-    return res.status(204).send("Check your email for confirmation registration")
-  } else if(typeof result === "string" && result === 'email') {
-    return res.status(400).send(
-      {
-        errorsMessages: [
-          { message: 'user exist' , field: "email" }
-        ]})
-  } else if(typeof result === "string" && result === 'login') {
-    return res.status(400).send(
-      {
-        errorsMessages: [
-          { message: 'user exist' , field: "login" }
-        ]})
-  } else if(typeof result === "string" && result === 'password') {
-    return res.status(400).send(
-      {
-        errorsMessages: [
-          { message: 'user exist' , field: "password" }
-        ]})
-  }
-})
+authRouter.post('/registration',
+  userValidation,
+  inputValidationMiddleware,
+  async (req: Request, res: Response) => {
+    const result: UserViewModel | string | undefined | null = await usersService.createUser(req.body.login, req.body.email, req.body.password)
+    if (result === null) {
+      return res.status(400).send("User exists and confirmed")
+    } else if (result !== undefined && typeof result !== "string") {
+      return res.status(204).send("Check your email for confirmation registration")
+    } else if (typeof result === "string" && result === 'email') {
+      return res.status(400).send(
+        {
+          errorsMessages: [
+            { message: 'user exist', field: "email" }
+          ]
+        })
+    } else if (typeof result === "string" && result === 'login') {
+      return res.status(400).send(
+        {
+          errorsMessages: [
+            { message: 'user exist', field: "login" }
+          ]
+        })
+    } else if (typeof result === "string" && result === 'password') {
+      return res.status(400).send(
+        {
+          errorsMessages: [
+            { message: 'user exist', field: "password" }
+          ]
+        })
+    }
+  })
 ///////////////////////////////////////
 authRouter.post('/registration-confirmation',
   codeConfirmation,
@@ -83,9 +89,9 @@ authRouter.post('/registration-confirmation',
   async (req: Request, res: Response) => {
     const result = await usersService.confirmEmail(req.body.code)
     console.log('85 auth-router.ts result', result)
-    if (!result) return res.status(400).send({ errorsMessages: [{ message:"Confirmation did not passed", field: "code" }] })
+    if (!result) return res.status(400).send({ errorsMessages: [{ message: "Confirmation did not passed", field: "code" }] })
     return res.sendStatus(204)
-    
+
     // if(result === undefined) {
     //   console.log('80 result auth-router.ts', result)
     //   return res.status(400).send({ errorsMessages: [{ message: "User no exists or code incorrect", field: "code" }] })
@@ -101,7 +107,7 @@ authRouter.post('/registration-confirmation',
     // }
     // console.log('92 result auth-router.ts', result)
   })
-  /////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
 authRouter.post('/registration-email-resending',
   emailValidation,
   inputValidationMiddleware,
@@ -114,19 +120,37 @@ authRouter.post('/registration-email-resending',
     // }
     const user = await getPostsOrBlogsOrUsers.getUserByLoginOrEmail(req.body.email)
     console.log('111 user auth-router.ts', user)
-    if(user === null || user === undefined) {
+    if (user === null || user === undefined) {
       return res.status(400).send({ errorsMessages: [{ message: "User did not found", field: "email" }] })
     }
-    if(!user.emailConfirmation.isConfirmed) {
+    if (!user.emailConfirmation.isConfirmed) {
       const result = await usersService.resendConfirmationCode(req.body.email)
       console.log('117 user.emailConfirmation.isConfirmed auth-router.ts', user.emailConfirmation.isConfirmed)
       console.log('118 result auth-router.ts', result)
-      if(!result) {        
+      if (!result) {
         res.status(400).send({ errorsMessages: [{ message: "Resending no pass", field: "email" }] })
       } else {
         res.status(204).send('Resending email successfully.')
       }
-    } else if(user.emailConfirmation.isConfirmed) {
+    } else if (user.emailConfirmation.isConfirmed) {
       res.status(400).send({ errorsMessages: [{ message: "User was confirmed succesfuly", field: "email" }] })
     }
   })
+/////////////////////////////////////////////////////
+authRouter.post('/logout', async (req: Request, res: Response) => {
+  const cookeValue = req.cookies.refreshToken
+  let value: string | null | undefined = null
+  if (cookeValue !== undefined) {
+    value = await jwtService.createNewRefreshToken(cookeValue)
+    if (value !== undefined && value !== null) {
+      res.cookie('refreshToken', value, { httpOnly: true, secure: true })
+      return res.status(204).send('refreshToken sent')
+    } else {
+      return res.status(401).send('The JWT refreshToken expired or incorrect')
+    }
+  } 
+  return res.status(401).send('The JWT refreshToken inside cookie is missing')
+  //   res.cookie('cookie_name', value, {httpOnly: true,secure: true})
+  // return  res.status(204).send('Hello samurai from it-incubator!!!')
+
+})

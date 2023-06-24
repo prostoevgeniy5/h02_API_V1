@@ -9,7 +9,7 @@ import { runDb } from './repositories/db'
 import { usersRouter } from './routes/users-router'
 import { authRouter } from './routes/auth-router'
 import { commentsRouter } from './routes/comments-router'
-// import { emailRouter } from './routes/email-router'
+const cookieParser = require('cookie-parser')
 
 export const app = express()
 const port = process.env.PORT || 3501
@@ -17,6 +17,7 @@ const port = process.env.PORT || 3501
 const parserMiddleware = express.json()
 
 app.use(parserMiddleware)
+app.use(cookieParser())
 
 app.use('/testing/all-data', deleteRouter)
 app.use('/auth', authRouter)

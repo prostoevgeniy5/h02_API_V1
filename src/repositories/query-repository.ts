@@ -255,10 +255,10 @@ export const getPostsOrBlogsOrUsers = {
     }
   },
 ////////////////////////////////////////////////////
-  async findUserById(id: string): Promise<UserViewModel | undefined>{
+  async findUserById(id: string, allData: boolean = false): Promise<UserViewModel | undefined>{
     const user = await databaseUsersCollection.findOne({'accountData.id': id})
     if(user) {
-      let resultUser: UserViewModel
+            let resultUser: UserViewModel
       if(user.accountData.createdAt) {
         resultUser = {
           id: user.accountData.id,
@@ -278,6 +278,14 @@ export const getPostsOrBlogsOrUsers = {
     return undefined
   },
 //////////////////////////////////////////////////
+async findUserAllDataById(id: string, allData: boolean = false): Promise<UserDBType | undefined>{
+  const user = await databaseUsersCollection.findOne({'accountData.id': id})
+  if(user) {
+    return user
+  }
+  return undefined
+},
+//////////////////////////////////////////////////////
   async getCommentById(id: string): Promise<CommentViewModel | undefined >{
     const comment: CommentViewModelMyDBType | null = await databaseCommentsCollection.findOne({id: id}, {projection: {_id: 0}})
     if(comment === null) {

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Home task",
   "main": "src/index.ts",
+  "type": "module",
   "scripts": {
     "watch": "tsc -w",
     "dev": "nodemon --inspect dist/src/index.js",
