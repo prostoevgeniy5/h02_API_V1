@@ -9,7 +9,7 @@ import { runDb } from './repositories/db'
 import { usersRouter } from './routes/users-router'
 import { authRouter } from './routes/auth-router'
 import { commentsRouter } from './routes/comments-router'
-const cookieParser = require('cookie-parser')
+import cookieParser from 'cookie-parser'
 
 export const app = express()
 const port = process.env.PORT || 3501
