@@ -22,7 +22,7 @@ authRouter.post('/login',
     )
     console.log('19 auth-router.ts user', user)
     if (user && typeof user !== 'string') {
-      const tokens = await jwtService.createJWT(user, req.cookies.refreshToken)
+      const tokens = await jwtService.createJWT(user, req.cookies.refreshToken, true)
       console.log('26 auth-router.ts tokens', tokens)
       if (tokens !== undefined) {
         res.cookie('refreshToken', tokens.refreshToken, { httpOnly: true, secure: true })
