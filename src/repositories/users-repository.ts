@@ -10,7 +10,13 @@ export const usersRepository = {
 
     const result = await databaseUsersCollection.insertOne(user)
     if(result.insertedId) {
-      const resultObj: UserViewModel = Object.assign({}, user.accountData)
+      // const resultObj: UserViewModel = Object.assign({}, user.accountData)
+      const resultObj: UserViewModel = {
+        id: user.accountData.id,
+        login: user.accountData.login,
+        email: user.accountData.email,
+        createdAt: user.accountData.createdAt
+      }
       // {  
       //   id: '',
       //   login: '',
@@ -22,6 +28,7 @@ export const usersRepository = {
       //     resultObj[elem] = user[elem]
       //   }
       // })
+
      
       return resultObj 
     } else {
